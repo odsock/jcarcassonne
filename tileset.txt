@@ -1,0 +1,31 @@
+file tile1.jpg
+count 1
+north city
+south city
+east road
+west road
+center farm
+
+file tile1.jpg
+count 5
+north city
+south city
+east road
+west road
+center farm
+
+file tile1.jpg
+count 1
+north city
+south city
+east road
+west road
+center farm
+
+file tile1.jpg
+count 10
+north city
+south city
+east road
+west road
+center farm
