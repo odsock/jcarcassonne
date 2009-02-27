@@ -9,6 +9,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class GameDriver {
 
@@ -23,11 +27,22 @@ public class GameDriver {
 		game.fillStack();
 		
 		//seed the landscape with the start tile
-		game.landscape = new Landscape(game.tileStack.pop());
+		Tile temp = game.tileStack.pop();
+		System.out.println(temp);
+		game.landscape = new Landscape(temp);
 		
 		//setup the players
 		game.players[0] = new Player("Player1", Color.red);
 		game.players[1] = new Player("Player2", Color.blue);
+		
+		//try to display some stuff
+		JFrame f = new JFrame();
+		JPanel p = new JPanel();
+		f.add(p);
+		ImageIcon ii = new ImageIcon(game.tileStack.pop().getImage());
+		p.add(new JLabel(ii));
+		
+		f.setVisible(true);
 	}
 	private void fillStack() {
 		ArrayList<Tile> templist = new ArrayList<Tile>();
@@ -39,8 +54,10 @@ public class GameDriver {
 				
 				int count = Integer.parseInt(in.readLine().split(" ")[1]);
 				
+				in.readLine();
+				
 				Tile.Feature[] features = new Tile.Feature[5];
-				for(int i = 0; i < 5; i++){
+				for(int i = 0; i < 4; i++){
 					features[i] = Tile.Feature.valueOf(in.readLine().split(" ")[1]);
 				}
 				in.readLine();

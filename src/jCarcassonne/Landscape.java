@@ -1,11 +1,11 @@
 package jCarcassonne;
 
 import java.awt.Point;
-import java.util.Map;
+import java.util.Hashtable;
 
 public class Landscape {
 	private Tile startTile;
-	private Map<Point,Tile> landscape;
+	private Hashtable<Point,Tile> landscape = new Hashtable<Point,Tile>();
 
 	public Landscape(Tile startTile){
 		landscape.put(new Point(0,0), startTile);

@@ -1,31 +1,191 @@
-file tile1.jpg
+file tileA.jpg
+count 2
+flag false
+north farm
+south road
+east farm
+west farm
+
+file tileB.jpg
+count 4
+flag false
+north farm
+south farm
+east farm
+west farm
+
+file tileC.jpg
 count 1
+flag true
 north city
 south city
-east road
-west road
-center farm
+east city
+west city
 
-file tile1.jpg
+file tileD.jpg
+count 4
+flag false
+north road
+south road
+east city
+west farm
+
+file tileE.jpg
 count 5
+flag false
 north city
-south city
-east road
-west road
-center farm
+south farm
+east farm
+west farm
 
-file tile1.jpg
+file tileF.jpg
+count 2
+flag true
+north farm
+south farm
+east city
+west city
+
+file tileG.jpg
 count 1
+flag false
 north city
 south city
-east road
-west road
-center farm
+east farm
+west farm
 
-file tile1.jpg
-count 10
-north city
+file tileH.jpg
+count 3
+flag false
+north farm
+south farm
+east city
+west city
+
+file tileI.jpg
+count 2
+flag false
+north farm
 south city
+east city
+west farm
+
+file tileJ.jpg
+count 3
+flag false
+north city
+south road
+east road
+west farm
+
+file tileK.jpg
+count 3
+flag false
+north road
+south farm
+east city
+west road
+
+file tileL.jpg
+count 3
+flag false
+north road
+south road
+east city
+west road
+
+file tileM.jpg
+count 2
+flag true
+north city
+south farm
+east farm
+west city
+
+file tileN.jpg
+count 3
+flag false
+north city
+south farm
+east farm
+west city
+
+file tileO.jpg
+count 2
+flag true
+north city
+south road
+east road
+west city
+
+file tileP.jpg
+count 3
+flag false
+north city
+south road
+east road
+west city
+
+file tileQ.jpg
+count 1
+flag true
+north city
+south farm
+east city
+west city
+
+file tileR.jpg
+count 3
+flag false
+north city
+south farm
+east city
+west city
+
+file tileS.jpg
+count 2
+flag true
+north city
+south road
+east city
+west city
+
+file tileT.jpg
+count 1
+flag false
+north city
+south road
+east city
+west city
+
+file tileU.jpg
+count 8
+flag false
+north road
+south road
+east farm
+west farm
+
+file tileV.jpg
+count 9
+flag false
+north farm
+south road
+east farm
+west road
+
+file tileW.jpg
+count 4
+flag false
+north farm
+south road
 east road
 west road
-center farm
+
+file tileX.jpg
+count 1
+flag false
+north road
+south road
+east road
+west road
