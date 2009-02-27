@@ -27,9 +27,7 @@ public class GameDriver {
 		game.fillStack();
 		
 		//seed the landscape with the start tile
-		Tile temp = game.tileStack.pop();
-		System.out.println(temp);
-		game.landscape = new Landscape(temp);
+		game.landscape = new Landscape(game.tileStack.pop());
 		
 		//setup the players
 		game.players[0] = new Player("Player1", Color.red);
@@ -37,11 +35,12 @@ public class GameDriver {
 		
 		//try to display some stuff
 		JFrame f = new JFrame();
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel p = new JPanel();
 		f.add(p);
 		ImageIcon ii = new ImageIcon(game.tileStack.pop().getImage());
 		p.add(new JLabel(ii));
-		
+		f.pack();
 		f.setVisible(true);
 	}
 	private void fillStack() {
