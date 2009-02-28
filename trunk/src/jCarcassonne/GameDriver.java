@@ -1,17 +1,18 @@
 package jCarcassonne;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Stack;
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class GameDriver {
@@ -29,6 +30,10 @@ public class GameDriver {
 		//seed the landscape with the start tile
 		game.landscape = new Landscape(game.tileStack.pop());
 		
+		//add some more tiles for testing
+		game.landscape.placeTile(game.tileStack.pop(), new Point(0,1));
+		System.out.println("Driver: " + game.landscape.getTile(new Point(0,1)));
+		
 		//setup the players
 		game.players[0] = new Player("Player1", Color.red);
 		game.players[1] = new Player("Player2", Color.blue);
@@ -36,10 +41,11 @@ public class GameDriver {
 		//try to display some stuff
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JPanel p = new JPanel();
+		JPanel p = new JPanel(new BorderLayout());
+		p.add(game.landscape, BorderLayout.CENTER);
 		f.add(p);
-		ImageIcon ii = new ImageIcon(game.tileStack.pop().getImage());
-		p.add(new JLabel(ii));
+//		ImageIcon ii = new ImageIcon(game.tileStack.pop().getImage());
+//		p.add(new JLabel(ii));
 		f.pack();
 		f.setVisible(true);
 	}
@@ -74,7 +80,8 @@ public class GameDriver {
 		Tile starttile = templist.remove(0);
 		while(!templist.isEmpty())
 		{
-			int i = (int)(Math.random() * templist.size());
+			Random rand = new Random();
+			int i = rand.nextInt(templist.size());
 			tileStack.push(templist.remove(i));
 		}
 		tileStack.push(starttile);
