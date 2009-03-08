@@ -1,18 +1,20 @@
 package jCarcassonne;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
+import java.awt.*;
 import java.util.Hashtable;
 import javax.swing.JComponent;
 
-public class Landscape extends JComponent{
+public class Landscape {
 	private Tile startTile;
 	private Hashtable<Point,Tile> landscapeHash = new Hashtable<Point,Tile>();
+	
 	private int minX = 0;
 	private int maxX = 0;
 	private int minY = 0;
 	private int maxY = 0;
+	
+	private int lastX = 0;
+	private int lastY = 0;
 
 	public Landscape(Tile startTile){
 		this.startTile = startTile;
@@ -21,23 +23,27 @@ public class Landscape extends JComponent{
 
 	public void paintLandscape(Graphics g)
 	{
+		//g.translate(-lastX*128-64+400, lastY*128-64+300);
 		for(Tile t : landscapeHash.values())
-			g.drawImage(t.getImage(),(t.x+Math.abs(minX))*128,-(t.y-maxY)*128,null);
+			//g.drawImage(t.getImage(),(t.x+Math.abs(minX))*128,-(t.y-maxY)*128,null);
+			g.drawImage(t.getImage(),((t.x)*128),-(t.y)*128,null);
+		//g.translate(lastX*128+64-400, -lastY*128+64-300);
 	}
 
 	public void placeTile(Tile t, int x, int y){
 		//add to coordinate map
 		landscapeHash.put(new Point(x,y), t);
 		t.setXY(x,y);
+		
+		//set coordinates for graphics origin
+		lastX = x;
+		lastY = y;
 
 		//update min/max coordinates
 		if(x > maxX) maxX = x;
 		if(x < minX) minX = x;
 		if(y > maxY) maxY = y;
 		if(y < minY) minY = y;
-
-		//recalculate dimensions of landscape
-		setPreferredSize(new Dimension((maxX-minX)*128+128,(maxY-minY)*128+128));
 
 		//setup edge references
 		Point p = new Point(x,y);
@@ -85,5 +91,13 @@ public class Landscape extends JComponent{
 
 	public Tile getTile(int x, int y){
 		return landscapeHash.get(new Point(x,y));
+	}
+
+	public int getLastX() {
+		return lastX;
+	}
+
+	public int getLastY() {
+		return lastY;
 	}
 }
