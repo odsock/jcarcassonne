@@ -1,26 +1,14 @@
 package jCarcassonne;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Stack;
+import java.io.*;
+import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-public class GamePanel extends JPanel implements Runnable{
+public class GamePanel extends JPanel implements Runnable {
 
 	private Stack<Tile> tileStack;
 	private Landscape landscape;
@@ -37,6 +25,14 @@ public class GamePanel extends JPanel implements Runnable{
 
 	//game update stuff
 	private int count = 0;
+	
+	//mouse movement flags
+	int tx = 0;
+	int ty = 0;
+	private boolean northFlag = false;
+	private boolean southFlag = false;
+	private boolean eastFlag = false;
+	private boolean westFlag = false;
 
 	public GamePanel()
 	{
@@ -90,13 +86,46 @@ public class GamePanel extends JPanel implements Runnable{
 	//evaluates mouse clicks
 	private void testPress(int x, int y)
 	{
-
+		x = x - tx;
+		y = y - ty;
+		if(x < 0)
+			x -= 128;
+		if(y < 0)
+			y -= 128;
+		x = x / 128;
+		y = -y / 128;
+		
+		if(landscape.getTile(x, y) != null)
+			System.out.println("hit " + x + " " + y);
+		else
+			System.out.println("miss " + x + " " + y);
 	}
 
 	//evaluates mouse movements/location
 	private void testMove(int x, int y)
 	{ 
-
+		int pw = this.getWidth();
+		int ph = this.getHeight();
+		
+		if(x > pw - 20)
+			eastFlag = true;
+		else
+			eastFlag = false;
+		
+		if(x < 20)
+			westFlag = true;
+		else
+			westFlag = false;
+		
+		if(y < 20)
+			northFlag = true;
+		else
+			northFlag = false;
+		
+		if(y > ph - 20)
+			southFlag = true;
+		else
+			southFlag = false;
 	}
 
 	public void run()
@@ -109,13 +138,13 @@ public class GamePanel extends JPanel implements Runnable{
 			repaint();
 
 			try{
-				Thread.sleep(5);
+				Thread.sleep(20);
 			}
-			catch(InterruptedException e)
-			{
+			catch(InterruptedException e){
 				System.out.println(e);
 			}
 		}
+		System.exit(0);
 	}
 
 	private void gameUpdate()
@@ -127,7 +156,10 @@ public class GamePanel extends JPanel implements Runnable{
 			int y = rand.nextInt(10)-5;
 
 			if(Rules.checkTilePlacement(landscape, tileStack.peek(),x,y))
+			{
 				landscape.placeTile(tileStack.pop(), x,y);
+				
+			}
 			else
 			{
 				count++;
@@ -139,7 +171,7 @@ public class GamePanel extends JPanel implements Runnable{
 			}
 		}
 		else
-			stopGame();
+			gameOver = true;
 	}
 
 	private void gameRender()
@@ -156,12 +188,24 @@ public class GamePanel extends JPanel implements Runnable{
 				dbg = dbImage.getGraphics();
 		}
 
+		//translate if mouse at edge of frame
+		if(northFlag)
+			ty += 4;
+		if(southFlag)
+			ty -= 4;
+		if(eastFlag)
+			tx -= 4;
+		if(westFlag)
+			tx += 4;
+		
 		//clear the background
 		dbg.setColor(Color.white);
 		dbg.fillRect(0,0,800,600);
 
 		//draw the landscape
+		dbg.translate(tx, ty);
 		landscape.paintLandscape(dbg);
+		dbg.translate(-tx, -ty);
 	}
 
 	public void paintComponent(Graphics g) {
