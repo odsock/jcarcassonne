@@ -19,14 +19,10 @@ public class Landscape extends JComponent{
 		placeTile(startTile,0,0);
 	}
 
-	public void paint(Graphics g)
+	public void paintLandscape(Graphics g)
 	{
-//		System.out.println("paint: " + landscapeHash.toString());
 		for(Tile t : landscapeHash.values())
-		{
-//			System.out.println(t.getPoint());
-			g.drawImage(t.getImage(),(t.x+minX)*128,-(t.y-maxY)*128,null);
-		}
+			g.drawImage(t.getImage(),(t.x+Math.abs(minX))*128,-(t.y-maxY)*128,null);
 	}
 
 	public void placeTile(Tile t, int x, int y){
