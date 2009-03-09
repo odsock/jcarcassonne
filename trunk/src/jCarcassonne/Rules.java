@@ -13,13 +13,13 @@ public class Rules {
 
 		if(n  == null && s == null && e == null && w == null)
 			return false;
-		else if(n != null && t.northFeature != n.southFeature)
+		else if(n != null && t.getNorthFeature() != n.getSouthFeature())
 			return false;
-		else if(s != null && t.southFeature != s.northFeature)
+		else if(s != null && t.getSouthFeature() != s.getNorthFeature())
 			return false;
-		else if(e != null && t.eastFeature != e.westFeature)
+		else if(e != null && t.getEastFeature() != e.getWestFeature())
 			return false;
-		else if(w != null && t.westFeature != w.eastFeature)
+		else if(w != null && t.getWestFeature() != w.getEastFeature())
 			return false;
 		else
 			return true;
