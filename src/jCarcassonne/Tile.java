@@ -1,6 +1,7 @@
 package jCarcassonne;
 
-import java.awt.Point;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 
 public class Tile {
@@ -21,13 +22,13 @@ public class Tile {
 	
 	//details of this tile
 	public static enum Feature { city, road, farm, cloister, river }
-	public final Feature northFeature;
-	public final Feature southFeature;
-	public final Feature eastFeature;
-	public final Feature westFeature;
-	public final Feature centerFeature;
+	private Feature northFeature;
+	private Feature southFeature;
+	private Feature eastFeature;
+	private Feature westFeature;
+	private Feature centerFeature;
 	
-	//image file for this tile
+	//image for this tile
 	private BufferedImage img;	
 	
 	//constructor
@@ -42,6 +43,28 @@ public class Tile {
 		
 		this.img = img;
 		this.name = name;
+	}
+
+	public void rotate() {
+		Feature tempf = northFeature;
+		northFeature = westFeature;
+		westFeature = southFeature;
+		southFeature = eastFeature;
+		eastFeature = tempf;
+
+		// instantiate and apply affine transformation filter
+		AffineTransform at = new AffineTransform();
+		at.translate(64, 64);
+		at.rotate(Math.toRadians(90));
+		at.translate(-64, -64);
+	    BufferedImageOp bio = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+
+	    BufferedImage dest = bio.filter(img, null);
+	    img = dest;
+	}
+	
+	public BufferedImage getImage() {
+		return img;
 	}
 	
 	public String toString()
@@ -90,12 +113,28 @@ public class Tile {
 		y = p.y;
 	}
 
-	public BufferedImage getImage() {
-		return img;
-	}
-
 	public void setXY(int i, int j) {
 		x = i;
 		y = j;
+	}
+
+	public Feature getNorthFeature() {
+		return northFeature;
+	}
+
+	public Feature getSouthFeature() {
+		return southFeature;
+	}
+
+	public Feature getEastFeature() {
+		return eastFeature;
+	}
+
+	public Feature getWestFeature() {
+		return westFeature;
+	}
+
+	public Feature getCenterFeature() {
+		return centerFeature;
 	}
 }

@@ -9,7 +9,11 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable {
+	//JPanel values
+	int pw = 800;
+	int ph = 600;
 
+	//game model elements
 	private Stack<Tile> tileStack;
 	private Landscape landscape;
 	private Player[] players = new Player[2];  //change this later to accommodate more players
@@ -20,12 +24,12 @@ public class GamePanel extends JPanel implements Runnable {
 	private volatile boolean gameOver = false;
 
 	//double buffering stuff
-	private Graphics dbg;
+	private Graphics2D dbg;
 	private Image dbImage = null;
 
 	//game update stuff
-	private int count = 0;
-	
+	private int numPlacementAttempts = 0;
+
 	//mouse movement flags
 	int tx = 0;
 	int ty = 0;
@@ -37,7 +41,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public GamePanel()
 	{
 		setBackground(Color.white);
-		setPreferredSize( new Dimension(800, 600));
+		setPreferredSize( new Dimension(pw, ph));
 
 		setFocusable(true);
 		requestFocus();    // the JPanel now has focus, so receives key events
@@ -46,7 +50,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 		addMouseListener( new MouseAdapter() {
 			public void mousePressed(MouseEvent e)
-			{ testPress(e.getX(), e.getY()); }
+			{ testPress(e.getX(), e.getY(), e); }
 		});
 
 		addMouseMotionListener( new MouseMotionAdapter() {
@@ -56,76 +60,6 @@ public class GamePanel extends JPanel implements Runnable {
 
 		fillStack();
 		landscape = new Landscape(tileStack.pop());
-	}
-
-	private void readyForTermination()
-	{
-		//keyboard listeners
-		addKeyListener( new KeyAdapter() {
-			// listen for escape key
-			public void keyPressed(KeyEvent e)
-			{ 
-				int keyCode = e.getKeyCode();
-				if (keyCode == KeyEvent.VK_ESCAPE) {
-					running = false;
-				}
-			}
-		});
-
-		// for shutdown tasks
-		// a shutdown may not only come from the program
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run()
-			{ 
-				running = false;
-				//finishOff();
-			}
-		});
-	}
-
-	//evaluates mouse clicks
-	private void testPress(int x, int y)
-	{
-		x = x - tx;
-		y = y - ty;
-		if(x < 0)
-			x -= 128;
-		if(y < 0)
-			y -= 128;
-		x = x / 128;
-		y = -y / 128;
-		
-		if(landscape.getTile(x, y) != null)
-			System.out.println("hit " + x + " " + y);
-		else
-			System.out.println("miss " + x + " " + y);
-	}
-
-	//evaluates mouse movements/location
-	private void testMove(int x, int y)
-	{ 
-		int pw = this.getWidth();
-		int ph = this.getHeight();
-		
-		if(x > pw - 20)
-			eastFlag = true;
-		else
-			eastFlag = false;
-		
-		if(x < 20)
-			westFlag = true;
-		else
-			westFlag = false;
-		
-		if(y < 20)
-			northFlag = true;
-		else
-			northFlag = false;
-		
-		if(y > ph - 20)
-			southFlag = true;
-		else
-			southFlag = false;
 	}
 
 	public void run()
@@ -151,25 +85,27 @@ public class GamePanel extends JPanel implements Runnable {
 	{
 		if(!gameOver && !tileStack.empty())
 		{
+
+		}
+		/*		//randomly try to place the next tile
+		if(!gameOver && !tileStack.empty())
+		{
 			Random rand = new Random();
 			int x = rand.nextInt(10)-5;
 			int y = rand.nextInt(10)-5;
 
-			if(Rules.checkTilePlacement(landscape, tileStack.peek(),x,y))
-			{
+			if(Rules.checkTilePlacement(landscape, tileStack.peek(),x,y)) {
 				landscape.placeTile(tileStack.pop(), x,y);
-				
 			}
 			else
 			{
-				count++;
-				if(count > 9)
-				{
+				numPlacementAttempts++;
+				if(numPlacementAttempts > 9) {
 					tileStack.pop();
-					count = 0;
+					numPlacementAttempts = 0;
 				}
 			}
-		}
+		}*/
 		else
 			gameOver = true;
 	}
@@ -185,7 +121,7 @@ public class GamePanel extends JPanel implements Runnable {
 				return;
 			}
 			else
-				dbg = dbImage.getGraphics();
+				dbg = (Graphics2D)dbImage.getGraphics();
 		}
 
 		//translate if mouse at edge of frame
@@ -197,7 +133,7 @@ public class GamePanel extends JPanel implements Runnable {
 			tx -= 4;
 		if(westFlag)
 			tx += 4;
-		
+
 		//clear the background
 		dbg.setColor(Color.white);
 		dbg.fillRect(0,0,800,600);
@@ -206,110 +142,16 @@ public class GamePanel extends JPanel implements Runnable {
 		dbg.translate(tx, ty);
 		landscape.paintLandscape(dbg);
 		dbg.translate(-tx, -ty);
+
+		//draw peek at next tile
+		dbg.translate(pw - 130, ph -130);
+		dbg.setColor(Color.black);
+		dbg.setStroke(new BasicStroke(4));
+		dbg.draw(new Rectangle(128,128));
+		dbg.drawImage(tileStack.peek().getImage(), 0, 0, null);
+
+		dbg.translate(-(pw - 130), -(ph -130));
 	}
-
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		if(dbImage != null)
-			g.drawImage(dbImage,0,0,null);
-	}
-
-	public void addNotify()	{
-		super.addNotify();
-		startGame();
-	}
-
-	private void startGame()
-	{
-		if(animator == null || !running)
-		{
-			animator = new Thread(this);
-			animator.start();
-		}
-	}
-
-	public void stopGame() {
-		running = false;
-	}
-
-	/*public static void main2(String[] args) {
-		GamePanel game = new GamePanel();
-
-		//load and randomize the tileset
-		game.fillStack();
-
-		//seed the landscape with the start tile
-		game.landscape = new Landscape(game.tileStack.pop());
-
-		//add some more tiles for testing
-		Random rand = new Random();
-		int i = 0;
-		int j = 0;
-		while(i < 1000 && !game.tileStack.empty())
-		{
-			int x = rand.nextInt(10);
-			int y = rand.nextInt(10);
-			if(Rules.checkTilePlacement(game.landscape, game.tileStack.peek(),x,y))
-			{
-				game.landscape.placeTile(game.tileStack.pop(), x,y);
-				j = 0;
-			}
-			i++;
-			j++;
-			if(j > 9)
-			{
-				game.tileStack.pop();
-				//				System.out.println("pop");
-				j = 0;
-			}
-		}
-
-		//setup the players
-		game.players[0] = new Player("Player1", Color.red);
-		game.players[1] = new Player("Player2", Color.blue);
-
-		//setup the window
-		JWindow w = new JWindow();
-		JRootPane rp = w.getRootPane();
-
-		Action quit = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		};
-		rp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F2"), "quit");
-		rp.getActionMap().put("quit", quit);
-
-
-		//try to do fullscreen
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice gd = ge.getDefaultScreenDevice();
-		if(gd.isFullScreenSupported())
-		{
-			try
-			{
-				gd.setFullScreenWindow(w);
-				w.add(game.landscape);
-				w.pack();
-				w.setSize(1024, 768);
-				w.getFocusOwner();
-				w.setVisible(true);
-			}
-			finally
-			{
-				//gd.setFullScreenWindow(null);
-			}
-		}
-
-		//try to display some stuff
-		JFrame f = new JFrame();
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JPanel p = new JPanel(new BorderLayout());
-		p.add(game.landscape, BorderLayout.CENTER);
-		f.add(p);
-		f.pack();
-		f.setVisible(true);
-	}*/
 
 	private void fillStack() {
 		tileStack = new Stack<Tile>();
@@ -349,5 +191,149 @@ public class GamePanel extends JPanel implements Runnable {
 			tileStack.push(templist.remove(i));
 		}
 		tileStack.push(starttile);
+	}
+
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		if(dbImage != null)
+			g.drawImage(dbImage,0,0,null);
+	}
+
+	public void addNotify()	{
+		super.addNotify();
+		startGame();
+	}
+
+	private void startGame()
+	{
+		if(animator == null || !running)
+		{
+			animator = new Thread(this);
+			animator.start();
+		}
+	}
+
+	public void stopGame() {
+		running = false;
+	}
+
+	/*public static void main2(String[] args) {
+
+		//seed the landscape with the start tile
+		game.landscape = new Landscape(game.tileStack.pop());
+
+		//setup the window
+		JWindow w = new JWindow();
+		JRootPane rp = w.getRootPane();
+
+		Action quit = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		};
+		rp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F2"), "quit");
+		rp.getActionMap().put("quit", quit);
+
+
+		//try to do fullscreen
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice gd = ge.getDefaultScreenDevice();
+		if(gd.isFullScreenSupported())
+		{
+			try
+			{
+				gd.setFullScreenWindow(w);
+				w.add(game.landscape);
+				w.pack();
+				w.setSize(1024, 768);
+				w.getFocusOwner();
+				w.setVisible(true);
+			}
+			finally
+			{
+				//gd.setFullScreenWindow(null);
+			}
+		}
+	}*/
+
+	private void readyForTermination()
+	{
+		//keyboard listeners
+		addKeyListener( new KeyAdapter() {
+			// listen for escape key
+			public void keyPressed(KeyEvent e)
+			{ 
+				int keyCode = e.getKeyCode();
+				if (keyCode == KeyEvent.VK_ESCAPE) {
+					running = false;
+				}
+			}
+		});
+
+		// for shutdown tasks
+		// a shutdown may not only come from the program
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run()
+			{ 
+				running = false;
+				//finishOff();
+			}
+		});
+	}
+
+	//evaluates mouse clicks
+	private void testPress(int x, int y, MouseEvent e)
+	{
+		if(e.getButton() == MouseEvent.BUTTON3)
+		{
+			System.out.println("rotate");
+			tileStack.peek().rotate();
+		}
+		else
+		{
+			x = x - tx - pw/2 + 64;
+			y = y - ty - ph/2 + 64;
+			if(x < 0)
+				x -= 128;
+			if(y < 0)
+				y -= 128;
+			x = x / 128;
+			y = -y / 128;
+
+			if(landscape.getTile(x, y) != null)
+				System.out.println("hit " + x + " " + y);
+			else
+			{
+				System.out.println("miss " + x + " " + y);
+				if(Rules.checkTilePlacement(landscape, tileStack.peek(), x, y))
+					landscape.placeTile(tileStack.pop(), x, y);
+				else
+					System.out.println("    bad placement");
+			}
+		}
+	}
+
+	//evaluates mouse movements/location
+	private void testMove(int x, int y)
+	{ 
+		if(x > pw - 20)
+			eastFlag = true;
+		else
+			eastFlag = false;
+
+		if(x < 20)
+			westFlag = true;
+		else
+			westFlag = false;
+
+		if(y < 20)
+			northFlag = true;
+		else
+			northFlag = false;
+
+		if(y > ph - 20)
+			southFlag = true;
+		else
+			southFlag = false;
 	}
 }
