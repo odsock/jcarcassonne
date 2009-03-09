@@ -1,10 +1,7 @@
 package jCarcassonne;
 
 import java.awt.*;
-import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.swing.JComponent;
 
 public class Landscape {
 	private Tile startTile;
@@ -25,13 +22,8 @@ public class Landscape {
 
 	public void paintLandscape(Graphics g)
 	{
-		//g.translate(-lastX*128-64+400, lastY*128-64+300);  //center on last tile placed
-		g.translate(400-64, 300-64); //center on startTile (0,0)
 		for(Tile t : landscapeHash.values())
-			//g.drawImage(t.getImage(),(t.x+Math.abs(minX))*128,-(t.y-maxY)*128,null);
 			g.drawImage(t.getImage(),((t.x)*128),-(t.y)*128,null);
-		g.translate(-(400-64), -(300-64));
-		//g.translate(lastX*128+64-400, -lastY*128+64-300);
 	}
 
 	public void placeTile(Tile t, int x, int y){

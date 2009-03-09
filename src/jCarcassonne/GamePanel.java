@@ -12,11 +12,14 @@ public class GamePanel extends JPanel implements Runnable {
 	//JPanel values
 	int pw = 800;
 	int ph = 600;
+	
+	int tw = 128;
+	int th = 128;
 
 	//game model elements
 	private Stack<Tile> tileStack;
 	private Landscape landscape;
-	private Player[] players = new Player[2];  //change this later to accommodate more players
+	private LinkedList<Player> players = new LinkedList<Player>();  //change this later to accommodate more players
 
 	//animation loop stuff
 	private Thread animator;
@@ -136,21 +139,23 @@ public class GamePanel extends JPanel implements Runnable {
 
 		//clear the background
 		dbg.setColor(Color.white);
-		dbg.fillRect(0,0,800,600);
+		dbg.fillRect(0,0,pw,ph);
 
 		//draw the landscape
-		dbg.translate(tx, ty);
+		dbg.translate(tx + pw/2 - tw/2, ty + ph/2 - th/2);
 		landscape.paintLandscape(dbg);
-		dbg.translate(-tx, -ty);
+		dbg.translate(-(tx + pw/2 - tw/2), -(ty + ph/2 - th/2));
 
 		//draw peek at next tile
-		dbg.translate(pw - 130, ph -130);
-		dbg.setColor(Color.black);
-		dbg.setStroke(new BasicStroke(4));
-		dbg.draw(new Rectangle(128,128));
-		dbg.drawImage(tileStack.peek().getImage(), 0, 0, null);
-
-		dbg.translate(-(pw - 130), -(ph -130));
+		if(!tileStack.empty())
+		{
+			dbg.translate(pw - tw + 2, ph - th + 2);
+			dbg.setColor(Color.black);
+			dbg.setStroke(new BasicStroke(4));
+			dbg.draw(new Rectangle(128,128));
+			dbg.drawImage(tileStack.peek().getImage(), 0, 0, null);
+			dbg.translate(-(pw - tw + 2), -(ph - th + 2));
+		}
 	}
 
 	private void fillStack() {
