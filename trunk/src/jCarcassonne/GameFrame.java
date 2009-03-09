@@ -2,7 +2,7 @@ package jCarcassonne;
 
 import javax.swing.JFrame;
 
-public class GameFrame extends JFrame{
+public class GameFrame extends JFrame {
 	
 	public GameFrame() {
 		super("JCarcassonne");
@@ -11,7 +11,7 @@ public class GameFrame extends JFrame{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    pack();
 	    setResizable(true);
-	    setLocationRelativeTo(null);
+	    setLocationRelativeTo(null);  //start frame at center of screen
 	    setVisible(true);
 	}
 	

@@ -45,6 +45,8 @@ public class Tile {
 		this.name = name;
 	}
 
+	//rotate the tile 90 degrees clockwise
+	//only changes the features and references, don't use this on a placed tile.
 	public void rotate() {
 		Feature tempf = northFeature;
 		northFeature = westFeature;
@@ -59,8 +61,7 @@ public class Tile {
 		at.translate(-64, -64);
 	    BufferedImageOp bio = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
 
-	    BufferedImage dest = bio.filter(img, null);
-	    img = dest;
+	    img = bio.filter(img, null);
 	}
 	
 	public BufferedImage getImage() {
