@@ -118,8 +118,7 @@ public class GamePanel extends JPanel implements Runnable {
 		if(dbImage == null)
 		{
 			dbImage = createImage(800, 600);
-			if(dbImage == null)
-			{
+			if(dbImage == null) {
 				System.out.println("dbImage is null");
 				return;
 			}
@@ -145,6 +144,11 @@ public class GamePanel extends JPanel implements Runnable {
 		dbg.translate(tx + pw/2 - tw/2, ty + ph/2 - th/2);
 		landscape.paintLandscape(dbg);
 		dbg.translate(-(tx + pw/2 - tw/2), -(ty + ph/2 - th/2));
+		
+		//draw hud
+		dbg.setColor(Color.DARK_GRAY);
+		dbg.fillRect(pw-tw/2, 0, pw, ph);
+		dbg.fillRect(0,0, pw, 40);
 
 		//draw peek at next tile
 		if(!tileStack.empty())
@@ -161,29 +165,40 @@ public class GamePanel extends JPanel implements Runnable {
 	private void fillStack() {
 		tileStack = new Stack<Tile>();
 
+		//fill list with tiles first
 		ArrayList<Tile> templist = new ArrayList<Tile>();
+		String filename = "";
 		try{
 			BufferedReader in = new BufferedReader(new FileReader("tileset.txt"));
 			while(in.ready()){
-				String filename = in.readLine().split(" ")[1];
+				//read image file name, then load image
+				filename = in.readLine().split(" ")[1];
 				BufferedImage img = ImageIO.read(new File(filename));
 
+				//read tile count
 				int count = Integer.parseInt(in.readLine().split(" ")[1]);
 
+				//skip flag for now
 				in.readLine();
 
+				//read five tile features
 				Tile.Feature[] features = new Tile.Feature[5];
-				for(int i = 0; i < 4; i++){
-					features[i] = Tile.Feature.valueOf(in.readLine().split(" ")[1]);
+				for(int i = 0; i < 5; i++){
+					String t = in.readLine();
+					String[] temp = t.split(" ");
+					features[i] = Tile.Feature.valueOf(temp[1]);
 				}
-				in.readLine();
 
+				//create the tiles
 				for(int i = 0; i < count; i++)
 					templist.add(new Tile(features[0], features[1], features[2], features[3], features[4], img, filename));
+				
+				//skip blank line
+				in.readLine();
 			}
 		} 
 		catch (IOException e) {
-			System.out.println("Error reading tile set.\n" + e);
+			System.out.println("Error reading tileset at " + filename + ".\n" + e);
 		}
 
 		//randomize stack from list of tiles loaded
@@ -211,8 +226,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 	private void startGame()
 	{
-		if(animator == null || !running)
-		{
+		if(animator == null || !running) {
 			animator = new Thread(this);
 			animator.start();
 		}
@@ -289,13 +303,19 @@ public class GamePanel extends JPanel implements Runnable {
 	//evaluates mouse clicks
 	private void testPress(int x, int y, MouseEvent e)
 	{
+		//don't look in the empty stack
+		if(tileStack.empty())
+			return;
+		
+		//if Right mouse button, rotate next tile
 		if(e.getButton() == MouseEvent.BUTTON3)
 		{
-			System.out.println("rotate");
 			tileStack.peek().rotate();
 		}
+		//if Left mouse button try to place next tile
 		else
 		{
+			//calculate tile coordinates in model space
 			x = x - tx - pw/2 + 64;
 			y = y - ty - ph/2 + 64;
 			if(x < 0)
@@ -305,15 +325,11 @@ public class GamePanel extends JPanel implements Runnable {
 			x = x / 128;
 			y = -y / 128;
 
-			if(landscape.getTile(x, y) != null)
-				System.out.println("hit " + x + " " + y);
-			else
+			//place if rules allow
+			if(landscape.getTile(x, y) == null)
 			{
-				System.out.println("miss " + x + " " + y);
 				if(Rules.checkTilePlacement(landscape, tileStack.peek(), x, y))
 					landscape.placeTile(tileStack.pop(), x, y);
-				else
-					System.out.println("    bad placement");
 			}
 		}
 	}
