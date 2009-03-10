@@ -5,6 +5,7 @@ north farm
 south road
 east farm
 west farm
+center empty
 
 file tileB.jpg
 count 4
@@ -13,6 +14,7 @@ north farm
 south farm
 east farm
 west farm
+center empty
 
 file tileC.jpg
 count 1
@@ -21,6 +23,7 @@ north city
 south city
 east city
 west city
+center empty
 
 file tileD.jpg
 count 4
@@ -29,6 +32,7 @@ north road
 south road
 east city
 west farm
+center empty
 
 file tileE.jpg
 count 5
@@ -37,6 +41,7 @@ north city
 south farm
 east farm
 west farm
+center empty
 
 file tileF.jpg
 count 2
@@ -45,6 +50,7 @@ north farm
 south farm
 east city
 west city
+center empty
 
 file tileG.jpg
 count 1
@@ -53,6 +59,7 @@ north city
 south city
 east farm
 west farm
+center empty
 
 file tileH.jpg
 count 3
@@ -61,6 +68,7 @@ north farm
 south farm
 east city
 west city
+center empty
 
 file tileI.jpg
 count 2
@@ -69,6 +77,7 @@ north farm
 south city
 east city
 west farm
+center empty
 
 file tileJ.jpg
 count 3
@@ -77,6 +86,7 @@ north city
 south road
 east road
 west farm
+center empty
 
 file tileK.jpg
 count 3
@@ -85,6 +95,7 @@ north road
 south farm
 east city
 west road
+center empty
 
 file tileL.jpg
 count 3
@@ -93,6 +104,7 @@ north road
 south road
 east city
 west road
+center empty
 
 file tileM.jpg
 count 2
@@ -101,6 +113,7 @@ north city
 south farm
 east farm
 west city
+center empty
 
 file tileN.jpg
 count 3
@@ -109,6 +122,7 @@ north city
 south farm
 east farm
 west city
+center empty
 
 file tileO.jpg
 count 2
@@ -117,6 +131,7 @@ north city
 south road
 east road
 west city
+center empty
 
 file tileP.jpg
 count 3
@@ -125,6 +140,7 @@ north city
 south road
 east road
 west city
+center empty
 
 file tileQ.jpg
 count 1
@@ -133,6 +149,7 @@ north city
 south farm
 east city
 west city
+center empty
 
 file tileR.jpg
 count 3
@@ -141,6 +158,7 @@ north city
 south farm
 east city
 west city
+center empty
 
 file tileS.jpg
 count 2
@@ -149,6 +167,7 @@ north city
 south road
 east city
 west city
+center empty
 
 file tileT.jpg
 count 1
@@ -157,6 +176,7 @@ north city
 south road
 east city
 west city
+center empty
 
 file tileU.jpg
 count 8
@@ -165,6 +185,7 @@ north road
 south road
 east farm
 west farm
+center empty
 
 file tileV.jpg
 count 9
@@ -173,6 +194,7 @@ north farm
 south road
 east farm
 west road
+center empty
 
 file tileW.jpg
 count 4
@@ -181,6 +203,7 @@ north farm
 south road
 east road
 west road
+center empty
 
 file tileX.jpg
 count 1
@@ -189,3 +212,4 @@ north road
 south road
 east road
 west road
+center empty

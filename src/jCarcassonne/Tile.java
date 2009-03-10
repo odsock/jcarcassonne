@@ -21,7 +21,8 @@ public class Tile {
 	private Tile westTile;
 	
 	//details of this tile
-	public static enum Feature { city, road, farm, cloister, river }
+	
+	public static enum Feature { city, road, farm, cloister, river, empty}
 	private Feature northFeature;
 	private Feature southFeature;
 	private Feature eastFeature;
