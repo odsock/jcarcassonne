@@ -13,6 +13,9 @@ public class Tile {
 	public int y;
 	
 	//token info
+	private boolean hasToken = false;
+	public final int tokenX = 30;
+	public final int tokenY = 40;
 	
 	//references to neighbor tiles
 	private Tile northTile;
@@ -138,5 +141,15 @@ public class Tile {
 
 	public Feature getCenterFeature() {
 		return centerFeature;
+	}
+	
+	public void placeToken()
+	{
+		hasToken = true;
+	}
+	
+	public boolean hasToken()
+	{
+		return hasToken;
 	}
 }

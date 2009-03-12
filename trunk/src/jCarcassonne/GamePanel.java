@@ -12,7 +12,7 @@ public class GamePanel extends JPanel implements Runnable {
 	//JPanel values
 	int pw = 800;
 	int ph = 600;
-	
+
 	int tw = 128;
 	int th = 128;
 
@@ -20,6 +20,7 @@ public class GamePanel extends JPanel implements Runnable {
 	private Stack<Tile> tileStack;
 	private Landscape landscape;
 	private LinkedList<Player> players = new LinkedList<Player>();  //change this later to accommodate more players
+	private boolean tilePlaced = false;
 
 	//animation loop stuff
 	private Thread animator;
@@ -30,16 +31,13 @@ public class GamePanel extends JPanel implements Runnable {
 	private Graphics2D dbg;
 	private Image dbImage = null;
 
-	//game update stuff
-	private int numPlacementAttempts = 0;
-
 	//mouse movement flags
 	int tx = 0;
 	int ty = 0;
-	private boolean northFlag = false;
-	private boolean southFlag = false;
-	private boolean eastFlag = false;
-	private boolean westFlag = false;
+	private boolean northScrollFlag = false;
+	private boolean southScrollFlag = false;
+	private boolean eastScrollFlag = false;
+	private boolean westScrollFlag = false;
 
 	public GamePanel()
 	{
@@ -70,7 +68,7 @@ public class GamePanel extends JPanel implements Runnable {
 		running = true;
 		while(running)
 		{
-			gameUpdate();
+			//gameUpdate();
 			gameRender();
 			repaint();
 
@@ -90,7 +88,7 @@ public class GamePanel extends JPanel implements Runnable {
 		{
 
 		}
-		/*		//randomly try to place the next tile
+		/*//code to randomly try to place the next tile within -5 to 5 square
 		if(!gameOver && !tileStack.empty())
 		{
 			Random rand = new Random();
@@ -127,13 +125,13 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 
 		//translate if mouse at edge of frame
-		if(northFlag)
+		if(northScrollFlag)
 			ty += 4;
-		if(southFlag)
+		if(southScrollFlag)
 			ty -= 4;
-		if(eastFlag)
+		if(eastScrollFlag)
 			tx -= 4;
-		if(westFlag)
+		if(westScrollFlag)
 			tx += 4;
 
 		//clear the background
@@ -144,11 +142,17 @@ public class GamePanel extends JPanel implements Runnable {
 		dbg.translate(tx + pw/2 - tw/2, ty + ph/2 - th/2);
 		landscape.paintLandscape(dbg);
 		dbg.translate(-(tx + pw/2 - tw/2), -(ty + ph/2 - th/2));
-		
-		//draw hud
+
+		//draw hud background
 		dbg.setColor(Color.DARK_GRAY);
 		dbg.fillRect(pw-tw/2, 0, pw, ph);
 		dbg.fillRect(0,0, pw, 40);
+
+		//draw done button
+		dbg.setColor(Color.LIGHT_GRAY);
+		dbg.fillRect(pw-tw/2+10, ph-th*2, 40, 30);
+		dbg.setColor(Color.black);
+		dbg.drawString("Done", pw-tw/2+10+5, ph-th*2+25);
 
 		//draw peek at next tile
 		if(!tileStack.empty())
@@ -192,7 +196,7 @@ public class GamePanel extends JPanel implements Runnable {
 				//create the tiles
 				for(int i = 0; i < count; i++)
 					templist.add(new Tile(features[0], features[1], features[2], features[3], features[4], img, filename));
-				
+
 				//skip blank line
 				in.readLine();
 			}
@@ -306,30 +310,50 @@ public class GamePanel extends JPanel implements Runnable {
 		//don't look in the empty stack
 		if(tileStack.empty())
 			return;
-		
+
 		//if Right mouse button, rotate next tile
 		if(e.getButton() == MouseEvent.BUTTON3)
 		{
 			tileStack.peek().rotate();
+			return;
 		}
-		//if Left mouse button try to place next tile
-		else
+		
+		//check Done button
+		if(x >= pw-tw/2+10 && x <= pw-tw/2+10+40 &&
+				y >= ph-th*2 && y <= ph-th*2+30)
 		{
-			//calculate tile coordinates in model space
-			x = x - tx - pw/2 + 64;
-			y = y - ty - ph/2 + 64;
-			if(x < 0)
-				x -= 128;
-			if(y < 0)
-				y -= 128;
-			x = x / 128;
-			y = -y / 128;
+			tilePlaced = false;
+			return;
+		}
+		
+		//if Left mouse button try to place next tile
+		//calculate tile coordinates in model space
+		x = x - tx - pw/2 + 64;
+		y = y - ty - ph/2 + 64;
+		if(x < 0)
+			x -= 128;
+		if(y < 0)
+			y -= 128;
+		x = x / 128;
+		y = -y / 128;
 
-			//place if rules allow
-			if(landscape.getTile(x, y) == null)
+		//place if rules allow
+		if(!tilePlaced && landscape.getTile(x, y) == null)
+		{
+			if(Rules.checkTilePlacement(landscape, tileStack.peek(), x, y))
 			{
-				if(Rules.checkTilePlacement(landscape, tileStack.peek(), x, y))
-					landscape.placeTile(tileStack.pop(), x, y);
+				landscape.placeTile(tileStack.pop(), x, y);
+				tilePlaced = true;
+				return;
+			}
+		}
+		
+		if(tilePlaced && landscape.getTile(x, y) != null)
+		{
+			if(Rules.checkTokenPlacement(landscape, new Player("player1", Color.red), x, y))
+			{
+				landscape.placeToken(x,y);
+				tilePlaced = false;
 			}
 		}
 	}
@@ -337,24 +361,24 @@ public class GamePanel extends JPanel implements Runnable {
 	//evaluates mouse movements/location
 	private void testMove(int x, int y)
 	{ 
-		if(x > pw - 20)
-			eastFlag = true;
+		if(x > pw - 10)
+			eastScrollFlag = true;
 		else
-			eastFlag = false;
+			eastScrollFlag = false;
 
-		if(x < 20)
-			westFlag = true;
+		if(x < 10)
+			westScrollFlag = true;
 		else
-			westFlag = false;
+			westScrollFlag = false;
 
-		if(y < 20)
-			northFlag = true;
+		if(y < 10)
+			northScrollFlag = true;
 		else
-			northFlag = false;
+			northScrollFlag = false;
 
-		if(y > ph - 20)
-			southFlag = true;
+		if(y > ph - 10)
+			southScrollFlag = true;
 		else
-			southFlag = false;
+			southScrollFlag = false;
 	}
 }

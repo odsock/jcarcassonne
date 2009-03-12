@@ -6,12 +6,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Landscape {
 	private Tile startTile;
 	private ConcurrentHashMap<Point,Tile> landscapeHash = new ConcurrentHashMap<Point,Tile>();
-	
+
 	private int minX = 0;
 	private int maxX = 0;
 	private int minY = 0;
 	private int maxY = 0;
-	
+
 	private int lastX = 0;
 	private int lastY = 0;
 
@@ -23,14 +23,21 @@ public class Landscape {
 	public void paintLandscape(Graphics g)
 	{
 		for(Tile t : landscapeHash.values())
+		{
 			g.drawImage(t.getImage(),((t.x)*128),-(t.y)*128,null);
+			if(t.hasToken())
+			{
+				g.setColor(Color.red);
+				g.fillOval((t.x)*128+t.tokenX, -(t.y)*128+t.tokenY, 20, 20);
+			}
+		}
 	}
 
 	public void placeTile(Tile t, int x, int y){
 		//add to coordinate map
 		landscapeHash.put(new Point(x,y), t);
 		t.setXY(x,y);
-		
+
 		//set coordinates for graphics origin
 		lastX = x;
 		lastY = y;
@@ -95,5 +102,9 @@ public class Landscape {
 
 	public int getLastY() {
 		return lastY;
+	}
+
+	public void placeToken(int x, int y) {
+		getTile(lastX, lastY).placeToken();
 	}
 }

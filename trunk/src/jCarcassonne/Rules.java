@@ -27,7 +27,9 @@ public class Rules {
 	
 	public static boolean checkTokenPlacement(Landscape l, Player p, int x, int y)
 	{
-		//stub - complete later
-		return true;
+		if(l.getLastX() == x && l.getLastY() == y)
+			return true;
+		else
+			return false;
 	}
 }
