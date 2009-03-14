@@ -5,7 +5,7 @@ north farm
 south road
 east farm
 west farm
-center empty
+center cloister
 
 file tileB.jpg
 count 4
@@ -14,7 +14,7 @@ north farm
 south farm
 east farm
 west farm
-center empty
+center cloister
 
 file tileC.jpg
 count 1

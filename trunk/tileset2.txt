@@ -1,0 +1,150 @@
+file tileA.jpg
+count 2
+farm 0 1 2 3 4 5 6 8 9 10 11
+cloister
+road 7
+
+file tileB.jpg
+count 4
+farm 0 1 2 3 4 5 6 7 8 9 10 11
+cloister
+
+file tileC.jpg
+count 1
+city flag 0 1 2 3 4 5 6 7 8 9 10 11
+
+file startTile.jpg
+count 4
+farm 0 8 9 10 11
+road 1 7
+farm 2 6
+city 3 4 5
+
+file tileE.jpg
+count 5
+city 0 1 2
+farm 3 4 5 6 7 8 9 10 11
+
+file tileF.jpg
+count 2
+farm 0 1 2
+city flag 3 4 5 9 10 11
+farm 6 7 8
+
+file tileG.jpg
+count 1
+city 0 1 2 6 7 8
+farm 4 5 6
+farm 9 10 11
+
+file tileH.jpg
+count 3
+farm 0 1 2 6 7 8
+city 3 4 5
+city 9 10 11
+
+file tileI.jpg
+count 2
+farm 0 1 2 9 10 11
+city 3 4 5
+city 6 7 8
+
+file tileJ.jpg
+count 3
+city 0 1 2
+farm 3 9 10 11
+road 4 7
+farm 5 6
+
+file tileK.jpg
+count 3
+farm 0 11
+road 1 10
+farm 2 6 7 8 9
+city 3 4 5
+
+file tileL.jpg
+count 3
+farm 0 11
+road 1
+farm 2 6
+city 3 4 5
+road 7
+road 10
+farm 8 9
+
+file tileM.jpg
+count 2
+city flag 0 1 2 9 10 11
+farm 3 4 5 6 7 8
+
+file tileN.jpg
+count 3
+city 0 1 2 9 10 11
+farm 3 4 5 6 7 8
+
+file tileO.jpg
+count 2
+city flag 0 1 2 9 10 11
+farm 3 5 6 8
+road 4 7
+
+file tileP.jpg
+count 3
+city 0 1 2 9 10 11
+farm 3 5 6 8
+road 4 7
+
+file tileQ.jpg
+count 1
+city flag 0 1 2 3 4 5 9 10 11
+farm 6 7 8
+
+file tileR.jpg
+count 3
+city 0 1 2 3 4 5 9 10 11
+farm 6 7 8
+
+file tileS.jpg
+count 2
+city flag 0 1 2 3 4 5 9 10 11
+farm 6 8
+road 7
+
+file tileT.jpg
+count 1
+city 0 1 2 3 4 5 9 10 11
+farm 6 8
+road 7
+
+file tileU.jpg
+count 8
+farm 0 8 9 10 11
+road 1 7
+farm 2 3 4 5 6
+
+file tileV.jpg
+count 9
+farm 0 1 2 3 4 5 6 11
+road 7 10
+farm 8 9
+
+file tileW.jpg
+count 4
+farm 0 1 2 3 11
+road 4
+farm 5 6
+road 7
+farm 8 9
+road 10
+
+file tileX.jpg
+count 1
+farm 0 11
+road 1
+farm 2 3
+road 4
+farm 5 6
+road 7
+farm 8 9
+road 10

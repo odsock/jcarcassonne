@@ -7,11 +7,6 @@ public class Landscape {
 	private Tile startTile;
 	private ConcurrentHashMap<Point,Tile> landscapeHash = new ConcurrentHashMap<Point,Tile>();
 
-	private int minX = 0;
-	private int maxX = 0;
-	private int minY = 0;
-	private int maxY = 0;
-
 	private int lastX = 0;
 	private int lastY = 0;
 
@@ -38,15 +33,9 @@ public class Landscape {
 		landscapeHash.put(new Point(x,y), t);
 		t.setXY(x,y);
 
-		//set coordinates for graphics origin
+		//update last placement
 		lastX = x;
 		lastY = y;
-
-		//update min/max coordinates
-		if(x > maxX) maxX = x;
-		if(x < minX) minX = x;
-		if(y > maxY) maxY = y;
-		if(y < minY) minY = y;
 
 		//setup edge references
 		Point p = new Point(x,y);
@@ -70,22 +59,6 @@ public class Landscape {
 			t.setWestTile(landscapeHash.get(p));
 			t.getWestTile().setEastTile(t);
 		}
-	}
-
-	public int getMaxX() {
-		return maxX;
-	}
-
-	public int getMaxY() {
-		return maxY;
-	}
-
-	public int getMinX() {
-		return minX;
-	}
-
-	public int getMinY() {
-		return minY;
 	}
 
 	public Tile getStartTile(){
