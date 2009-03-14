@@ -25,7 +25,7 @@ east city
 west city
 center empty
 
-file tileD.jpg
+file startTile.jpg
 count 4
 flag false
 north road
