@@ -59,7 +59,9 @@ public class GamePanel extends JPanel implements Runnable {
 			{ testMove(e.getX(), e.getY()); }
 		});
 
-		fillStack();
+		TileStackReader tsr = new TileStackReader();
+		tsr.fillStack();
+		tileStack = tsr.getStack();
 		landscape = new Landscape(tileStack.pop());
 	}
 
@@ -166,66 +168,6 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 
-	private void fillStack() {
-		tileStack = new Stack<Tile>();
-
-		//fill list with tiles first
-		ArrayList<Tile> templist = new ArrayList<Tile>();
-		String filename = "";
-		Tile startTile = null;
-		try{
-			BufferedReader in = new BufferedReader(new FileReader("tileset.txt"));
-			while(in.ready()){
-				//read image file name, then load image
-				filename = in.readLine().split(" ")[1];
-				BufferedImage img = ImageIO.read(new File(filename));
-
-				//read tile count
-				int count = Integer.parseInt(in.readLine().split(" ")[1]);
-
-				//skip flag for now
-				in.readLine();
-
-				//read five tile features
-				Tile.Feature[] features = new Tile.Feature[5];
-				for(int i = 0; i < 5; i++){
-					String t = in.readLine();
-					String[] temp = t.split(" ");
-					features[i] = Tile.Feature.valueOf(temp[1]);
-				}
-
-				//skip blank line
-				in.readLine();
-
-				//catch start tile so it can be placed on top of the tile stack
-				if(filename.equals("startTile.jpg"))
-					startTile = new Tile(features[0], features[1], features[2], features[3], features[4], img, filename);
-				else
-				{
-					//create the tiles
-					for(int i = 0; i < count; i++)
-						templist.add(new Tile(features[0], features[1], features[2], features[3], features[4], img, filename));
-				}
-			}
-		} 
-		catch (IOException e) {
-			System.out.println("Error reading tileset at " + filename + ".\n" + e);
-		}
-
-		//randomize stack from list of tiles loaded
-		//keep start tile at head of stack
-		while(!templist.isEmpty())
-		{
-			Random rand = new Random();
-			int i = rand.nextInt(templist.size());
-			tileStack.push(templist.remove(i));
-		}
-		if(startTile != null)  //start tile is identified by image file name
-			tileStack.push(startTile);
-		else
-			System.out.println("startTile.jpg not found!");
-	}
-
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		if(dbImage != null)
@@ -248,45 +190,6 @@ public class GamePanel extends JPanel implements Runnable {
 	public void stopGame() {
 		running = false;
 	}
-
-	/*public static void main2(String[] args) {
-
-		//seed the landscape with the start tile
-		game.landscape = new Landscape(game.tileStack.pop());
-
-		//setup the window
-		JWindow w = new JWindow();
-		JRootPane rp = w.getRootPane();
-
-		Action quit = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		};
-		rp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F2"), "quit");
-		rp.getActionMap().put("quit", quit);
-
-
-		//try to do fullscreen
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice gd = ge.getDefaultScreenDevice();
-		if(gd.isFullScreenSupported())
-		{
-			try
-			{
-				gd.setFullScreenWindow(w);
-				w.add(game.landscape);
-				w.pack();
-				w.setSize(1024, 768);
-				w.getFocusOwner();
-				w.setVisible(true);
-			}
-			finally
-			{
-				//gd.setFullScreenWindow(null);
-			}
-		}
-	}*/
 
 	private void readyForTermination()
 	{
