@@ -172,6 +172,7 @@ public class GamePanel extends JPanel implements Runnable {
 		//fill list with tiles first
 		ArrayList<Tile> templist = new ArrayList<Tile>();
 		String filename = "";
+		Tile startTile = null;
 		try{
 			BufferedReader in = new BufferedReader(new FileReader("tileset.txt"));
 			while(in.ready()){
@@ -193,12 +194,18 @@ public class GamePanel extends JPanel implements Runnable {
 					features[i] = Tile.Feature.valueOf(temp[1]);
 				}
 
-				//create the tiles
-				for(int i = 0; i < count; i++)
-					templist.add(new Tile(features[0], features[1], features[2], features[3], features[4], img, filename));
-
 				//skip blank line
 				in.readLine();
+
+				//catch start tile so it can be placed on top of the tile stack
+				if(filename.equals("startTile.jpg"))
+					startTile = new Tile(features[0], features[1], features[2], features[3], features[4], img, filename);
+				else
+				{
+					//create the tiles
+					for(int i = 0; i < count; i++)
+						templist.add(new Tile(features[0], features[1], features[2], features[3], features[4], img, filename));
+				}
 			}
 		} 
 		catch (IOException e) {
@@ -207,14 +214,16 @@ public class GamePanel extends JPanel implements Runnable {
 
 		//randomize stack from list of tiles loaded
 		//keep start tile at head of stack
-		Tile starttile = templist.remove(0);
 		while(!templist.isEmpty())
 		{
 			Random rand = new Random();
 			int i = rand.nextInt(templist.size());
 			tileStack.push(templist.remove(i));
 		}
-		tileStack.push(starttile);
+		if(startTile != null)  //start tile is identified by image file name
+			tileStack.push(startTile);
+		else
+			System.out.println("startTile.jpg not found!");
 	}
 
 	public void paintComponent(Graphics g) {
@@ -317,7 +326,7 @@ public class GamePanel extends JPanel implements Runnable {
 			tileStack.peek().rotate();
 			return;
 		}
-		
+
 		//check Done button
 		if(x >= pw-tw/2+10 && x <= pw-tw/2+10+40 &&
 				y >= ph-th*2 && y <= ph-th*2+30)
@@ -325,7 +334,7 @@ public class GamePanel extends JPanel implements Runnable {
 			tilePlaced = false;
 			return;
 		}
-		
+
 		//if Left mouse button try to place next tile
 		//calculate tile coordinates in model space
 		x = x - tx - pw/2 + 64;
@@ -347,7 +356,7 @@ public class GamePanel extends JPanel implements Runnable {
 				return;
 			}
 		}
-		
+
 		if(tilePlaced && landscape.getTile(x, y) != null)
 		{
 			if(Rules.checkTokenPlacement(landscape, new Player("player1", Color.red), x, y))
