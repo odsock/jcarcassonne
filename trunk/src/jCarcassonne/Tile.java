@@ -33,6 +33,8 @@ public class Tile {
 	private Feature westFeature;
 	private Feature centerFeature;
 
+	//array numbered as clockwise tile borders from top left clockwise
+	//tileFeatures[12] is center feature, only used for cloister
 	private TileFeature[] tileFeatures = new TileFeature[13];
 
 
@@ -61,7 +63,7 @@ public class Tile {
 	
 
 	//rotate the tile 90 degrees clockwise
-	//only changes the features and references, don't use this on a placed tile.
+	//don't use this on a placed tile.
 	public void rotate() {
 		Feature tempf = northFeature;
 		northFeature = westFeature;
@@ -75,7 +77,6 @@ public class Tile {
 		at.rotate(Math.toRadians(90));
 		at.translate(-64, -64);
 		BufferedImageOp bio = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-
 		img = bio.filter(img, null);
 	}
 

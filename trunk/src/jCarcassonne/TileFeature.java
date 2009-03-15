@@ -24,11 +24,25 @@ public class TileFeature {
 		return neighbors;
 	}
 
-	public void setFlag() {
-		flag = true;		
+	public void setFlag(boolean flag) {
+		this.flag = flag;		
 	}
 	
 	public boolean getFlag() {
 		return flag;
+	}
+	
+	public String toString()
+	{
+		return featureType.toString();
+	}
+	
+	//shallow copy of tile TileFeature.  Skips neighbors.
+	public TileFeature copy()
+	{
+		TileFeature tf = new TileFeature(featureType);
+		tf.setFlag(flag);
+		
+		return tf;
 	}
 }
