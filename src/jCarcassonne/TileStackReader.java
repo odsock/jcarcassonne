@@ -23,59 +23,84 @@ public class TileStackReader {
 	public void fillStack()
 	{
 		//fill list with tiles first
-		ArrayList<Tile> templist = new ArrayList<Tile>();
+		ArrayList<Tile> tileList = new ArrayList<Tile>();
 
+		String line = "";
+		int lineNumber = 0;
 		try{
-			BufferedReader in = new BufferedReader(new FileReader("tileset.txt"));
-			//borderCheck makes sure all borders of tile are covered by features
+			BufferedReader in = new BufferedReader(new FileReader("tileset2.txt"));
 			while(in.ready())
 			{
 				//read image file name, then load image
+				lineNumber++;
 				String filename = in.readLine().split(" ")[1];
 				BufferedImage img = ImageIO.read(new File(filename));
 
 				//read tile count
+				lineNumber++;
 				int count = Integer.parseInt(in.readLine().split(" ")[1]);
-				
+
 				//create temp list of this tile
-				ArrayList<Tile> tl = new ArrayList<Tile>();
+				Tile[] tempArray = new Tile[count];
 				for(int i = 0; i < count; i++)
-					tl.add(new Tile(img, filename));
+					tempArray[i] = new Tile(img, filename);
 
 				//read list of tile features
-				String line = in.readLine();
-				while(line != "")
+				lineNumber++;
+				line = in.readLine();
+				while(!line.equals(""))
 				{
 					String[] lineSplit = line.split(" ");
 
-					//create the feature
+					//read feature type (farm, city, etc)
 					TileFeature.Feature featureType = TileFeature.Feature.valueOf(lineSplit[0]);
 
 					//check for flag on this feature
-					boolean flag = false;
-					if(lineSplit[1].equals("flag")) {
-						flag = true;
-					}
-					int i =  flag ? 2 : 1;
+					boolean flag = lineSplit[1].equals("flag");
 
-					//add feature to each tile in tl
-					for(; i < lineSplit.length; i++)
+					//add feature to each tile in tempList
+					for(Tile t : tempArray)
 					{
-						int b = Integer.parseInt(lineSplit[i]);
-						for(Tile t : tl)
-							t.addFeature(new TileFeature(featureType), b);
+						TileFeature tf = new TileFeature(featureType);
+						tf.setFlag(flag);
+						
+						//add feature for each border it has
+						for(int i =  flag ? 2 : 1; i < lineSplit.length; i++)
+						{
+							int b = Integer.parseInt(lineSplit[i]);
+							t.addFeature(tf, b);
+						}
 					}
 					
 					//get next line for loop
+					lineNumber++;
 					line = in.readLine();
 				}
+				for(Tile t : tempArray)
+					tileList.add(t);
 			}
 		}
 		catch(Exception e)
 		{
-			System.out.println("Error reading tile set. \n" + e);
+			System.out.println("Error reading tile set.");
+			System.out.println("Line " + lineNumber + ": \"" + line + "\"");
+			System.out.println(e);
 			System.exit(0);
 		}
+		
+		//randomize stack from list of tiles loaded
+		//keep start tile at head of stack
+		while(!tileList.isEmpty())
+		{
+			Random rand = new Random();
+			int r = rand.nextInt(tileList.size());
+			System.out.println(tileList.size() + " " + r);
+			tileStack.push(tileList.remove(r));
+		}
+/*		if(startTile != null)  //start tile is identified by image file name
+			tileStack.push(startTile);
+		else
+			System.out.println("startTile.jpg not found!");*/
 	}
 
 	public void fillStackOld() {
