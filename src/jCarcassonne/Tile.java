@@ -25,14 +25,6 @@ public class Tile {
 	private Tile eastTile;
 	private Tile westTile;
 
-	//details of this tile
-
-	private Feature northFeature;
-	private Feature southFeature;
-	private Feature eastFeature;
-	private Feature westFeature;
-	private Feature centerFeature;
-
 	//array numbered as clockwise tile borders from top left clockwise
 	//tileFeatures[12] is center feature, only used for cloister
 	private TileFeature[] tileFeatures = new TileFeature[13];
@@ -46,30 +38,21 @@ public class Tile {
 	{
 		this.img = img;
 		this.name = name;
-	}
-
-	public Tile(Feature northFeature, Feature southFeature,
-			Feature eastFeature, Feature westFeature, Feature centerFeature, 
-			BufferedImage img, String name) {
-		this.northFeature = northFeature;
-		this.southFeature = southFeature;
-		this.eastFeature = eastFeature;
-		this.westFeature = westFeature;
-		this.centerFeature = centerFeature;
-
-		this.img = img;
-		this.name = name;
-	}
-	
+	}	
 
 	//rotate the tile 90 degrees clockwise
 	//don't use this on a placed tile.
 	public void rotate() {
-		Feature tempf = northFeature;
-		northFeature = westFeature;
-		westFeature = southFeature;
-		southFeature = eastFeature;
-		eastFeature = tempf;
+		TileFeature f9 = tileFeatures[9];
+		TileFeature f10 = tileFeatures[10];
+		TileFeature f11 = tileFeatures[11];
+		for(int i = 11; i >= 3; i--)
+		{
+			tileFeatures[i] = tileFeatures[i-3];
+		}
+		tileFeatures[2] = f11;
+		tileFeatures[1] = f10;
+		tileFeatures[0] = f9;
 
 		// instantiate and apply affine transformation filter
 		AffineTransform at = new AffineTransform();
@@ -93,48 +76,75 @@ public class Tile {
 		return tileFeatures[b];
 	}
 
-	public Tile getNorthTile() {
-		return northTile;
-	}
-
 	public void setNorthTile(Tile northTile) {
-		this.northTile = northTile;
-		tileFeatures[0].addNeighbor(northTile.getFeature(8));
-		tileFeatures[1].addNeighbor(northTile.getFeature(7));
-		tileFeatures[2].addNeighbor(northTile.getFeature(6));
-	}
-
-	public Tile getSouthTile() {
-		return southTile;
+		try{
+			this.northTile = northTile;
+			TileFeature f8 = northTile.getFeature(8);
+			tileFeatures[0].addNeighbor(f8);
+			TileFeature f7 = northTile.getFeature(7);
+			tileFeatures[1].addNeighbor(f7);
+			TileFeature f6 = northTile.getFeature(6);
+			tileFeatures[2].addNeighbor(f6);
+		}
+		catch(NullPointerException e)
+		{
+			System.out.println(tileFeatures[0] + " " + tileFeatures[1] + " " + tileFeatures[2]);
+		}
 	}
 
 	public void setSouthTile(Tile southTile) {
-		this.southTile = southTile;
-		tileFeatures[8].addNeighbor(northTile.getFeature(0));
-		tileFeatures[7].addNeighbor(northTile.getFeature(1));
-		tileFeatures[6].addNeighbor(northTile.getFeature(2));
-	}
-
-	public Tile getEastTile() {
-		return eastTile;
+		try {
+			this.southTile = southTile;
+			TileFeature f0 = southTile.getFeature(0);
+			tileFeatures[8].addNeighbor(f0);
+			TileFeature f1 = southTile.getFeature(1);
+			tileFeatures[7].addNeighbor(f1);
+			TileFeature f2 = southTile.getFeature(2);
+			tileFeatures[6].addNeighbor(f2);
+		} catch (Exception e) {
+			System.out.println(tileFeatures[8] + " " + tileFeatures[7] + " " + tileFeatures[6]);
+		}
 	}
 
 	public void setEastTile(Tile eastTile) {
-		this.eastTile = eastTile;
-		tileFeatures[3].addNeighbor(northTile.getFeature(11));
-		tileFeatures[4].addNeighbor(northTile.getFeature(10));
-		tileFeatures[5].addNeighbor(northTile.getFeature(9));
-	}
-
-	public Tile getWestTile() {
-		return westTile;
+		try {
+			this.eastTile = eastTile;
+			TileFeature f11 = eastTile.getFeature(11);
+			tileFeatures[3].addNeighbor(f11);
+			TileFeature f10 = eastTile.getFeature(10);
+			tileFeatures[4].addNeighbor(f10);
+			TileFeature f9 = eastTile.getFeature(9);
+			tileFeatures[5].addNeighbor(f9);
+		} catch (Exception e) {
+			System.out.println(tileFeatures[3] + " " + tileFeatures[4] + " " + tileFeatures[5]);
+		}
 	}
 
 	public void setWestTile(Tile westTile) {
-		this.westTile = westTile;
-		tileFeatures[11].addNeighbor(northTile.getFeature(3));
-		tileFeatures[10].addNeighbor(northTile.getFeature(4));
-		tileFeatures[9].addNeighbor(northTile.getFeature(5));
+		try {
+			this.westTile = westTile;
+			TileFeature f3 = westTile.getFeature(3);
+			tileFeatures[11].addNeighbor(f3);
+			TileFeature f4 = westTile.getFeature(4);
+			tileFeatures[10].addNeighbor(f4);
+			TileFeature f5 = westTile.getFeature(5);
+			tileFeatures[9].addNeighbor(f5);
+		} catch (Exception e) {
+			System.out.println(tileFeatures[11] + " " + tileFeatures[10] + " " + tileFeatures[9]);
+		}
+	}
+
+	public Tile getNorthTile() {
+		return northTile;
+	}
+	public Tile getSouthTile() {
+		return southTile;
+	}
+	public Tile getEastTile() {
+		return eastTile;
+	}
+	public Tile getWestTile() {
+		return westTile;
 	}
 
 	public Point getPoint() {
@@ -151,23 +161,28 @@ public class Tile {
 		y = j;
 	}
 
-	public Feature getNorthFeature() {
+	public Feature getNorthFeatureType() {
+		//System.out.println(tileFeatures[1].featureType);
 		return tileFeatures[1].featureType;
 	}
 
-	public Feature getSouthFeature() {
+	public Feature getSouthFeatureType() {
+		//System.out.println(tileFeatures[7].featureType);
 		return tileFeatures[7].featureType;
 	}
 
-	public Feature getEastFeature() {
+	public Feature getEastFeatureType() {
+		//System.out.println(tileFeatures[4].featureType);
 		return tileFeatures[4].featureType;
 	}
 
-	public Feature getWestFeature() {
+	public Feature getWestFeatureType() {
+		//System.out.println(tileFeatures[10].featureType);
 		return tileFeatures[10].featureType;
 	}
 
 	public Feature getCenterFeature() {
+		//System.out.println(tileFeatures[12].featureType);
 		return tileFeatures[12].featureType;
 	}
 
@@ -184,6 +199,24 @@ public class Tile {
 	}
 
 	public String toString() {
-		return name + " " + x + " " + y;
+		String s = "";
+		for(TileFeature f : tileFeatures)
+		{
+			if(f != null)
+				s += f.toString() + " ";
+		}
+
+		return name + " " + x + " " + y + " : " + s;
+	}
+	
+	//check tile for null features
+	public String verifyFeatures()
+	{
+		String err = "";
+		for(int i = 0; i < tileFeatures.length-1; i++ )
+			if(tileFeatures[i] == null)
+				err += "Error: " + name + " - null tileFeature at " + i + "\n";
+		
+		return err.equals("") ? null : err;
 	}
 }

@@ -34,7 +34,7 @@ farm 6 7 8
 file tileG.jpg
 count 1
 city 0 1 2 6 7 8
-farm 4 5 6
+farm 3 4 5
 farm 9 10 11
 
 file tileH.jpg
@@ -52,7 +52,7 @@ city 6 7 8
 file tileJ.jpg
 count 3
 city 0 1 2
-farm 3 9 10 11
+farm 3 8 9 10 11
 road 4 7
 farm 5 6
 
