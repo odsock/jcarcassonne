@@ -29,6 +29,10 @@ public class Landscape {
 	}
 
 	public void placeTile(Tile t, int x, int y){
+		//error check
+		if(t == null)
+			System.out.println("Error: tried to place null tile.");
+		
 		//add to coordinate map
 		landscapeHash.put(new Point(x,y), t);
 		t.setXY(x,y);
@@ -36,9 +40,11 @@ public class Landscape {
 		//update last placement
 		lastX = x;
 		lastY = y;
-
+		
 		//setup edge references
 		Point p = new Point(x,y);
+		try
+		{
 		p.translate(0,1);
 		if(landscapeHash.containsKey(p)){
 			t.setNorthTile(landscapeHash.get(p));
@@ -58,6 +64,11 @@ public class Landscape {
 		if(landscapeHash.containsKey(p)){
 			t.setWestTile(landscapeHash.get(p));
 			t.getWestTile().setEastTile(t);
+		}
+		}
+		catch(NullPointerException e)
+		{
+			System.out.println("Placement Error: " + lastX + " " + lastY + " " + p + " " + t);
 		}
 	}
 

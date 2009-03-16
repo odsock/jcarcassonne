@@ -2,13 +2,14 @@ package jCarcassonne;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
 import java.util.*;
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	//JPanel values
 	int pw = 800;
 	int ph = 600;
@@ -17,7 +18,8 @@ public class GamePanel extends JPanel implements Runnable {
 	int th = 128;
 
 	//game model elements
-	private Stack<Tile> tileStack;
+	private Rules rules;
+	private TileStack tileStack;
 	private Landscape landscape;
 	private LinkedList<Player> players = new LinkedList<Player>();  //change this later to accommodate more players
 	private boolean tilePlaced = false;
@@ -59,9 +61,13 @@ public class GamePanel extends JPanel implements Runnable {
 			{ testMove(e.getX(), e.getY()); }
 		});
 
-		TileStackReader tsr = new TileStackReader();
-		tsr.fillStack();
-		tileStack = tsr.getStack();
+		rules = new Rules();
+		rules.setVerbose(false);
+		
+		tileStack = new TileStack();
+		tileStack.loadTileSet("tileset2.txt");
+		tileStack.shuffleStack();
+		
 		landscape = new Landscape(tileStack.pop());
 	}
 
@@ -248,11 +254,14 @@ public class GamePanel extends JPanel implements Runnable {
 			y -= 128;
 		x = x / 128;
 		y = -y / 128;
+		
+		//just a troubleshooting time saver
+		tilePlaced = false;
 
 		//place if rules allow
 		if(!tilePlaced && landscape.getTile(x, y) == null)
 		{
-			if(Rules.checkTilePlacement(landscape, tileStack.peek(), x, y))
+			if(rules.checkTilePlacement(landscape, tileStack.peek(), x, y))
 			{
 				landscape.placeTile(tileStack.pop(), x, y);
 				tilePlaced = true;
@@ -262,7 +271,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 		if(tilePlaced && landscape.getTile(x, y) != null)
 		{
-			if(Rules.checkTokenPlacement(landscape, new Player("player1", Color.red), x, y))
+			if(rules.checkTokenPlacement(landscape, new Player("player1", Color.red), x, y))
 			{
 				landscape.placeToken(x,y);
 				tilePlaced = false;
