@@ -4,14 +4,12 @@ import java.awt.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Landscape {
-	private Tile startTile;
 	private ConcurrentHashMap<Point,Tile> landscapeHash = new ConcurrentHashMap<Point,Tile>();
 
 	private int lastX = 0;
 	private int lastY = 0;
 
 	public Landscape(Tile startTile){
-		this.startTile = startTile;
 		placeTile(startTile,0,0);
 	}
 
@@ -43,8 +41,6 @@ public class Landscape {
 		
 		//setup edge references
 		Point p = new Point(x,y);
-		try
-		{
 		p.translate(0,1);
 		if(landscapeHash.containsKey(p)){
 			t.setNorthTile(landscapeHash.get(p));
@@ -65,15 +61,6 @@ public class Landscape {
 			t.setWestTile(landscapeHash.get(p));
 			t.getWestTile().setEastTile(t);
 		}
-		}
-		catch(NullPointerException e)
-		{
-			System.out.println("Placement Error: " + lastX + " " + lastY + " " + p + " " + t);
-		}
-	}
-
-	public Tile getStartTile(){
-		return startTile;
 	}
 
 	public Tile getTile(int x, int y){
@@ -88,7 +75,7 @@ public class Landscape {
 		return lastY;
 	}
 
-	public void placeToken(int x, int y) {
+	public void placeToken() {
 		getTile(lastX, lastY).placeToken();
 	}
 }

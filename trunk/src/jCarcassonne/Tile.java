@@ -25,13 +25,12 @@ public class Tile {
 	private Tile eastTile;
 	private Tile westTile;
 
-	//array numbered as clockwise tile borders from top left clockwise
+	//array numbered as clockwise tile borders from top left
 	//tileFeatures[12] is center feature, only used for cloister
 	private TileFeature[] tileFeatures = new TileFeature[13];
 
-
 	//image for this tile
-	private BufferedImage img;	
+	private BufferedImage img;
 
 	//constructors
 	public Tile(BufferedImage img, String name)
@@ -54,7 +53,7 @@ public class Tile {
 		tileFeatures[1] = f10;
 		tileFeatures[0] = f9;
 
-		// instantiate and apply affine transformation filter
+		//instantiate and apply affine transformation filter
 		AffineTransform at = new AffineTransform();
 		at.translate(64, 64);
 		at.rotate(Math.toRadians(90));
@@ -71,67 +70,50 @@ public class Tile {
 	public void addFeature(TileFeature f, int b) {
 		tileFeatures[b] = f;
 	}
-	//return feature at border b, or center tile at tileFeatures[12]
+	
+	//return feature at border b, or center feature at tileFeatures[12]
 	public TileFeature getFeature(int b) {
 		return tileFeatures[b];
 	}
 
 	public void setNorthTile(Tile northTile) {
-		try{
 			this.northTile = northTile;
 			TileFeature f8 = northTile.getFeature(8);
-			tileFeatures[0].addNeighbor(f8);
 			TileFeature f7 = northTile.getFeature(7);
-			tileFeatures[1].addNeighbor(f7);
 			TileFeature f6 = northTile.getFeature(6);
+			tileFeatures[0].addNeighbor(f8);
+			tileFeatures[1].addNeighbor(f7);
 			tileFeatures[2].addNeighbor(f6);
-		}
-		catch(NullPointerException e)
-		{
-			System.out.println(tileFeatures[0] + " " + tileFeatures[1] + " " + tileFeatures[2]);
-		}
 	}
 
 	public void setSouthTile(Tile southTile) {
-		try {
 			this.southTile = southTile;
 			TileFeature f0 = southTile.getFeature(0);
-			tileFeatures[8].addNeighbor(f0);
 			TileFeature f1 = southTile.getFeature(1);
-			tileFeatures[7].addNeighbor(f1);
 			TileFeature f2 = southTile.getFeature(2);
+			tileFeatures[8].addNeighbor(f0);
+			tileFeatures[7].addNeighbor(f1);
 			tileFeatures[6].addNeighbor(f2);
-		} catch (Exception e) {
-			System.out.println(tileFeatures[8] + " " + tileFeatures[7] + " " + tileFeatures[6]);
-		}
 	}
 
 	public void setEastTile(Tile eastTile) {
-		try {
 			this.eastTile = eastTile;
 			TileFeature f11 = eastTile.getFeature(11);
-			tileFeatures[3].addNeighbor(f11);
 			TileFeature f10 = eastTile.getFeature(10);
-			tileFeatures[4].addNeighbor(f10);
 			TileFeature f9 = eastTile.getFeature(9);
+			tileFeatures[3].addNeighbor(f11);
+			tileFeatures[4].addNeighbor(f10);
 			tileFeatures[5].addNeighbor(f9);
-		} catch (Exception e) {
-			System.out.println(tileFeatures[3] + " " + tileFeatures[4] + " " + tileFeatures[5]);
-		}
 	}
 
 	public void setWestTile(Tile westTile) {
-		try {
 			this.westTile = westTile;
 			TileFeature f3 = westTile.getFeature(3);
-			tileFeatures[11].addNeighbor(f3);
 			TileFeature f4 = westTile.getFeature(4);
-			tileFeatures[10].addNeighbor(f4);
 			TileFeature f5 = westTile.getFeature(5);
+			tileFeatures[11].addNeighbor(f3);
+			tileFeatures[10].addNeighbor(f4);
 			tileFeatures[9].addNeighbor(f5);
-		} catch (Exception e) {
-			System.out.println(tileFeatures[11] + " " + tileFeatures[10] + " " + tileFeatures[9]);
-		}
 	}
 
 	public Tile getNorthTile() {
@@ -151,14 +133,14 @@ public class Tile {
 		return new Point(x,y);
 	}
 
-	public void setPoint(Point p) {
+	public void setPoint(Point p) { //convenience method
 		x = p.x;
 		y = p.y;
 	}
 
-	public void setXY(int i, int j) {
-		x = i;
-		y = j;
+	public void setXY(int x, int y) {
+		this.x = x;
+		this.y = y;
 	}
 
 	public Feature getNorthFeatureType() {
