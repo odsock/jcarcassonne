@@ -18,36 +18,7 @@ public class TileStack extends Stack<Tile>{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public TileStack()
-	{
-		super();
-	}
-
-	public void shuffleStack()
-	{
-		Stack<Tile> tempStack = new Stack<Tile>();
-		Tile startTile = null;
-
-		//randomly push tiles from list onto stack
-		while(!isEmpty())
-		{
-			Random rand = new Random();
-			int r = rand.nextInt(this.size());
-			Tile t = this.get(r);
-			this.remove(r);
-			
-			if(t.name.equals("startTile.jpg"))
-				startTile = t;
-			else
-				tempStack.push(t);
-		}
-
-		if(this.isEmpty()) {
-			this.addAll(tempStack);
-			this.push(startTile);
-		}
-	}
-
+	//read the tileset file, add the created tiles to the stack
 	public void loadTileSet(String tilesetFilename)
 	{
 		try{
@@ -85,6 +56,7 @@ public class TileStack extends Stack<Tile>{
 		}
 	}
 
+	//helper method to parse tile description strings from the tileset file
 	private Tile createTile(ArrayList<String[]> tileDescription) {
 		//create image and tile
 		String imageFilename = tileDescription.get(0)[1];
@@ -110,6 +82,7 @@ public class TileStack extends Stack<Tile>{
 		return t;
 	}
 
+	//helper method to parse tile feature string from the tileset file
 	private void createTileFeatures(ArrayList<String[]> tileDescription, Tile t) throws NumberFormatException {
 		for(int j = 2; j < tileDescription.size(); j++)
 		{
@@ -129,6 +102,34 @@ public class TileStack extends Stack<Tile>{
 			{
 				t.addFeature(f, Integer.parseInt(fs[k]));
 			}
+		}
+	}
+	
+	//randomizes the order of tiles in the stack
+	public void shuffleStack()
+	{
+		Stack<Tile> tempStack = new Stack<Tile>();
+		Tile startTile = null;
+
+		//randomly push tiles onto stack
+		while(!isEmpty())
+		{
+			Random rand = new Random();
+			int r = rand.nextInt(this.size());
+			Tile t = this.get(r);
+			this.remove(r);
+			
+			//capture the first start tile
+			if(t.name.equals("startTile.jpg") && startTile == null)
+				startTile = t;
+			else
+				tempStack.push(t);
+		}
+
+		//add the shuffled tiles back onto the stack, startTile last
+		if(this.isEmpty()) {
+			this.addAll(tempStack);
+			this.push(startTile);
 		}
 	}
 }

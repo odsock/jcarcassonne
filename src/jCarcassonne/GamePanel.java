@@ -60,12 +60,14 @@ public class GamePanel extends JPanel implements Runnable {
 			public void mouseMoved(MouseEvent e)
 			{ testMove(e.getX(), e.getY()); }
 		});
-
+		
+		//create the game model
+		
 		rules = new Rules();
 		rules.setVerbose(false);
 		
 		tileStack = new TileStack();
-		tileStack.loadTileSet("tileset2.txt");
+		tileStack.loadTileSet("tileset.txt");
 		tileStack.shuffleStack();
 		
 		landscape = new Landscape(tileStack.pop());
@@ -76,7 +78,7 @@ public class GamePanel extends JPanel implements Runnable {
 		running = true;
 		while(running)
 		{
-			//gameUpdate();
+			gameUpdate();
 			gameRender();
 			repaint();
 
@@ -90,37 +92,30 @@ public class GamePanel extends JPanel implements Runnable {
 		System.exit(0);
 	}
 
+	//update animation stuff here
 	private void gameUpdate()
 	{
-		if(!gameOver && !tileStack.empty())
-		{
+	}
+	
+	//attempts to randomly place the next tile within 5 units of the origin
+	private boolean randomlyPlaceNextTile()
+	{		
+		Random rand = new Random();
+		int x = rand.nextInt(10)-5;
+		int y = rand.nextInt(10)-5;
 
+		if(rules.checkTilePlacement(landscape, tileStack.peek(),x,y)) {
+			landscape.placeTile(tileStack.pop(), x,y);
+			
+			return true;
 		}
-		/*//code to randomly try to place the next tile within -5 to 5 square
-		if(!gameOver && !tileStack.empty())
-		{
-			Random rand = new Random();
-			int x = rand.nextInt(10)-5;
-			int y = rand.nextInt(10)-5;
-
-			if(Rules.checkTilePlacement(landscape, tileStack.peek(),x,y)) {
-				landscape.placeTile(tileStack.pop(), x,y);
-			}
-			else
-			{
-				numPlacementAttempts++;
-				if(numPlacementAttempts > 9) {
-					tileStack.pop();
-					numPlacementAttempts = 0;
-				}
-			}
-		}*/
 		else
-			gameOver = true;
+			return false;
 	}
 
 	private void gameRender()
 	{
+		//initialize Image and Graphics2D objects for double buffering
 		if(dbImage == null)
 		{
 			dbImage = createImage(800, 600);
@@ -132,7 +127,7 @@ public class GamePanel extends JPanel implements Runnable {
 				dbg = (Graphics2D)dbImage.getGraphics();
 		}
 
-		//translate if mouse at edge of frame
+		//adjust origin translation if mouse at edge of frame
 		if(northScrollFlag)
 			ty += 4;
 		if(southScrollFlag)
@@ -174,17 +169,20 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 
+	//copy double buffer image to the screen
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		if(dbImage != null)
 			g.drawImage(dbImage,0,0,null);
 	}
 
+	//starts the animation loop when GamePanel is added to GameFrame
 	public void addNotify()	{
 		super.addNotify();
 		startGame();
 	}
 
+	//starts the animation thread if it's not already running
 	private void startGame()
 	{
 		if(animator == null || !running) {
@@ -193,10 +191,12 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 
+	//breaks the animation threads loop in run()
 	public void stopGame() {
 		running = false;
 	}
 
+	//sets up keyboard quit keys and OS shutdown hook
 	private void readyForTermination()
 	{
 		//keyboard listeners
@@ -273,7 +273,7 @@ public class GamePanel extends JPanel implements Runnable {
 		{
 			if(rules.checkTokenPlacement(landscape, new Player("player1", Color.red), x, y))
 			{
-				landscape.placeToken(x,y);
+				landscape.placeToken();
 				tilePlaced = false;
 			}
 		}
