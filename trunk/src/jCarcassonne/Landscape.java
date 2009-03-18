@@ -4,8 +4,10 @@ import java.awt.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Landscape {
+	//hash stores all the placed tiles, keyed on their coordinates relative to the start tile.
 	private ConcurrentHashMap<Point,Tile> landscapeHash = new ConcurrentHashMap<Point,Tile>();
 
+	//coordinates of the last tile placed
 	private int lastX = 0;
 	private int lastY = 0;
 

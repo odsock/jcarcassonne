@@ -21,13 +21,13 @@ public class GamePanel extends JPanel implements Runnable {
 	private Rules rules;
 	private TileStack tileStack;
 	private Landscape landscape;
-	private LinkedList<Player> players = new LinkedList<Player>();  //change this later to accommodate more players
+	//private LinkedList<Player> players = new LinkedList<Player>();  //change this later to accommodate more players
 	private boolean tilePlaced = false;
 
 	//animation loop stuff
 	private Thread animator;
 	private volatile boolean running = false;
-	private volatile boolean gameOver = false;
+	//private volatile boolean gameOver = false;
 
 	//double buffering stuff
 	private Graphics2D dbg;
@@ -98,6 +98,7 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	//attempts to randomly place the next tile within 5 units of the origin
+	@SuppressWarnings("unused")
 	private boolean randomlyPlaceNextTile()
 	{		
 		Random rand = new Random();
