@@ -2,7 +2,7 @@ file tileA.jpg
 count 2
 farm 0 1 2 3 4 5 6 8 9 10 11
 cloister 12
-road 7
+road end 7
 
 file tileB.jpg
 count 4
@@ -66,11 +66,11 @@ city 3 4 5
 file tileL.jpg
 count 3
 farm 0 11
-road 1
+road end 1
 farm 2 6
 city 3 4 5
-road 7
-road 10
+road end 7
+road end 10
 farm 8 9
 
 file tileM.jpg
@@ -109,13 +109,13 @@ file tileS.jpg
 count 2
 city flag 0 1 2 3 4 5 9 10 11
 farm 6 8
-road 7
+road end 7
 
 file tileT.jpg
 count 1
 city 0 1 2 3 4 5 9 10 11
 farm 6 8
-road 7
+road end 7
 
 file tileU.jpg
 count 8
@@ -132,20 +132,20 @@ farm 8 9
 file tileW.jpg
 count 4
 farm 0 1 2 3 11
-road 4
+road end 4
 farm 5 6
-road 7
+road end 7
 farm 8 9
-road 10
+road end 10
 
 file tileX.jpg
 count 1
 farm 0 11
-road 1
+road end 1
 farm 2 3
-road 4
+road end 4
 farm 5 6
-road 7
+road end 7
 farm 8 9
-road 10
+road end 10
 
