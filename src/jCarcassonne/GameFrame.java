@@ -11,7 +11,7 @@ public class GameFrame extends JFrame {
 
 	public GameFrame() {
 		super("JCarcassonne");
-		add(new GamePanel());
+		add(new GamePanel(800, 600));
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    pack();

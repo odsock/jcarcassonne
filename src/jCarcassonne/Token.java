@@ -8,6 +8,8 @@ public class Token {
 	private Tile tile;
 	
 	//need stuff about what feature is claimed
+	private boolean placed;
+	private TileFeature featureClaimed;
 	
 	public Token(Player player, Tile tile){
 		this.tile = tile;
@@ -15,12 +17,12 @@ public class Token {
 		this.color = player.getColor();
 	}
 	
-	public final Tile getTile() {
+	public final Tile getFeature() {
 		return tile;
 	}
 
-	public final void setTile(Tile tile) {
-		this.tile = tile;
+	public final void setFeature(TileFeature tf) {
+		this.featureClaimed = tf;
 	}
 	
 	public final Color getColor() {
@@ -31,4 +33,11 @@ public class Token {
 		return player;
 	}
 
+	public void setPlaced(boolean placed) {
+		this.placed = placed;
+	}
+
+	public boolean isPlaced() {
+		return placed;
+	}
 }

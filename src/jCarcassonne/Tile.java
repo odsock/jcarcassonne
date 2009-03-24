@@ -201,4 +201,10 @@ public class Tile {
 		
 		return err.equals("") ? null : err;
 	}
+
+	public TileFeature getFeatureAt(int px, int py) {
+		//insert code to check feature map image here
+		//then return feature at px,py
+		return null;
+	}
 }

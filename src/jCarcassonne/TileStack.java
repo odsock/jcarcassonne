@@ -84,16 +84,23 @@ public class TileStack extends Stack<Tile>{
 
 	//helper method to parse tile feature string from the tileset file
 	private void createTileFeatures(ArrayList<String[]> tileDescription, Tile t) throws NumberFormatException {
+		TileFeatureFactory featureFactory = new TileFeatureFactory();
+		
 		for(int j = 2; j < tileDescription.size(); j++)
 		{
+			//reference for the feature we create from this line
+			TileFeature f;
+			
+			//get feature string array for this line
 			String[] fs = tileDescription.get(j);
-			//instantiate feature based on feature type
-			TileFeature f = new TileFeature(TileFeature.Feature.valueOf(fs[0]));
-
+			
 			//check for flag
 			int k = 1;
-			if(fs[1].equals("flag")){
-				f.setFlag(true);
+			if(fs[1].matches("[0-9]+"))
+				f = featureFactory.newTileFeature(TileFeature.Feature.valueOf(fs[0]));
+			else
+			{
+				f = featureFactory.newTileFeature(TileFeature.Feature.valueOf(fs[0]), fs[1]);
 				k++;
 			}
 

@@ -34,7 +34,19 @@ public class Player {
 		return color;
 	}
 
+	//return token list for scoring
 	public Token[] getTokenList() {
 		return tokens;
+	}
+	
+	//get the next token available for placement
+	public Token getToken()
+	{
+		for(int i = 0; i < tokens.length; i++)
+			if(!tokens[i].isPlaced())
+				return tokens[i];
+		
+		//return null if all tokens have been placed
+		return null;
 	}
 }

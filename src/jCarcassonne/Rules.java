@@ -23,36 +23,46 @@ public class Rules {
 		else if(n != null && t.getNorthFeatureType() != n.getSouthFeatureType())
 		{
 			if(verbose)
-				System.out.println(t.getNorthFeatureType() + " " + n.getSouthFeatureType());
+				System.out.println("North border: " + t.getNorthFeatureType() + " != " + n.getSouthFeatureType());
 			return false;
 		}
 		else if(s != null && t.getSouthFeatureType() != s.getNorthFeatureType())
 		{
 			if(verbose)
-				System.out.println(t.getSouthFeatureType() + " " + s.getNorthFeatureType());
+				System.out.println("South border: " + t.getSouthFeatureType() + " != " + s.getNorthFeatureType());
 			return false;
 		}
 		else if(e != null && t.getEastFeatureType() != e.getWestFeatureType())
 		{
 			if(verbose)
-				System.out.println(t.getEastFeatureType() + " " + e.getWestFeatureType());
+				System.out.println("East border: " + t.getEastFeatureType() + " != " + e.getWestFeatureType());
 			return false;
 		}
 		else if(w != null && t.getWestFeatureType() != w.getEastFeatureType())
 		{
 			if(verbose)
-				System.out.println(t.getWestFeatureType() + " " + w.getEastFeatureType());
+				System.out.println("West border: " + t.getWestFeatureType() + " != " + w.getEastFeatureType());
 			return false;
 		}
 		else
 			return true;
 	}
 
-	public boolean checkTokenPlacement(Landscape l, Player p, int x, int y)
-	{
-		if(l.getLastX() == x && l.getLastY() == y)
-			return true;
+	public boolean checkTokenPlacement(Landscape l, Player p, Tile tileClicked, int px, int py)
+	{	
+		if(tileClicked != null)
+		{
+			TileFeature featureClicked = tileClicked.getFeatureAt(px, py);
+			Token token = p.getToken();
+			if(!featureClicked.isContested(p) && token != null)	{
+				featureClicked.setToken(p.getToken());
+			}
+			
+			return true;	
+		}
 		else
 			return false;
 	}
+
+
 }
