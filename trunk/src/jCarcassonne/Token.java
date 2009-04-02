@@ -17,8 +17,8 @@ public class Token {
 		this.color = player.getColor();
 	}
 	
-	public final Tile getFeature() {
-		return tile;
+	public final TileFeature getFeature() {
+		return featureClaimed;
 	}
 
 	public final void setFeature(TileFeature tf) {

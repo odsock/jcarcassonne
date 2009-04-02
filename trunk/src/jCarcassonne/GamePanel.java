@@ -6,24 +6,23 @@ import java.util.*;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable {
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 	//JPanel dimensions
-	int panelWidth;
-	int panelHeight;
+	private int panelWidth;
+	private int panelHeight;
 
 	//tile image dimensions
-	int tileWidth = 128;
-	int tileHeight = 128;
+	private final int tileWidth;
+	private final int tileHeight;
 
 	//game model elements
 	private Rules rules;
 	private TileStack tileStack;
 	private Landscape landscape;
+	private Player player;
 	//private LinkedList<Player> players = new LinkedList<Player>();  //change this later to accommodate more players
-	private boolean tilePlaced = false;
+	private boolean tilePlacedThisTurn = false;
 
 	//animation loop stuff
 	private Thread animator;
@@ -35,8 +34,8 @@ public class GamePanel extends JPanel implements Runnable {
 	private Image dbImage = null;
 
 	//landscape scrolling stuff
-	int transX = 0;
-	int transY = 0;
+	private int transX = 0;
+	private int transY = 0;
 	private boolean northScrollFlag = false;
 	private boolean southScrollFlag = false;
 	private boolean eastScrollFlag = false;
@@ -65,16 +64,17 @@ public class GamePanel extends JPanel implements Runnable {
 			{ testMove(e.getX(), e.getY()); }
 		});
 		
-		//create the game model
 		
+		//create the game model
 		rules = new Rules();
 		rules.setVerbose(false);
-		
 		tileStack = new TileStack();
 		tileStack.loadTileSet("tileset.txt");
 		tileStack.shuffleStack();
-		
+		tileWidth = tileStack.getTileWidth();
+		tileHeight = tileStack.getTileHeight();
 		landscape = new Landscape(tileStack.pop());
+		player = new Player("player1", Color.red);
 	}
 
 	public void run()
@@ -97,6 +97,7 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 
 	//update animation stuff here
+	//currently there are no animations
 	private void gameUpdate()
 	{
 	}
@@ -118,6 +119,7 @@ public class GamePanel extends JPanel implements Runnable {
 			return false;
 	}
 
+	//draw the game into the double buffer image
 	private void gameRender()
 	{
 		//initialize Image and Graphics2D objects for double buffering
@@ -168,7 +170,7 @@ public class GamePanel extends JPanel implements Runnable {
 			dbg.translate(panelWidth - tileWidth + 2, panelHeight - tileHeight + 2);
 			dbg.setColor(Color.black);
 			dbg.setStroke(new BasicStroke(4));
-			dbg.draw(new Rectangle(128,128));
+			dbg.draw(new Rectangle(tileWidth,tileHeight));
 			dbg.drawImage(tileStack.peek().getImage(), 0, 0, null);
 			dbg.translate(-(panelWidth - tileWidth + 2), -(panelHeight - tileHeight + 2));
 		}
@@ -188,15 +190,14 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 
 	//starts the animation thread if it's not already running
-	private void startGame()
-	{
+	private void startGame() {
 		if(animator == null || !running) {
 			animator = new Thread(this);
 			animator.start();
 		}
 	}
 
-	//breaks the animation threads loop in run()
+	//breaks the animation thread loop in run()
 	public void stopGame() {
 		running = false;
 	}
@@ -230,13 +231,8 @@ public class GamePanel extends JPanel implements Runnable {
 	//evaluates mouse clicks
 	private void testPress(int x, int y, MouseEvent e)
 	{
-		//don't look in the empty stack
-		if(tileStack.empty())
-			return;
-
 		//if Right mouse button, rotate next tile
-		if(e.getButton() == MouseEvent.BUTTON3)
-		{
+		if(e.getButton() == MouseEvent.BUTTON3 && !tilePlacedThisTurn){
 			tileStack.peek().rotate();
 			return;
 		}
@@ -245,49 +241,37 @@ public class GamePanel extends JPanel implements Runnable {
 		if(x >= panelWidth-tileWidth/2+10 && x <= panelWidth-tileWidth/2+10+40 &&
 				y >= panelHeight-tileHeight*2 && y <= panelHeight-tileHeight*2+30)
 		{
-			tilePlaced = false;
+			tilePlacedThisTurn = false;
 			return;
 		}
 
-		//if Left mouse button try to place next tile
-
-		//remove offset due to landscape scrolling/centering
+		//remove offset due to landscape scrolling/centering translation
 		x = x - transX - panelWidth/2 + tileWidth/2;
 		y = y - transY - panelHeight/2 + tileHeight/2;
 		
 		//calc pixel coords within tile
 		int xInTile = x % tileWidth;
 		int yInTile = y % tileHeight;
-		xInTile = xInTile > 0 ? xInTile : xInTile + tileWidth;
+		xInTile = xInTile > 0 ? xInTile : xInTile + tileWidth; //compensates for negative operands to %
 		yInTile = yInTile > 0 ? yInTile : yInTile + tileHeight;
 		
 		//calc coords of tile in model space
 		x = (int) Math.floor((double)x / tileWidth);
 		y = (int) -Math.floor((double)y / tileHeight);
 
-		//place tile if rules allow
-		if(!tilePlaced && landscape.getTile(x, y) == null)
-		{
-			if(rules.checkTilePlacement(landscape, tileStack.peek(), x, y))
-			{
+		//place tile or token if rules allow
+		if(!tilePlacedThisTurn && rules.checkTilePlacement(landscape, tileStack.peek(), x, y)){
 				landscape.placeTile(tileStack.pop(), x, y);
-				tilePlaced = true;
-				return;
-			}
+				tilePlacedThisTurn = true;
 		}
-
-		//try to place token if tile has been placed this turn already
-		if(tilePlaced && landscape.getTile(x, y) != null)
-		{
-			if(rules.checkTokenPlacement(landscape, new Player("player1", Color.red), x, y, xInTile, yInTile))
-			{
-				landscape.placeToken();
-				tilePlaced = false;
-			}
+		else if(rules.checkTokenPlacement(landscape, player, x, y, xInTile, yInTile)){
+				landscape.placeToken(player.getToken(), xInTile, yInTile);
+				tilePlacedThisTurn = false;
 		}
 	}
 
 	//evaluates mouse movements/location
+	//triggers landscape scrolling at edges of panel
 	private void testMove(int x, int y)
 	{ 
 		if(x > panelWidth - 10)

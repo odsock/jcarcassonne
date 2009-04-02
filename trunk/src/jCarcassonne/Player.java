@@ -49,4 +49,11 @@ public class Player {
 		//return null if all tokens have been placed
 		return null;
 	}
+
+	public boolean hasToken() {
+		if(getToken() != null)
+			return true;
+		else
+			return false;
+	}
 }
