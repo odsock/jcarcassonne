@@ -1,22 +1,26 @@
 package jCarcassonne;
 
+import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class TileFeature {
 
-	public static enum Feature { city, road, farm, cloister, river, empty }
+	public static enum FeatureEnum { city, road, farm, cloister, river, empty }
 
-	public final Feature featureType;
+	public final FeatureEnum featureType;
 
 	private Token token;
+	private Point tokenCoordinates;
 	private boolean scored;
 
 	//list of features which can be traversed to/from.
 	//doesn't know directions, could be an issue.
 	private ArrayList<TileFeature> neighbors; 
 
-	public TileFeature(Feature f) {
+	public TileFeature(FeatureEnum f, int tokenX, int tokenY) {
 		featureType = f;
+		tokenCoordinates = new Point(tokenX,tokenY);
 		neighbors = new ArrayList<TileFeature>();
 	}
 
@@ -28,12 +32,11 @@ public class TileFeature {
 
 	//probably should change this, bad to give out the whole list
 	//will work fine until implementation of scoring
-	public ArrayList<TileFeature> getNeighbors() {
-		return neighbors;
+	public Iterator<TileFeature> getNeighborIterator() {
+		return neighbors.iterator();
 	}
 
 	//set a token for this feature
-	//doesn't know or care about rules, just sets.
 	public void setToken(Token token) {
 		this.token = token;
 	}
@@ -62,10 +65,7 @@ public class TileFeature {
 		return scored;
 	}
 
-	public boolean isContested(Player p) {
-		//traverse tile feature neighbors to determine whether player p owns the feature group
-		//return false if feature is contested at all(can't place on contested features)
-
-		return false;  //for now
+	public Point getTokenCoordinates() {
+		return tokenCoordinates;
 	}
 }

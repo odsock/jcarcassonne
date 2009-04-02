@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
+import jCarcassonne.TileFeature.FeatureEnum;
 
 import javax.imageio.ImageIO;
 
@@ -17,6 +18,9 @@ public class TileStack extends Stack<Tile>{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private int tileWidth = 128;
+	private int tileHeight = 128;
 
 	//read the tileset file, add the created tiles to the stack
 	public void loadTileSet(String tilesetFilename)
@@ -24,6 +28,7 @@ public class TileStack extends Stack<Tile>{
 		try{
 			BufferedReader in = new BufferedReader(new FileReader(tilesetFilename));
 
+			int tilesRead = 1;
 			while(in.ready())
 			{
 				//read one tile description into the list
@@ -42,13 +47,19 @@ public class TileStack extends Stack<Tile>{
 				{
 					//create tile
 					Tile t = createTile(tileDescription);
+					
+					//verify tile creation
+					if(t == null)
+						throw new Exception("Error at tile " + tilesRead);
 
 					//add finished tile to stack
 					this.push(t);
 				}
+				
+				tilesRead++;
 			}
 		}
-		catch(IOException e)
+		catch(Exception e)
 		{
 			System.out.println("Error reading " + tilesetFilename + ".");
 			System.out.println(e);
@@ -58,7 +69,7 @@ public class TileStack extends Stack<Tile>{
 
 	//helper method to parse tile description strings from the tileset file
 	private Tile createTile(ArrayList<String[]> tileDescription) {
-		//create image and tile
+		//read image
 		String imageFilename = tileDescription.get(0)[1];
 		BufferedImage img = null;
 		try{
@@ -69,12 +80,18 @@ public class TileStack extends Stack<Tile>{
 			System.out.println(e);
 			System.exit(0);
 		}
+		
+		//return null if image is the wrong size
+		if(img.getWidth() != tileWidth || img.getHeight() != tileHeight)
+			return null;
+		
+		//create tile
 		Tile t = new Tile(img, imageFilename);
 
 		//create and add tile features
 		createTileFeatures(tileDescription, t);
 
-		//check tile for null features
+		//check tile for null features (shouldn't be any)
 		String err = t.verifyFeatures();
 		if(err != null)
 			System.out.println(err);
@@ -82,32 +99,42 @@ public class TileStack extends Stack<Tile>{
 		return t;
 	}
 
-	//helper method to parse tile feature string from the tileset file
-	private void createTileFeatures(ArrayList<String[]> tileDescription, Tile t) throws NumberFormatException {
+	//parses tile feature string from the tileset file, creates features and adds them to tile
+	private void createTileFeatures(ArrayList<String[]> tileDescription, Tile tile) throws NumberFormatException {
 		TileFeatureFactory featureFactory = new TileFeatureFactory();
 		
 		for(int j = 2; j < tileDescription.size(); j++)
 		{
-			//reference for the feature we create from this line
-			TileFeature f;
+			String[] featureString = tileDescription.get(j);
 			
-			//get feature string array for this line
-			String[] fs = tileDescription.get(j);
+			//read feature type
+			FeatureEnum featureType = FeatureEnum.valueOf(featureString[0]);
 			
-			//check for flag
-			int k = 1;
-			if(fs[1].matches("[0-9]+"))
-				f = featureFactory.newTileFeature(TileFeature.Feature.valueOf(fs[0]));
-			else
+			//read token coordinates for this feature
+			int tokenX = Integer.parseInt(featureString[1]);
+			int tokenY = Integer.parseInt(featureString[2]);
+			
+			//parse border bit string
+			String borderString = featureString[3];
+			boolean[] borderArray = new boolean[13];
+			for(int b = 0; b < borderArray.length; b++)
 			{
-				f = featureFactory.newTileFeature(TileFeature.Feature.valueOf(fs[0]), fs[1]);
-				k++;
+				if(borderString.charAt(b) == '1')
+					borderArray[b] = true;
+				else
+					borderArray[b] = false;
 			}
-
-			//add feature to tile at borders
-			for(; k < fs.length; k++)
+			
+			//check for any flags on the feature
+			String flag = featureString.length > 4 ? featureString[4] : null;
+			
+			TileFeature feature = featureFactory.newTileFeature(featureType, tokenX, tokenY, flag);
+			
+			//add feature to tile borders
+			for(int k = 0; k < borderArray.length; k++)
 			{
-				t.addFeature(f, Integer.parseInt(fs[k]));
+				if(borderArray[k])
+					tile.addFeature(feature, k);
 			}
 		}
 	}
@@ -138,5 +165,12 @@ public class TileStack extends Stack<Tile>{
 			this.addAll(tempStack);
 			this.push(startTile);
 		}
+	}
+	
+	public int getTileWidth(){
+		return tileWidth;
+	}
+	public int getTileHeight(){
+		return tileHeight;
 	}
 }

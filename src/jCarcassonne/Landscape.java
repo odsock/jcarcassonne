@@ -10,6 +10,7 @@ public class Landscape {
 	//coordinates of the last tile placed
 	private int lastX = 0;
 	private int lastY = 0;
+	private Tile lastTilePlaced = null;
 
 	public Landscape(Tile startTile){
 		placeTile(startTile,0,0);
@@ -19,56 +20,68 @@ public class Landscape {
 	{
 		for(Tile t : landscapeHash.values())
 		{
-			g.drawImage(t.getImage(),((t.x)*128),-(t.y)*128,null);
-			if(t.hasToken())
-			{
-				g.setColor(Color.red);
-				g.fillOval((t.x)*128+t.tokenX, -(t.y)*128+t.tokenY, 20, 20);
-			}
+			g.drawImage(t.getImage(),((t.getPoint().x)*128), -(t.getPoint().y)*128, null);
 		}
 	}
 
-	public void placeTile(Tile t, int x, int y){
-		//error check
-		if(t == null)
-			System.out.println("Error: tried to place null tile.");
-		
+	public void placeTile(Tile tile, int x, int y)
+	{		
 		//add to coordinate map
-		landscapeHash.put(new Point(x,y), t);
-		t.setXY(x,y);
+		landscapeHash.put(new Point(x,y), tile);
+		tile.setXY(x,y);
 
-		//update last placement
+		//update last tile placement info
 		lastX = x;
 		lastY = y;
+		lastTilePlaced = tile;
+		
+		//set placement flag in tile
+		tile.setPlaced(true);
 		
 		//setup edge references
 		Point p = new Point(x,y);
 		p.translate(0,1);
 		if(landscapeHash.containsKey(p)){
-			t.setNorthTile(landscapeHash.get(p));
-			t.getNorthTile().setSouthTile(t);
+			tile.setNorthTile(landscapeHash.get(p));
+			tile.getNorthTile().setSouthTile(tile);
 		}
 		p.translate(0,-2);
 		if(landscapeHash.containsKey(p)){
-			t.setSouthTile(landscapeHash.get(p));
-			t.getSouthTile().setNorthTile(t);
+			tile.setSouthTile(landscapeHash.get(p));
+			tile.getSouthTile().setNorthTile(tile);
 		}
 		p.translate(1,1);
 		if(landscapeHash.containsKey(p)){
-			t.setEastTile(landscapeHash.get(p));
-			t.getEastTile().setWestTile(t);
+			tile.setEastTile(landscapeHash.get(p));
+			tile.getEastTile().setWestTile(tile);
 		}
 		p.translate(-2,0);
 		if(landscapeHash.containsKey(p)){
-			t.setWestTile(landscapeHash.get(p));
-			t.getWestTile().setEastTile(t);
+			tile.setWestTile(landscapeHash.get(p));
+			tile.getWestTile().setEastTile(tile);
 		}
+	}
+	
+	public void placeToken(Token token, int xInTile, int yInTile) {
+		if(lastTilePlaced != null)
+			lastTilePlaced.placeToken(token, xInTile, yInTile);
 	}
 
 	public Tile getTile(int x, int y){
 		return landscapeHash.get(new Point(x,y));
 	}
+	
+	public boolean hasTileAt(int x, int y){
+		if(landscapeHash.containsKey(new Point(x,y)))
+			return true;
+		else 
+			return false;
+	}
 
+	public Tile getLastTilePlaced() {
+		return lastTilePlaced;
+	}
+	
 	public int getLastX() {
 		return lastX;
 	}
@@ -77,7 +90,4 @@ public class Landscape {
 		return lastY;
 	}
 
-	public void placeToken() {
-		getTile(lastX, lastY).placeToken();
-	}
 }
