@@ -5,8 +5,9 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.JPanel;
 
-public class GamePanel extends JPanel implements Runnable {
-	
+public class GamePanel extends JPanel implements Runnable
+{
+
 	private static final long serialVersionUID = 1L;
 	//JPanel dimensions
 	private int panelWidth;
@@ -20,8 +21,9 @@ public class GamePanel extends JPanel implements Runnable {
 	private Rules rules;
 	private TileStack tileStack;
 	private Landscape landscape;
-	private Player player;
-	//private LinkedList<Player> players = new LinkedList<Player>();  //change this later to accommodate more players
+	private ArrayList<Player> players = new ArrayList<Player>();
+	private Iterator<Player> playersIterator;
+	private Player currentPlayer;
 	private boolean tilePlacedThisTurn = false;
 
 	//animation loop stuff
@@ -45,7 +47,7 @@ public class GamePanel extends JPanel implements Runnable {
 	{
 		this.panelWidth = pw;
 		this.panelHeight = ph;
-		
+
 		setBackground(Color.white);
 		setPreferredSize( new Dimension(panelWidth, panelHeight));
 
@@ -56,25 +58,28 @@ public class GamePanel extends JPanel implements Runnable {
 
 		addMouseListener( new MouseAdapter() {
 			public void mousePressed(MouseEvent e)
-			{ testPress(e.getX(), e.getY(), e); }
+			{ testMousePress(e.getX(), e.getY(), e); }
 		});
 
 		addMouseMotionListener( new MouseMotionAdapter() {
 			public void mouseMoved(MouseEvent e)
-			{ testMove(e.getX(), e.getY()); }
+			{ testMouseMove(e.getX(), e.getY()); }
 		});
-		
-		
+
+
 		//create the game model
 		rules = new Rules();
-		rules.setVerbose(false);
+		rules.setVerbose(true);
 		tileStack = new TileStack();
 		tileStack.loadTileSet("tileset.txt");
 		tileStack.shuffleStack();
 		tileWidth = tileStack.getTileWidth();
 		tileHeight = tileStack.getTileHeight();
 		landscape = new Landscape(tileStack.pop());
-		player = new Player("player1", Color.red);
+		players.add(new Player("player1", Color.red));
+		players.add(new Player("player2", Color.blue));
+		playersIterator = players.iterator();
+		currentPlayer = playersIterator.next();
 	}
 
 	public void run()
@@ -86,10 +91,12 @@ public class GamePanel extends JPanel implements Runnable {
 			gameRender();
 			repaint();
 
-			try{
+			try
+			{
 				Thread.sleep(20);
 			}
-			catch(InterruptedException e){
+			catch(InterruptedException e)
+			{
 				System.out.println(e);
 			}
 		}
@@ -101,7 +108,7 @@ public class GamePanel extends JPanel implements Runnable {
 	private void gameUpdate()
 	{
 	}
-	
+
 	//attempts to randomly place the next tile within 5 units of the origin
 	@SuppressWarnings("unused")
 	private boolean randomlyPlaceNextTile()
@@ -110,9 +117,9 @@ public class GamePanel extends JPanel implements Runnable {
 		int x = rand.nextInt(10)-5;
 		int y = rand.nextInt(10)-5;
 
-		if(rules.checkTilePlacement(landscape, tileStack.peek(),x,y)) {
+		if(rules.checkTilePlacement(landscape, tileStack.peek(),x,y))
+		{
 			landscape.placeTile(tileStack.pop(), x,y);
-			
 			return true;
 		}
 		else
@@ -126,7 +133,8 @@ public class GamePanel extends JPanel implements Runnable {
 		if(dbImage == null)
 		{
 			dbImage = createImage(panelWidth, panelHeight);
-			if(dbImage == null) {
+			if(dbImage == null)
+			{
 				System.out.println("dbImage is null");
 				return;
 			}
@@ -150,7 +158,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 		//draw the landscape
 		dbg.translate(transX + panelWidth/2 - tileWidth/2, transY + panelHeight/2 - tileHeight/2);
-		landscape.paintLandscape(dbg);
+		paintLandscape(dbg);
 		dbg.translate(-(transX + panelWidth/2 - tileWidth/2), -(transY + panelHeight/2 - tileHeight/2));
 
 		//draw hud background
@@ -176,29 +184,49 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 
+	public void paintLandscape(Graphics g)
+	{
+		Iterator<Tile> landscapeIterator = landscape.getLandscapeIterator();
+		while(landscapeIterator.hasNext())
+		{
+			Tile t = landscapeIterator.next();
+			g.drawImage(t.getImage(),(t.getPoint().x)*128, -(t.getPoint().y)*128, null);
+			if(t.hasToken())
+			{
+				g.setColor(t.getToken().getColor());
+				g.fillOval((t.getPoint().x)*tileWidth+t.getTokenX(), -(t.getPoint().y)*tileHeight+t.getTokenY(), 20, 20);
+			}
+		}
+	}
+
 	//copy double buffer image to the screen
-	public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g)
+	{
 		super.paintComponent(g);
 		if(dbImage != null)
 			g.drawImage(dbImage,0,0,null);
 	}
 
 	//starts the animation loop when GamePanel is added to GameFrame
-	public void addNotify()	{
+	public void addNotify()
+	{
 		super.addNotify();
 		startGame();
 	}
 
 	//starts the animation thread if it's not already running
-	private void startGame() {
-		if(animator == null || !running) {
+	private void startGame()
+	{
+		if(animator == null || !running)
+		{
 			animator = new Thread(this);
 			animator.start();
 		}
 	}
 
 	//breaks the animation thread loop in run()
-	public void stopGame() {
+	public void stopGame()
+	{
 		running = false;
 	}
 
@@ -211,7 +239,8 @@ public class GamePanel extends JPanel implements Runnable {
 			public void keyPressed(KeyEvent e)
 			{ 
 				int keyCode = e.getKeyCode();
-				if (keyCode == KeyEvent.VK_ESCAPE) {
+				if (keyCode == KeyEvent.VK_ESCAPE)
+				{
 					running = false;
 				}
 			}
@@ -229,50 +258,78 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 
 	//evaluates mouse clicks
-	private void testPress(int x, int y, MouseEvent e)
+	private void testMousePress(int xInPanel, int yInPanel, MouseEvent e)
 	{
 		//if Right mouse button, rotate next tile
-		if(e.getButton() == MouseEvent.BUTTON3 && !tilePlacedThisTurn){
+		if(e.getButton() == MouseEvent.BUTTON3 && !tilePlacedThisTurn)
+		{
 			tileStack.peek().rotate();
 			return;
 		}
 
 		//check Done button
-		if(x >= panelWidth-tileWidth/2+10 && x <= panelWidth-tileWidth/2+10+40 &&
-				y >= panelHeight-tileHeight*2 && y <= panelHeight-tileHeight*2+30)
+		if(xInPanel >= panelWidth-tileWidth/2+10 && xInPanel <= panelWidth-tileWidth/2+10+40 &&
+				yInPanel >= panelHeight-tileHeight*2 && yInPanel <= panelHeight-tileHeight*2+30)
 		{
-			tilePlacedThisTurn = false;
+			endTurn();
 			return;
 		}
 
 		//remove offset due to landscape scrolling/centering translation
-		x = x - transX - panelWidth/2 + tileWidth/2;
-		y = y - transY - panelHeight/2 + tileHeight/2;
-		
+		xInPanel = xInPanel - transX - panelWidth/2 + tileWidth/2;
+		yInPanel = yInPanel - transY - panelHeight/2 + tileHeight/2;
+
+		//calc coords of tile in model space
+		int xInModel = (int) Math.floor((double)xInPanel / tileWidth);
+		int yInModel = (int) -Math.floor((double)yInPanel / tileHeight);
+
+		//place tile if rules allow
+		if(!tilePlacedThisTurn && rules.checkTilePlacement(landscape, tileStack.peek(), xInModel, yInModel))
+		{
+			landscape.placeTile(tileStack.pop(), xInModel, yInModel);
+			tilePlacedThisTurn = true;
+
+			System.out.println("GamePanel: tile placed");
+			return;
+		}
+
 		//calc pixel coords within tile
-		int xInTile = x % tileWidth;
-		int yInTile = y % tileHeight;
+		int xInTile = xInPanel % tileWidth;
+		int yInTile = yInPanel % tileHeight;
 		xInTile = xInTile > 0 ? xInTile : xInTile + tileWidth; //compensates for negative operands to %
 		yInTile = yInTile > 0 ? yInTile : yInTile + tileHeight;
-		
-		//calc coords of tile in model space
-		x = (int) Math.floor((double)x / tileWidth);
-		y = (int) -Math.floor((double)y / tileHeight);
 
-		//place tile or token if rules allow
-		if(!tilePlacedThisTurn && rules.checkTilePlacement(landscape, tileStack.peek(), x, y)){
-				landscape.placeTile(tileStack.pop(), x, y);
-				tilePlacedThisTurn = true;
+		//place token if rules allow
+		if(tilePlacedThisTurn && rules.checkTokenPlacement(landscape, currentPlayer, xInModel, yInModel, xInTile, yInTile))
+		{
+			Token token = currentPlayer.getToken();
+			landscape.placeToken(token, xInTile, yInTile);
+			token.setPlaced(true);
+			endTurn();
+
+			System.out.println("GamePanel: token placed");
+			return;
 		}
-		else if(rules.checkTokenPlacement(landscape, player, x, y, xInTile, yInTile)){
-				landscape.placeToken(player.getToken(), xInTile, yInTile);
-				tilePlacedThisTurn = false;
+
+		System.out.println("GamePanel: Unhandled click.");
+	}
+
+	private void endTurn()
+	{
+		tilePlacedThisTurn = false;
+
+		if(playersIterator.hasNext())
+			currentPlayer = playersIterator.next();
+		else
+		{
+			playersIterator = players.iterator();
+			currentPlayer = playersIterator.next();
 		}
 	}
 
 	//evaluates mouse movements/location
 	//triggers landscape scrolling at edges of panel
-	private void testMove(int x, int y)
+	private void testMouseMove(int x, int y)
 	{ 
 		if(x > panelWidth - 10)
 			eastScrollFlag = true;

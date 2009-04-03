@@ -1,6 +1,7 @@
 package jCarcassonne;
 
 import java.awt.*;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Landscape {
@@ -10,18 +11,11 @@ public class Landscape {
 	//coordinates of the last tile placed
 	private int lastX = 0;
 	private int lastY = 0;
-	private Tile lastTilePlaced = null;
+	private Tile lastTilePlaced;
 
 	public Landscape(Tile startTile){
-		placeTile(startTile,0,0);
-	}
-
-	public void paintLandscape(Graphics g)
-	{
-		for(Tile t : landscapeHash.values())
-		{
-			g.drawImage(t.getImage(),((t.getPoint().x)*128), -(t.getPoint().y)*128, null);
-		}
+		landscapeHash.put(new Point(0,0), startTile);
+		startTile.setXY(0,0);
 	}
 
 	public void placeTile(Tile tile, int x, int y)
@@ -90,4 +84,8 @@ public class Landscape {
 		return lastY;
 	}
 
+	public Iterator<Tile> getLandscapeIterator()
+	{
+		return landscapeHash.values().iterator();
+	}
 }
