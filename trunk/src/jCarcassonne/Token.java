@@ -5,14 +5,12 @@ import java.awt.Color;
 public class Token {
 	private Player player;
 	private Color color;
-	private Tile tile;
 	
 	//need stuff about what feature is claimed
-	private boolean placed;
+	private boolean isPlaced;
 	private TileFeature featureClaimed;
 	
-	public Token(Player player, Tile tile){
-		this.tile = tile;
+	public Token(Player player){
 		this.player = player;
 		this.color = player.getColor();
 	}
@@ -33,11 +31,11 @@ public class Token {
 		return player;
 	}
 
-	public void setPlaced(boolean placed) {
-		this.placed = placed;
+	public void setPlaced(boolean isPlaced) {
+		this.isPlaced = isPlaced;
 	}
 
 	public boolean isPlaced() {
-		return placed;
+		return isPlaced;
 	}
 }

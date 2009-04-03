@@ -8,12 +8,13 @@ public class Player {
 	private int score = 0;
 	private Token[] tokens = new Token[8];
 
-	public Player(String name, Color color){
+	public Player(String name, Color color)
+	{
 		this.name = name;
 		this.color = color;
 
 		for(int i = 0; i < tokens.length; i++)
-			tokens[i] = new Token(this, null);
+			tokens[i] = new Token(this);
 	}
 	
 	public String getName()
@@ -21,11 +22,13 @@ public class Player {
 		return name;
 	}
 
-	public int getScore() {
+	public int getScore()
+	{
 		return score;
 	}
 
-	public void setScore(int score) {
+	public void setScore(int score)
+	{
 		this.score = score;
 	}
 
@@ -35,7 +38,8 @@ public class Player {
 	}
 
 	//return token list for scoring
-	public Token[] getTokenList() {
+	public Token[] getTokenList()
+	{
 		return tokens;
 	}
 	
@@ -50,7 +54,8 @@ public class Player {
 		return null;
 	}
 
-	public boolean hasToken() {
+	public boolean hasToken()
+	{
 		if(getToken() != null)
 			return true;
 		else

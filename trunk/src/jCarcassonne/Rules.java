@@ -1,5 +1,6 @@
 package jCarcassonne;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -67,7 +68,7 @@ public class Rules {
 		if(tileClicked == null || tileClicked != landscape.getLastTilePlaced())
 		{
 			if(verbose)
-				System.out.println("CheckTokenPlacement: null tile at " + x + "," + y);
+				System.out.println("CheckTokenPlacement: not last tile");
 			return false;
 		}
 
@@ -88,7 +89,19 @@ public class Rules {
 			return false;
 		}
 
-		isContestedFeature(featureClicked, player);
+		boolean isContested = isContestedFeature(featureClicked, player);
+		if(isContested)
+		{
+			if(verbose)
+				System.out.println("CheckTokenPlacement: feature is contested");
+			return false;
+		}
+		else
+		{
+			if(verbose)
+				System.out.println("CheckTokenPlacement: token OK");
+			return true;
+		}
 	}
 
 	//traverse tile feature neighbors to determine whether player p owns the feature group
@@ -96,7 +109,6 @@ public class Rules {
 	private boolean isContestedFeature(TileFeature featureClicked, Player player) {
 		//keep list of features already checked to prevent cycle
 		HashSet<TileFeature> featuresChecked = new HashSet<TileFeature>();
-
 		return isContestedFeatureHelper(featureClicked, player, featuresChecked);
 	}
 	//recursive helper method for isContestedFeature
@@ -117,5 +129,60 @@ public class Rules {
 		}
 
 		return false;
+	}
+	
+	private Player findFeatureOwner(TileFeature feature)
+	{
+		HashSet<Token> tokensOnFeature = collectTokensOnFeature(feature, new HashSet<TileFeature>());
+		
+		//count tokens for each player
+		HashMap<Player, Integer> tokensPerPlayer = new HashMap<Player, Integer>();
+		for(Token token : tokensOnFeature)
+		{
+			Player player = token.getPlayer();
+			if(tokensPerPlayer.containsKey(player))
+			{
+				Integer tokenCount = tokensPerPlayer.get(player);
+				tokenCount = new Integer(tokenCount.intValue() + 1);
+				tokensPerPlayer.put(player, tokenCount);
+			}
+			else
+				tokensPerPlayer.put(player, new Integer(1));
+		}
+	}
+	
+	private HashSet<Token> collectTokensOnFeature(TileFeature f, HashSet<TileFeature> featuresChecked)
+	{
+		HashSet<Token> tokensFound = new HashSet<Token>();
+		Iterator<TileFeature> featureIterator = f.getNeighborIterator();
+		while(featureIterator.hasNext())
+		{
+			TileFeature neighbor = featureIterator.next();
+			if(!featuresChecked.contains(neighbor))
+			{
+				featuresChecked.add(neighbor);
+				if(neighbor.hasToken())
+					tokensFound.add(neighbor.getToken());
+				
+				tokensFound.addAll(collectTokensOnFeature(neighbor, featuresChecked));
+			}
+		}
+		return tokensFound;
+	}
+	
+	public void scoreTile(Tile tile)
+	{
+		//for each feature in tile
+			//if feature complete and not yet scored, determine owner
+				//score feature and update owner's score
+		Iterator<TileFeature> featureIterator = tile.getFeatureIterator();
+		while(featureIterator.hasNext())
+		{
+			TileFeature feature = featureIterator.next();
+			if(!feature.isScored())
+			{
+				
+			}
+		}
 	}
 }
