@@ -1,5 +1,7 @@
 package jCarcassonne;
 
+import jCarcassonne.TileFeature.FeatureEnum;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -130,28 +132,12 @@ public class Rules {
 
 		return false;
 	}
-	
-	private Player findFeatureOwner(TileFeature feature)
+
+	private HashSet<Token> getTokensOnFeature(TileFeature f)
 	{
-		HashSet<Token> tokensOnFeature = collectTokensOnFeature(feature, new HashSet<TileFeature>());
-		
-		//count tokens for each player
-		HashMap<Player, Integer> tokensPerPlayer = new HashMap<Player, Integer>();
-		for(Token token : tokensOnFeature)
-		{
-			Player player = token.getPlayer();
-			if(tokensPerPlayer.containsKey(player))
-			{
-				Integer tokenCount = tokensPerPlayer.get(player);
-				tokenCount = new Integer(tokenCount.intValue() + 1);
-				tokensPerPlayer.put(player, tokenCount);
-			}
-			else
-				tokensPerPlayer.put(player, new Integer(1));
-		}
+		return getTokensOnFeature(f, new HashSet<TileFeature>());
 	}
-	
-	private HashSet<Token> collectTokensOnFeature(TileFeature f, HashSet<TileFeature> featuresChecked)
+	private HashSet<Token> getTokensOnFeature(TileFeature f, HashSet<TileFeature> featuresChecked)
 	{
 		HashSet<Token> tokensFound = new HashSet<Token>();
 		Iterator<TileFeature> featureIterator = f.getNeighborIterator();
@@ -163,26 +149,111 @@ public class Rules {
 				featuresChecked.add(neighbor);
 				if(neighbor.hasToken())
 					tokensFound.add(neighbor.getToken());
-				
-				tokensFound.addAll(collectTokensOnFeature(neighbor, featuresChecked));
+
+				tokensFound.addAll(getTokensOnFeature(neighbor, featuresChecked));
 			}
 		}
 		return tokensFound;
 	}
-	
+
 	public void scoreTile(Tile tile)
 	{
-		//for each feature in tile
-			//if feature complete and not yet scored, determine owner
-				//score feature and update owner's score
 		Iterator<TileFeature> featureIterator = tile.getFeatureIterator();
 		while(featureIterator.hasNext())
 		{
 			TileFeature feature = featureIterator.next();
-			if(!feature.isScored())
+			if(!feature.isScored() && checkFeatureComplete(feature) == true)
 			{
+				HashSet<Token> tokensOnFeature = getTokensOnFeature(feature);
+				HashSet<Player> featureOwners = getFeatureOwners(tokensOnFeature);
+
+				//score feature and update player scores
+				int featureScore = scoreFeature(feature);
+				for(Player player : featureOwners)
+					player.setScore(player.getScore() + featureScore);
 				
+				//free placed tokens
+				for(Token token : tokensOnFeature)
+					token.setPlaced(false);
 			}
 		}
+	}
+
+	private int scoreFeature(TileFeature feature)
+	{
+		HashSet<Tile> tilesInFeature = getTilesInFeature(feature);
+		
+		if(feature.featureType == FeatureEnum.road)
+			return tilesInFeature.size() * 2;
+		else if(feature.featureType == FeatureEnum.city)
+			return tilesInFeature.size() * 2;
+/*		else if(feature.featureType == FeatureEnum.cloister)
+			return scoreCloister(feature);
+		else if(feature.featureType == FeatureEnum.farm)
+			return scoreFarm(feature);*/
+		else
+			return 0; //other features do not score points
+	}
+
+	private HashSet<Player> getFeatureOwners(HashSet<Token> tokensOnFeature)
+	{
+		//count tokens for each player, determine maxTokenCount
+		HashMap<Player, Integer> tokensPerPlayer = new HashMap<Player, Integer>();
+		int maxTokenCount = 0;
+		for(Token token : tokensOnFeature)
+		{
+			Player player = token.getPlayer();
+			if(tokensPerPlayer.containsKey(player))
+			{
+				Integer tokenCount = tokensPerPlayer.get(player);
+				tokenCount = new Integer(tokenCount.intValue() + 1);
+				tokensPerPlayer.put(player, tokenCount);
+			}
+			else
+				tokensPerPlayer.put(player, new Integer(1));
+
+			if(tokensPerPlayer.get(player).intValue() > maxTokenCount)
+				maxTokenCount = tokensPerPlayer.get(player).intValue();
+		}
+
+		//add players with the most tokens to featureOwners set
+		HashSet<Player> featureOwners = new HashSet<Player>();
+		for(Player player: tokensPerPlayer.keySet())
+		{
+			if(tokensPerPlayer.get(player).intValue() == maxTokenCount)
+				featureOwners.add(player);
+		}
+
+		//return set of owners (more than one if a tie in token count)
+		return featureOwners;
+	}
+
+	private boolean checkFeatureComplete(TileFeature feature)
+	{
+		//stub method
+
+		return true;
+	}
+	
+	private HashSet<Tile> getTilesInFeature(TileFeature f)
+	{
+		return getTilesInFeature(f, new HashSet<TileFeature>());
+	}
+	private HashSet<Tile> getTilesInFeature(TileFeature f, HashSet<TileFeature> featuresChecked)
+	{
+		HashSet<Tile> tilesFound = new HashSet<Tile>();
+		Iterator<TileFeature> featureIterator = f.getNeighborIterator();
+		while(featureIterator.hasNext())
+		{
+			TileFeature neighbor = featureIterator.next();
+			if(!featuresChecked.contains(neighbor))
+			{
+				featuresChecked.add(neighbor);
+				tilesFound.add(neighbor.getTile());
+
+				tilesFound.addAll(getTilesInFeature(neighbor, featuresChecked));
+			}
+		}
+		return tilesFound;
 	}
 }
