@@ -128,7 +128,7 @@ public class TileStack extends Stack<Tile>{
 			//check for any flags on the feature
 			String flag = featureString.length > 4 ? featureString[4] : null;
 			
-			TileFeature feature = featureFactory.newTileFeature(featureType, tokenX, tokenY, flag);
+			TileFeature feature = featureFactory.newTileFeature(featureType, tokenX, tokenY, tile, flag);
 			
 			//add feature to tile borders
 			for(int k = 0; k < borderArray.length; k++)
