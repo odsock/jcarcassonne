@@ -19,6 +19,7 @@ public class TileStack extends Stack<Tile>{
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	private String imageFileExtension = ".gif";
 	private int tileWidth = 128;
 	private int tileHeight = 128;
 
@@ -69,8 +70,10 @@ public class TileStack extends Stack<Tile>{
 
 	//helper method to parse tile description strings from the tileset file
 	private Tile createTile(ArrayList<String[]> tileDescription) {
+		String tileName = tileDescription.get(0)[1];
+		String imageFilename = tileName + imageFileExtension;
+		
 		//read image
-		String imageFilename = tileDescription.get(0)[1];
 		BufferedImage img = null;
 		try{
 			img = ImageIO.read(new File(imageFilename));
@@ -86,7 +89,7 @@ public class TileStack extends Stack<Tile>{
 			return null;
 		
 		//create tile
-		Tile t = new Tile(img, imageFilename);
+		Tile t = new Tile(img, tileName);
 
 		//create and add tile features
 		createTileFeatures(tileDescription, t);
@@ -154,7 +157,7 @@ public class TileStack extends Stack<Tile>{
 			this.remove(r);
 			
 			//capture the first start tile
-			if(t.name.equals("startTile.jpg") && startTile == null)
+			if(t.name.equals("startTile") && startTile == null)
 				startTile = t;
 			else
 				tempStack.push(t);
