@@ -14,8 +14,9 @@ public class Landscape {
 	private Tile lastTilePlaced;
 
 	public Landscape(Tile startTile){
-		landscapeHash.put(new Point(0,0), startTile);
-		startTile.setXY(0,0);
+	//	landscapeHash.put(new Point(0,0), startTile);
+	//	startTile.setXY(0,0);
+		placeTile(startTile, 0,0);
 	}
 
 	public void placeTile(Tile tile, int x, int y)
