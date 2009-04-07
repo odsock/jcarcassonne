@@ -1,69 +1,69 @@
-file tileA.jpg
+file tileA
 count 2
 farm 64 64 1111111011110
 cloister 64 64 0000000000001
 road 64 64 0000000100000 end
 
-file tileB.jpg
+file tileB
 count 4
 farm 64 64 1111111111110
 cloister 64 64 0000000000001
 
-file tileC.jpg
+file tileC
 count 1
 city 64 64 1111111111110 flag
 
-file startTile.jpg
+file startTile
 count 4
 farm 64 64 1000000011110
 road 64 64 0100000100000
 farm 64 64 0010001000000
 city 64 64 0001110000000
 
-file tileE.jpg
+file tileE
 count 5
 city 64 64 1110000000000
 farm 64 64 0001111111110
 
-file tileF.jpg
+file tileF
 count 2
 farm 64 64 1110000000000
 city 64 64 0001110001110 flag
 farm 64 64 0000001110000
 
-file tileG.jpg
+file tileG
 count 1
 city 64 64 1110001110000
 farm 64 64 0001110000000
 farm 64 64 0000000001110
 
-file tileH.jpg
+file tileH
 count 3
 farm 64 64 1110001110000
 city 64 64 0001110000000
 city 64 64 0000000001110
 
-file tileI.jpg
+file tileI
 count 2
 farm 64 64 1110000001110
 city 64 64 0001110000000
 city 64 64 0000001110000
 
-file tileJ.jpg
+file tileJ
 count 3
 city 64 64 1110000000000
 farm 64 64 0001000011110
 road 64 64 0000100100000
 farm 64 64 0000011000000
 
-file tileK.jpg
+file tileK
 count 3
 farm 64 64 1000000000010
 road 64 64 0100000000100
 farm 64 64 0010001111000
 city 64 64 0001110000000
 
-file tileL.jpg
+file tileL
 count 3
 farm 64 64 1000000000010
 road 64 64 0100000000000 end
@@ -73,63 +73,63 @@ road 64 64 0000000100000 end
 road 64 64 0000000000100 end
 farm 64 64 0000000011000
 
-file tileM.jpg
+file tileM
 count 2
 city 64 64 1110000001110 flag
 farm 64 64 0001111110000
 
-file tileN.jpg
+file tileN
 count 3
 city 64 64 1110000001110
 farm 64 64 0001111110000
 
-file tileO.jpg
+file tileO
 count 2
 city 64 64 1110000001110 flag
 farm 64 64 0001011010000
 road 64 64 0000100100000
 
-file tileP.jpg
+file tileP
 count 3
 city 64 64 1110000001110
 farm 64 64 0001011010000
 road 64 64 0000100100000
 
-file tileQ.jpg
+file tileQ
 count 1
 city 64 64 1111110001110 flag
 farm 64 64 0000001110000
 
-file tileR.jpg
+file tileR
 count 3
 city 64 64 1111110001110
 farm 64 64 0000001110000
 
-file tileS.jpg
+file tileS
 count 2
 city 64 64 1111110001110 flag
 farm 64 64 0000001010000
 road 64 64 0000000100000 end
 
-file tileT.jpg
+file tileT
 count 1
 city 64 64 1111110001110
 farm 64 64 0000001010000
 road 64 64 0000000100000 end
 
-file tileU.jpg
+file tileU
 count 8
 farm 64 64 1000000011110
 road 64 64 0100000100000
 farm 64 64 0011111000000
 
-file tileV.jpg
+file tileV
 count 9
 farm 64 64 1111111000010
 road 64 64 0000000100100
 farm 64 64 0000000011000
 
-file tileW.jpg
+file tileW
 count 4
 farm 64 64 1111000000010
 road 64 64 0000100000000 end
@@ -138,7 +138,7 @@ road 64 64 0000000100000 end
 farm 64 64 0000000011000
 road 64 64 0000000000100 end
 
-file tileX.jpg
+file tileX
 count 1
 farm 64 64 1000000000010
 road 64 64 0100000000000 end
