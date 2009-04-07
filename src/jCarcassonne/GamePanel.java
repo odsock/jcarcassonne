@@ -300,7 +300,8 @@ public class GamePanel extends JPanel implements Runnable
 		yInTile = yInTile > 0 ? yInTile : yInTile + tileHeight;
 
 		//place token if rules allow
-		if(tilePlacedThisTurn && rules.checkTokenPlacement(landscape, currentPlayer, xInModel, yInModel, xInTile, yInTile))
+	//	if(tilePlacedThisTurn && rules.checkTokenPlacement(landscape, currentPlayer, xInModel, yInModel, xInTile, yInTile))
+		if(rules.checkTokenPlacement(landscape, currentPlayer, xInModel, yInModel, xInTile, yInTile))
 		{
 			Token token = currentPlayer.getToken();
 			landscape.placeToken(token, xInTile, yInTile);

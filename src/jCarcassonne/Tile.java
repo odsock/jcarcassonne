@@ -14,6 +14,7 @@ public class Tile
 	
 	//image for this tile
 	private BufferedImage img;
+	private BufferedImage imgFeatureMap;
 	private int tileWidth;
 	private int tileHeight;
 
@@ -55,9 +56,10 @@ public class Tile
 	public static final int CENTER = 12; 
 
 	//constructor
-	public Tile(BufferedImage img, String name)
+	public Tile(BufferedImage img, BufferedImage imgFeatureMap, String name)
 	{
 		this.img = img;
+		this.imgFeatureMap = imgFeatureMap;
 		this.name = name;
 		tileWidth = img.getWidth();
 		tileHeight = img.getHeight();
@@ -88,6 +90,7 @@ public class Tile
 		at.translate(-tileWidth/2, -tileHeight/2);
 		BufferedImageOp bio = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
 		img = bio.filter(img, null);
+		imgFeatureMap = bio.filter(imgFeatureMap, null);
 	}
 
 	public BufferedImage getImage()
@@ -103,7 +106,7 @@ public class Tile
 	}
 	
 	//return feature at border b, or center feature at tileFeatures[12]
-	public TileFeature getFeature(int b)
+	public TileFeature getFeatureAtBorder(int b)
 	{
 		return tileBorders[b];
 	}
@@ -111,31 +114,31 @@ public class Tile
 	public void setNorthTile(Tile northTile)
 	{
 			this.northTile = northTile;
-			TileFeature f8 = northTile.getFeature(8);
-			TileFeature f7 = northTile.getFeature(7);
-			TileFeature f6 = northTile.getFeature(6);
-			tileBorders[0].addNeighbor(f8);
-			tileBorders[1].addNeighbor(f7);
-			tileBorders[2].addNeighbor(f6);
+			TileFeature sswFeature = northTile.getFeatureAtBorder(SSW);
+			TileFeature southFeature = northTile.getFeatureAtBorder(SOUTH);
+			TileFeature sseFeature = northTile.getFeatureAtBorder(SSE);
+			tileBorders[NNW].addNeighbor(sswFeature);
+			tileBorders[NORTH].addNeighbor(southFeature);
+			tileBorders[NNE].addNeighbor(sseFeature);
 	}
 
 	public void setSouthTile(Tile southTile)
 	{
 			this.southTile = southTile;
-			TileFeature f0 = southTile.getFeature(0);
-			TileFeature f1 = southTile.getFeature(1);
-			TileFeature f2 = southTile.getFeature(2);
-			tileBorders[8].addNeighbor(f0);
-			tileBorders[7].addNeighbor(f1);
-			tileBorders[6].addNeighbor(f2);
+			TileFeature nnwFeature = southTile.getFeatureAtBorder(0);
+			TileFeature northFeature = southTile.getFeatureAtBorder(1);
+			TileFeature nneFeature = southTile.getFeatureAtBorder(2);
+			tileBorders[SSW].addNeighbor(nnwFeature);
+			tileBorders[SOUTH].addNeighbor(northFeature);
+			tileBorders[SSE].addNeighbor(nneFeature);
 	}
 
 	public void setEastTile(Tile eastTile)
 	{
 			this.eastTile = eastTile;
-			TileFeature f11 = eastTile.getFeature(11);
-			TileFeature f10 = eastTile.getFeature(10);
-			TileFeature f9 = eastTile.getFeature(9);
+			TileFeature f11 = eastTile.getFeatureAtBorder(11);
+			TileFeature f10 = eastTile.getFeatureAtBorder(10);
+			TileFeature f9 = eastTile.getFeatureAtBorder(9);
 			tileBorders[3].addNeighbor(f11);
 			tileBorders[4].addNeighbor(f10);
 			tileBorders[5].addNeighbor(f9);
@@ -144,9 +147,9 @@ public class Tile
 	public void setWestTile(Tile westTile)
 	{
 			this.westTile = westTile;
-			TileFeature f3 = westTile.getFeature(3);
-			TileFeature f4 = westTile.getFeature(4);
-			TileFeature f5 = westTile.getFeature(5);
+			TileFeature f3 = westTile.getFeatureAtBorder(3);
+			TileFeature f4 = westTile.getFeatureAtBorder(4);
+			TileFeature f5 = westTile.getFeatureAtBorder(5);
 			tileBorders[11].addNeighbor(f3);
 			tileBorders[10].addNeighbor(f4);
 			tileBorders[9].addNeighbor(f5);
@@ -218,6 +221,8 @@ public class Tile
 		//using monocolor verion of tile image
 		//then return feature at px,py
 		
+		int rgb = imgFeatureMap.getRGB(px,py);
+		System.out.println("getFeatureAt: rgb= " + Integer.toHexString(rgb));
 		//for testing just always return the top center feature
 		return tileBorders[NORTH];
 	}

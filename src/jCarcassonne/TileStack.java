@@ -72,11 +72,19 @@ public class TileStack extends Stack<Tile>{
 	private Tile createTile(ArrayList<String[]> tileDescription) {
 		String tileName = tileDescription.get(0)[1];
 		String imageFilename = tileName + imageFileExtension;
+		String imageFeatureMapFilename = tileName + "FeatureMap" + imageFileExtension;
 		
 		//read image
 		BufferedImage img = null;
+		BufferedImage imgFeatureMap = null;
 		try{
 			img = ImageIO.read(new File(imageFilename));
+			
+			File temp = new File(imageFeatureMapFilename);
+			if(temp.canRead())
+				imgFeatureMap = ImageIO.read(temp);
+			else
+				imgFeatureMap = ImageIO.read(new File(imageFilename));
 		}
 		catch(IOException e) {
 			System.out.println();
@@ -89,7 +97,7 @@ public class TileStack extends Stack<Tile>{
 			return null;
 		
 		//create tile
-		Tile t = new Tile(img, tileName);
+		Tile t = new Tile(img, imgFeatureMap, tileName);
 
 		//create and add tile features
 		createTileFeatures(tileDescription, t);
