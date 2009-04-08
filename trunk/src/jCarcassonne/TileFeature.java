@@ -6,16 +6,15 @@ import java.util.Iterator;
 
 public class TileFeature
 {
-
 	public static enum FeatureEnum { city, road, farm, cloister, river, empty }
 
 	public final FeatureEnum featureType;
+	private Point tokenCoordinates;  //not final, changes during tile rotation
 	public final Tile tile;
 	public final int colorCode;
 
-	private Token token;
-	private Point tokenCoordinates;
-	private boolean scored;
+	private Token token = null;
+	private boolean scored = false;
 
 	//list of features which can be traversed to/from.
 	//doesn't know directions, could be an issue.
@@ -37,17 +36,22 @@ public class TileFeature
 		neighbors.add(tf);
 	}
 
-	//probably should change this, bad to give out the whole list
-	//will work fine until implementation of scoring
 	public Iterator<TileFeature> getNeighborIterator()
 	{
 		return neighbors.iterator();
 	}
 
 	//set a token for this feature
-	public void setToken(Token token)
+	public void placeToken(Token token)
 	{
 		this.token = token;
+		token.setPlaced(true);
+	}
+	
+	public void removeToken()
+	{
+		this.token.setPlaced(false);
+		this.token = null;
 	}
 	
 	public Token getToken()
@@ -81,6 +85,11 @@ public class TileFeature
 	public Point getTokenCoordinates()
 	{
 		return tokenCoordinates;
+	}
+	
+	public void setTokenCoordinates(Point tokenCoordinates)
+	{
+		this.tokenCoordinates = tokenCoordinates;
 	}
 
 	public Tile getTile()

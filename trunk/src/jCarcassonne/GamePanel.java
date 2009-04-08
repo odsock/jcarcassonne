@@ -71,7 +71,7 @@ public class GamePanel extends JPanel implements Runnable
 		rules = new Rules();
 		rules.setVerbose(true);
 		tileStack = new TileStack();
-		tileStack.setIgnoreCount(true);
+		tileStack.setIgnoreCount(true);  //testing aid, only one of each tile
 		tileStack.loadTileSet("tileset.txt");
 		//tileStack.shuffleStack();
 		tileWidth = tileStack.getTileWidth();
@@ -195,7 +195,10 @@ public class GamePanel extends JPanel implements Runnable
 			if(t.hasToken())
 			{
 				g.setColor(t.getToken().getColor());
-				g.fillOval((t.getPoint().x)*tileWidth+t.getTokenX(), -(t.getPoint().y)*tileHeight+t.getTokenY(), 20, 20);
+				Point tokenCoordinates = t.getTokenCoordinates();
+				int tokenX = tokenCoordinates.x-10;
+				int tokenY = tokenCoordinates.y-10;
+				g.fillOval((t.getPoint().x)*tileWidth+tokenX, -(t.getPoint().y)*tileHeight+tokenY, 20, 20);
 			}
 		}
 	}
@@ -301,12 +304,10 @@ public class GamePanel extends JPanel implements Runnable
 		yInTile = yInTile > 0 ? yInTile : yInTile + tileHeight;
 
 		//place token if rules allow
-	//	if(tilePlacedThisTurn && rules.checkTokenPlacement(landscape, currentPlayer, xInModel, yInModel, xInTile, yInTile))
-		if(rules.checkTokenPlacement(landscape, currentPlayer, xInModel, yInModel, xInTile, yInTile))
+		if(tilePlacedThisTurn && rules.checkTokenPlacement(landscape, currentPlayer, xInModel, yInModel, xInTile, yInTile))
 		{
 			Token token = currentPlayer.getToken();
 			landscape.placeToken(token, xInTile, yInTile);
-			token.setPlaced(true);
 			endTurn();
 
 			System.out.println("GamePanel: token placed");

@@ -3,6 +3,7 @@ package jCarcassonne;
 import jCarcassonne.TileFeature.FeatureEnum;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.*;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,7 +12,7 @@ public class Tile
 {
 	//name of the tile image file
 	public final String name;
-	
+
 	//image for this tile
 	private BufferedImage img;
 	private BufferedImage imgFeatureMap;
@@ -22,12 +23,6 @@ public class Tile
 	private int x = Integer.MAX_VALUE;  //initialized out of range
 	private int y = Integer.MAX_VALUE;
 	private boolean isPlaced = false;
-
-	//token info
-	private int tokenX = 0;
-	private int tokenY = 0;
-	private boolean hasToken = false;
-	private Token token = null;
 
 	//array numbered as clockwise tile borders from top left
 	//tileFeatures[12] is center feature, only used for cloister
@@ -64,7 +59,7 @@ public class Tile
 		//can't rotate a placed tile
 		if(isPlaced)
 			return;
-		
+
 		TileFeature wswFeature = tileBorders[WSW];
 		TileFeature westFeature = tileBorders[WEST];
 		TileFeature wnwFeature = tileBorders[WNW];
@@ -84,6 +79,12 @@ public class Tile
 		BufferedImageOp bio = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
 		img = bio.filter(img, null);
 		imgFeatureMap = bio.filter(imgFeatureMap, null);
+
+		for(TileFeature feature : tileFeatureHash.values())
+		{
+			Point2D tokenCoordinates = (Point2D) feature.getTokenCoordinates();
+			at.transform(tokenCoordinates, tokenCoordinates);
+		}
 	}
 
 	public BufferedImage getImage()
@@ -97,7 +98,7 @@ public class Tile
 		tileBorders[b] = f;
 		tileFeatureHash.put(f.getColorCode(), f);
 	}
-	
+
 	//return feature at border b, or center feature at tileFeatures[12]
 	public TileFeature getFeatureAtBorder(int b)
 	{
@@ -106,42 +107,42 @@ public class Tile
 
 	public void setNorthTile(Tile northTile)
 	{
-			TileFeature sswFeature = northTile.getFeatureAtBorder(SSW);
-			TileFeature southFeature = northTile.getFeatureAtBorder(SOUTH);
-			TileFeature sseFeature = northTile.getFeatureAtBorder(SSE);
-			tileBorders[NNW].addNeighbor(sswFeature);
-			tileBorders[NORTH].addNeighbor(southFeature);
-			tileBorders[NNE].addNeighbor(sseFeature);
+		TileFeature sswFeature = northTile.getFeatureAtBorder(SSW);
+		TileFeature southFeature = northTile.getFeatureAtBorder(SOUTH);
+		TileFeature sseFeature = northTile.getFeatureAtBorder(SSE);
+		tileBorders[NNW].addNeighbor(sswFeature);
+		tileBorders[NORTH].addNeighbor(southFeature);
+		tileBorders[NNE].addNeighbor(sseFeature);
 	}
 
 	public void setSouthTile(Tile southTile)
 	{
-			TileFeature nnwFeature = southTile.getFeatureAtBorder(NNW);
-			TileFeature northFeature = southTile.getFeatureAtBorder(NORTH);
-			TileFeature nneFeature = southTile.getFeatureAtBorder(NNE);
-			tileBorders[SSW].addNeighbor(nnwFeature);
-			tileBorders[SOUTH].addNeighbor(northFeature);
-			tileBorders[SSE].addNeighbor(nneFeature);
+		TileFeature nnwFeature = southTile.getFeatureAtBorder(NNW);
+		TileFeature northFeature = southTile.getFeatureAtBorder(NORTH);
+		TileFeature nneFeature = southTile.getFeatureAtBorder(NNE);
+		tileBorders[SSW].addNeighbor(nnwFeature);
+		tileBorders[SOUTH].addNeighbor(northFeature);
+		tileBorders[SSE].addNeighbor(nneFeature);
 	}
 
 	public void setEastTile(Tile eastTile)
 	{
-			TileFeature f11 = eastTile.getFeatureAtBorder(11);
-			TileFeature f10 = eastTile.getFeatureAtBorder(10);
-			TileFeature f9 = eastTile.getFeatureAtBorder(9);
-			tileBorders[ENE].addNeighbor(f11);
-			tileBorders[EAST].addNeighbor(f10);
-			tileBorders[ESE].addNeighbor(f9);
+		TileFeature f11 = eastTile.getFeatureAtBorder(11);
+		TileFeature f10 = eastTile.getFeatureAtBorder(10);
+		TileFeature f9 = eastTile.getFeatureAtBorder(9);
+		tileBorders[ENE].addNeighbor(f11);
+		tileBorders[EAST].addNeighbor(f10);
+		tileBorders[ESE].addNeighbor(f9);
 	}
 
 	public void setWestTile(Tile westTile)
 	{
-			TileFeature f3 = westTile.getFeatureAtBorder(3);
-			TileFeature f4 = westTile.getFeatureAtBorder(4);
-			TileFeature f5 = westTile.getFeatureAtBorder(5);
-			tileBorders[11].addNeighbor(f3);
-			tileBorders[10].addNeighbor(f4);
-			tileBorders[9].addNeighbor(f5);
+		TileFeature f3 = westTile.getFeatureAtBorder(3);
+		TileFeature f4 = westTile.getFeatureAtBorder(4);
+		TileFeature f5 = westTile.getFeatureAtBorder(5);
+		tileBorders[11].addNeighbor(f3);
+		tileBorders[10].addNeighbor(f4);
+		tileBorders[9].addNeighbor(f5);
 	}
 
 	public Point getPoint() {
@@ -151,7 +152,7 @@ public class Tile
 	{ //convenience method
 		if(isPlaced)
 			return;
-		
+
 		x = p.x;
 		y = p.y;
 	}
@@ -159,7 +160,7 @@ public class Tile
 	{
 		if(isPlaced)
 			return;
-		
+
 		this.x = x;
 		this.y = y;
 	}
@@ -183,12 +184,7 @@ public class Tile
 	public void placeToken(Token token, int xInTile, int yInTile)
 	{
 		TileFeature featureClicked = getFeatureAt(xInTile, yInTile);
-		featureClicked.setToken(token);
-		
-		this.tokenX = featureClicked.getTokenCoordinates().x;
-		this.tokenY = featureClicked.getTokenCoordinates().y;
-		this.hasToken = true;
-		this.token = token;
+		featureClicked.placeToken(token);
 	}
 
 	//uses pixel coordinates to look up color in imgFeatureMap
@@ -198,12 +194,12 @@ public class Tile
 		int rgb = imgFeatureMap.getRGB(xInTile, yInTile) - 0xFF000000; //subtract off the alpha channel
 		return tileFeatureHash.get(rgb);
 	}
-	
+
 	public Iterator<TileFeature> getFeatureIterator()
 	{
 		return tileFeatureHash.values().iterator();
 	}
-	
+
 	public void setPlaced(boolean isPlaced) {
 		this.isPlaced = isPlaced;
 	}
@@ -211,22 +207,41 @@ public class Tile
 		return isPlaced;
 	}
 
-	public void setToken(boolean hasToken) {
-		this.hasToken = hasToken;
-	}
-	public boolean hasToken() {
-		return hasToken;
-	}
-	public Token getToken() {
-		return token;
-	}
-	public int getTokenX() {
-		return tokenX;
-	}
-	public int getTokenY() {
-		return tokenY;
+	//return true if any feature has a token
+	public boolean hasToken()
+	{
+		for(TileFeature feature : tileFeatureHash.values())
+		{
+			if(feature.hasToken())
+				return true;
+		}
+
+		return false;
 	}
 	
+	//return first token found or null if none found
+	public Token getToken()
+	{
+		for(TileFeature feature : tileFeatureHash.values())
+		{
+			if(feature.hasToken())
+				return feature.getToken();
+		}
+		
+		return null;
+	}
+	
+	public Point getTokenCoordinates()
+	{
+		for(TileFeature feature : tileFeatureHash.values())
+		{
+			if(feature.hasToken())
+				return feature.getTokenCoordinates();
+		}
+		
+		return null;
+	}
+
 	//check tile for null features to verify initialization
 	public String verifyFeatures()
 	{
@@ -234,7 +249,7 @@ public class Tile
 		for(int i = 0; i < tileBorders.length-1; i++ )
 			if(tileBorders[i] == null)
 				err += "Error: " + name + " - null tileFeature at " + i + "\n";
-		
+
 		return err.equals("") ? null : err;
 	}
 
