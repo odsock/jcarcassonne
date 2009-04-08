@@ -147,7 +147,7 @@ public class Rules {
 		while(featureIterator.hasNext())
 		{
 			TileFeature feature = featureIterator.next();
-			if(!feature.isScored() && checkFeatureComplete(feature) == true)
+			if(!feature.isScored() && feature.isComplete() == true)
 			{
 				HashSet<Token> tokensOnFeature = getTokensOnFeatureGroup(feature);
 				HashSet<Player> featureOwners = getFeatureOwners(tokensOnFeature);
@@ -213,13 +213,6 @@ public class Rules {
 
 		//return set of owners (more than one if a tie in token count)
 		return featureOwners;
-	}
-
-	private boolean checkFeatureComplete(TileFeature feature)
-	{
-		//stub method
-
-		return true;
 	}
 	
 	private HashSet<Tile> getTilesInFeature(TileFeature f)
