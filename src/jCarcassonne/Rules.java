@@ -106,34 +106,19 @@ public class Rules {
 		}
 	}
 
-	//traverse tile feature neighbors to determine whether player p owns the feature group
-	//return false if feature is contested at all(can't place on contested features)
-	private boolean isContestedFeature(TileFeature featureClicked, Player player) {
-		//keep list of features already checked to prevent cycle
-		HashSet<TileFeature> featuresChecked = new HashSet<TileFeature>();
-		return isContestedFeatureHelper(featureClicked, player, featuresChecked);
-	}
-	//recursive helper method for isContestedFeature
-	private boolean isContestedFeatureHelper(TileFeature f, Player player, HashSet<TileFeature> featuresChecked)
+	private boolean isContestedFeature(TileFeature featureClicked, Player player)
 	{
-		Iterator<TileFeature> iterator = f.getNeighborIterator();
-		while(iterator.hasNext())
-		{
-			TileFeature neighbor = iterator.next();
-			if(!featuresChecked.contains(neighbor))
-			{
-				featuresChecked.add(neighbor);
-				if(neighbor.hasToken() && neighbor.getToken().getPlayer() != player)
-					return true;
-				else
-					return isContestedFeatureHelper(neighbor, player, featuresChecked);
-			}
-		}
-
+		HashSet<Token> tokensOnFeature = getTokensOnFeatureGroup(featureClicked);
+		
+		//if any other player has a token on the feature group, it is contested
+		for(Token token : tokensOnFeature)
+			if(token.getPlayer() != player)
+				return true;
+		
 		return false;
 	}
 
-	private HashSet<Token> getTokensOnFeature(TileFeature f)
+	private HashSet<Token> getTokensOnFeatureGroup(TileFeature f)
 	{
 		return getTokensOnFeature(f, new HashSet<TileFeature>());
 	}
@@ -164,7 +149,7 @@ public class Rules {
 			TileFeature feature = featureIterator.next();
 			if(!feature.isScored() && checkFeatureComplete(feature) == true)
 			{
-				HashSet<Token> tokensOnFeature = getTokensOnFeature(feature);
+				HashSet<Token> tokensOnFeature = getTokensOnFeatureGroup(feature);
 				HashSet<Player> featureOwners = getFeatureOwners(tokensOnFeature);
 
 				//score feature and update player scores
@@ -174,7 +159,9 @@ public class Rules {
 				
 				//free placed tokens
 				for(Token token : tokensOnFeature)
-					token.setPlaced(false);
+				{
+					token.getFeature().removeToken();
+				}
 			}
 		}
 	}
