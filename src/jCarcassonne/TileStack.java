@@ -18,10 +18,12 @@ public class TileStack extends Stack<Tile>{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private String imageFileExtension = ".gif";
 	private int tileWidth = 128;
 	private int tileHeight = 128;
+	
+	private boolean ignoreCount = false;
 
 	//read the tileset file, add the created tiles to the stack
 	public void loadTileSet(String tilesetFilename)
@@ -43,12 +45,15 @@ public class TileStack extends Stack<Tile>{
 				}
 
 				//create tiles
-				int tileCount = Integer.parseInt(tileDescription.get(1)[1]);
+				int tileCount = 1;
+				if(!ignoreCount)  //troubleshooting flag, load only one of each tile
+					tileCount = Integer.parseInt(tileDescription.get(1)[1]);
+					
 				for(int i = 0; i < tileCount; i++)
 				{
 					//create tile
 					Tile t = createTile(tileDescription);
-					
+
 					//verify tile creation
 					if(t == null)
 						throw new Exception("Error at tile " + tilesRead);
@@ -56,7 +61,7 @@ public class TileStack extends Stack<Tile>{
 					//add finished tile to stack
 					this.push(t);
 				}
-				
+
 				tilesRead++;
 			}
 		}
@@ -73,13 +78,13 @@ public class TileStack extends Stack<Tile>{
 		String tileName = tileDescription.get(0)[1];
 		String imageFilename = tileName + imageFileExtension;
 		String imageFeatureMapFilename = tileName + "FeatureMap" + imageFileExtension;
-		
+
 		//read image
 		BufferedImage img = null;
 		BufferedImage imgFeatureMap = null;
 		try{
 			img = ImageIO.read(new File(imageFilename));
-			
+
 			File temp = new File(imageFeatureMapFilename);
 			if(temp.canRead())
 				imgFeatureMap = ImageIO.read(temp);
@@ -91,11 +96,11 @@ public class TileStack extends Stack<Tile>{
 			System.out.println(e);
 			System.exit(0);
 		}
-		
+
 		//return null if image is the wrong size
 		if(img.getWidth() != tileWidth || img.getHeight() != tileHeight)
 			return null;
-		
+
 		//create tile
 		Tile t = new Tile(img, imgFeatureMap, tileName);
 
@@ -113,18 +118,18 @@ public class TileStack extends Stack<Tile>{
 	//parses tile feature string from the tileset file, creates features and adds them to tile
 	private void createTileFeatures(ArrayList<String[]> tileDescription, Tile tile) throws NumberFormatException {
 		TileFeatureFactory featureFactory = new TileFeatureFactory();
-		
+
 		for(int j = 2; j < tileDescription.size(); j++)
 		{
 			String[] featureString = tileDescription.get(j);
-			
+
 			//read feature type
 			FeatureEnum featureType = FeatureEnum.valueOf(featureString[0]);
-			
+
 			//read token coordinates for this feature
 			int tokenX = Integer.parseInt(featureString[1]);
 			int tokenY = Integer.parseInt(featureString[2]);
-			
+
 			//parse border bit string
 			String borderString = featureString[3];
 			boolean[] borderArray = new boolean[13];
@@ -135,12 +140,15 @@ public class TileStack extends Stack<Tile>{
 				else
 					borderArray[b] = false;
 			}
-			
+
+			//parse color code for featureMap
+			int colorCode = Integer.parseInt(featureString[4], 16);
+
 			//check for any flags on the feature
-			String flag = featureString.length > 4 ? featureString[4] : null;
-			
-			TileFeature feature = featureFactory.newTileFeature(featureType, tokenX, tokenY, tile, flag);
-			
+			String flag = featureString.length > 5 ? featureString[5] : null;
+
+			TileFeature feature = featureFactory.newTileFeature(featureType, tokenX, tokenY, tile, colorCode, flag);
+
 			//add feature to tile borders
 			for(int k = 0; k < borderArray.length; k++)
 			{
@@ -149,7 +157,7 @@ public class TileStack extends Stack<Tile>{
 			}
 		}
 	}
-	
+
 	//randomizes the order of tiles in the stack
 	public void shuffleStack()
 	{
@@ -163,7 +171,7 @@ public class TileStack extends Stack<Tile>{
 			int r = rand.nextInt(this.size());
 			Tile t = this.get(r);
 			this.remove(r);
-			
+
 			//capture the first start tile
 			if(t.name.equals("startTile") && startTile == null)
 				startTile = t;
@@ -177,11 +185,16 @@ public class TileStack extends Stack<Tile>{
 			this.push(startTile);
 		}
 	}
-	
+
 	public int getTileWidth(){
 		return tileWidth;
 	}
 	public int getTileHeight(){
 		return tileHeight;
+	}
+
+	public void setIgnoreCount(boolean ignoreCount)
+	{
+		this.ignoreCount = ignoreCount;
 	}
 }

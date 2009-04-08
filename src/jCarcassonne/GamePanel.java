@@ -71,8 +71,9 @@ public class GamePanel extends JPanel implements Runnable
 		rules = new Rules();
 		rules.setVerbose(true);
 		tileStack = new TileStack();
+		tileStack.setIgnoreCount(true);
 		tileStack.loadTileSet("tileset.txt");
-		tileStack.shuffleStack();
+		//tileStack.shuffleStack();
 		tileWidth = tileStack.getTileWidth();
 		tileHeight = tileStack.getTileHeight();
 		landscape = new Landscape(tileStack.pop());
