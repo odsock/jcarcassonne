@@ -16,4 +16,10 @@ public class Road extends TileFeature {
 	{
 		return endPoint;
 	}
+	
+	public boolean isComplete()
+	{
+		
+		return true;
+	}
 }

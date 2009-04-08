@@ -2,29 +2,20 @@ package jCarcassonne;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.util.*;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable
 {
-
 	private static final long serialVersionUID = 1L;
 	//JPanel dimensions
 	private int panelWidth;
 	private int panelHeight;
 
 	//tile image dimensions
-	private final int tileWidth;
-	private final int tileHeight;
-
-	//game model elements
-	private Rules rules;
-	private TileStack tileStack;
-	private Landscape landscape;
-	private ArrayList<Player> players = new ArrayList<Player>();
-	private Iterator<Player> playersIterator;
-	private Player currentPlayer;
-	private boolean tilePlacedThisTurn = false;
+	private final int tileWidth = 128;
+	private final int tileHeight = 128;
 
 	//animation loop stuff
 	private Thread animator;
@@ -43,8 +34,13 @@ public class GamePanel extends JPanel implements Runnable
 	private boolean eastScrollFlag = false;
 	private boolean westScrollFlag = false;
 
+	//interface to game model
+	private GameController gameController;
+
 	public GamePanel(int pw, int ph)
 	{
+		gameController = new GameController();
+
 		this.panelWidth = pw;
 		this.panelHeight = ph;
 
@@ -66,21 +62,6 @@ public class GamePanel extends JPanel implements Runnable
 			{ testMouseMove(e.getX(), e.getY()); }
 		});
 
-
-		//create the game model
-		rules = new Rules();
-		rules.setVerbose(true);
-		tileStack = new TileStack();
-		tileStack.setIgnoreCount(true);  //testing aid, only one of each tile
-		tileStack.loadTileSet("tileset.txt");
-		//tileStack.shuffleStack();
-		tileWidth = tileStack.getTileWidth();
-		tileHeight = tileStack.getTileHeight();
-		landscape = new Landscape(tileStack.pop());
-		players.add(new Player("player1", Color.red));
-		players.add(new Player("player2", Color.blue));
-		playersIterator = players.iterator();
-		currentPlayer = playersIterator.next();
 	}
 
 	public void run()
@@ -108,23 +89,6 @@ public class GamePanel extends JPanel implements Runnable
 	//currently there are no animations
 	private void gameUpdate()
 	{
-	}
-
-	//attempts to randomly place the next tile within 5 units of the origin
-	@SuppressWarnings("unused")
-	private boolean randomlyPlaceNextTile()
-	{		
-		Random rand = new Random();
-		int x = rand.nextInt(10)-5;
-		int y = rand.nextInt(10)-5;
-
-		if(rules.checkTilePlacement(landscape, tileStack.peek(),x,y))
-		{
-			landscape.placeTile(tileStack.pop(), x,y);
-			return true;
-		}
-		else
-			return false;
 	}
 
 	//draw the game into the double buffer image
@@ -174,20 +138,21 @@ public class GamePanel extends JPanel implements Runnable
 		dbg.drawString("Done", panelWidth-tileWidth/2+10+5, panelHeight-tileHeight*2+25);
 
 		//draw peek at next tile
-		if(!tileStack.empty())
-		{
-			dbg.translate(panelWidth - tileWidth + 2, panelHeight - tileHeight + 2);
-			dbg.setColor(Color.black);
-			dbg.setStroke(new BasicStroke(4));
-			dbg.draw(new Rectangle(tileWidth,tileHeight));
-			dbg.drawImage(tileStack.peek().getImage(), 0, 0, null);
-			dbg.translate(-(panelWidth - tileWidth + 2), -(panelHeight - tileHeight + 2));
-		}
+		dbg.translate(panelWidth - tileWidth + 2, panelHeight - tileHeight + 2);
+		dbg.setColor(Color.black);
+		dbg.setStroke(new BasicStroke(4));
+		dbg.draw(new Rectangle(tileWidth,tileHeight));
+		BufferedImage img = gameController.getNextTileImage();
+		if(img != null)
+			dbg.drawImage(img, 0, 0, null);
+		else
+			dbg.fill(new Rectangle(tileWidth,tileHeight));
+		dbg.translate(-(panelWidth-tileWidth+2), -(panelHeight-tileHeight+2));
 	}
 
 	public void paintLandscape(Graphics g)
 	{
-		Iterator<Tile> landscapeIterator = landscape.getLandscapeIterator();
+		Iterator<Tile> landscapeIterator = gameController.getLandscapeIterator();
 		while(landscapeIterator.hasNext())
 		{
 			Tile t = landscapeIterator.next();
@@ -264,69 +229,32 @@ public class GamePanel extends JPanel implements Runnable
 	//evaluates mouse clicks
 	private void testMousePress(int xInPanel, int yInPanel, MouseEvent e)
 	{
-		//if Right mouse button, rotate next tile
-		if(e.getButton() == MouseEvent.BUTTON3 && !tilePlacedThisTurn)
+		if(e.getButton() == MouseEvent.BUTTON3)
 		{
-			tileStack.peek().rotate();
-			return;
+			gameController.rotateNextTile();
 		}
-
-		//check Done button
-		if(xInPanel >= panelWidth-tileWidth/2+10 && xInPanel <= panelWidth-tileWidth/2+10+40 &&
+		else if(xInPanel >= panelWidth-tileWidth/2+10 && xInPanel <= panelWidth-tileWidth/2+10+40 &&
 				yInPanel >= panelHeight-tileHeight*2 && yInPanel <= panelHeight-tileHeight*2+30)
 		{
-			endTurn();
-			return;
+			gameController.endTurn();
 		}
-
-		//remove offset due to landscape scrolling/centering translation
-		xInPanel = xInPanel - transX - panelWidth/2 + tileWidth/2;
-		yInPanel = yInPanel - transY - panelHeight/2 + tileHeight/2;
-
-		//calc coords of tile in model space
-		int xInModel = (int) Math.floor((double)xInPanel / tileWidth);
-		int yInModel = (int) -Math.floor((double)yInPanel / tileHeight);
-
-		//place tile if rules allow
-		if(!tilePlacedThisTurn && rules.checkTilePlacement(landscape, tileStack.peek(), xInModel, yInModel))
+		else if(xInPanel < panelWidth-40 && yInPanel > tileWidth/2)
 		{
-			landscape.placeTile(tileStack.pop(), xInModel, yInModel);
-			tilePlacedThisTurn = true;
+			//remove offset due to landscape scrolling/centering translation
+			xInPanel = xInPanel - transX - panelWidth/2 + tileWidth/2;
+			yInPanel = yInPanel - transY - panelHeight/2 + tileHeight/2;
 
-			System.out.println("GamePanel: tile placed");
-			return;
-		}
+			//calc coords of tile in model space
+			int xInModel = (int) Math.floor((double)xInPanel / tileWidth);
+			int yInModel = (int) -Math.floor((double)yInPanel / tileHeight);
 
-		//calc pixel coords within tile
-		int xInTile = xInPanel % tileWidth;
-		int yInTile = yInPanel % tileHeight;
-		xInTile = xInTile > 0 ? xInTile : xInTile + tileWidth; //compensates for negative operands to %
-		yInTile = yInTile > 0 ? yInTile : yInTile + tileHeight;
+			//calc pixel coords within tile
+			int xInTile = xInPanel % tileWidth;
+			int yInTile = yInPanel % tileHeight;
+			xInTile = xInTile > 0 ? xInTile : xInTile + tileWidth; //compensates for negative operands to %
+			yInTile = yInTile > 0 ? yInTile : yInTile + tileHeight;
 
-		//place token if rules allow
-		if(tilePlacedThisTurn && rules.checkTokenPlacement(landscape, currentPlayer, xInModel, yInModel, xInTile, yInTile))
-		{
-			Token token = currentPlayer.getToken();
-			landscape.placeToken(token, xInTile, yInTile);
-			endTurn();
-
-			System.out.println("GamePanel: token placed");
-			return;
-		}
-
-		System.out.println("GamePanel: Unhandled click.");
-	}
-
-	private void endTurn()
-	{
-		tilePlacedThisTurn = false;
-
-		if(playersIterator.hasNext())
-			currentPlayer = playersIterator.next();
-		else
-		{
-			playersIterator = players.iterator();
-			currentPlayer = playersIterator.next();
+			gameController.handleLandscapeClick(xInModel, yInModel, xInTile, yInTile);
 		}
 	}
 

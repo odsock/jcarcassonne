@@ -101,4 +101,10 @@ public class TileFeature
 	{
 		return colorCode;
 	}
+
+	//stub method, meant to be overridden once TileFeature is an abstract class
+	public boolean isComplete()
+	{
+		return true;
+	}
 }
