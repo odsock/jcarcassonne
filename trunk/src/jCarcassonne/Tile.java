@@ -4,7 +4,7 @@ import jCarcassonne.TileFeature.FeatureEnum;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class Tile
@@ -29,17 +29,10 @@ public class Tile
 	private boolean hasToken = false;
 	private Token token = null;
 
-	//references to neighbor tiles
-	private Tile northTile = null;
-	private Tile southTile = null;
-	private Tile eastTile = null;
-	private Tile westTile = null;
-
 	//array numbered as clockwise tile borders from top left
 	//tileFeatures[12] is center feature, only used for cloister
 	private TileFeature[] tileBorders = new TileFeature[13];
-	//HashSet of the same tileFeatures, used for iteration in scoring
-	private HashSet<TileFeature> tileFeatureSet = new HashSet<TileFeature>();
+	private HashMap<Integer, TileFeature> tileFeatureHash = new HashMap<Integer, TileFeature>();
 	//directional border constants
 	public static final int NNW   = 0; 
 	public static final int NORTH = 1;
@@ -102,7 +95,7 @@ public class Tile
 	public void addFeature(TileFeature f, int b)
 	{
 		tileBorders[b] = f;
-		tileFeatureSet.add(f);
+		tileFeatureHash.put(f.getColorCode(), f);
 	}
 	
 	//return feature at border b, or center feature at tileFeatures[12]
@@ -113,7 +106,6 @@ public class Tile
 
 	public void setNorthTile(Tile northTile)
 	{
-			this.northTile = northTile;
 			TileFeature sswFeature = northTile.getFeatureAtBorder(SSW);
 			TileFeature southFeature = northTile.getFeatureAtBorder(SOUTH);
 			TileFeature sseFeature = northTile.getFeatureAtBorder(SSE);
@@ -124,10 +116,9 @@ public class Tile
 
 	public void setSouthTile(Tile southTile)
 	{
-			this.southTile = southTile;
-			TileFeature nnwFeature = southTile.getFeatureAtBorder(0);
-			TileFeature northFeature = southTile.getFeatureAtBorder(1);
-			TileFeature nneFeature = southTile.getFeatureAtBorder(2);
+			TileFeature nnwFeature = southTile.getFeatureAtBorder(NNW);
+			TileFeature northFeature = southTile.getFeatureAtBorder(NORTH);
+			TileFeature nneFeature = southTile.getFeatureAtBorder(NNE);
 			tileBorders[SSW].addNeighbor(nnwFeature);
 			tileBorders[SOUTH].addNeighbor(northFeature);
 			tileBorders[SSE].addNeighbor(nneFeature);
@@ -135,37 +126,22 @@ public class Tile
 
 	public void setEastTile(Tile eastTile)
 	{
-			this.eastTile = eastTile;
 			TileFeature f11 = eastTile.getFeatureAtBorder(11);
 			TileFeature f10 = eastTile.getFeatureAtBorder(10);
 			TileFeature f9 = eastTile.getFeatureAtBorder(9);
-			tileBorders[3].addNeighbor(f11);
-			tileBorders[4].addNeighbor(f10);
-			tileBorders[5].addNeighbor(f9);
+			tileBorders[ENE].addNeighbor(f11);
+			tileBorders[EAST].addNeighbor(f10);
+			tileBorders[ESE].addNeighbor(f9);
 	}
 
 	public void setWestTile(Tile westTile)
 	{
-			this.westTile = westTile;
 			TileFeature f3 = westTile.getFeatureAtBorder(3);
 			TileFeature f4 = westTile.getFeatureAtBorder(4);
 			TileFeature f5 = westTile.getFeatureAtBorder(5);
 			tileBorders[11].addNeighbor(f3);
 			tileBorders[10].addNeighbor(f4);
 			tileBorders[9].addNeighbor(f5);
-	}
-
-	public Tile getNorthTile() {
-		return northTile;
-	}
-	public Tile getSouthTile() {
-		return southTile;
-	}
-	public Tile getEastTile() {
-		return eastTile;
-	}
-	public Tile getWestTile() {
-		return westTile;
 	}
 
 	public Point getPoint() {
@@ -204,9 +180,9 @@ public class Tile
 		return tileBorders[CENTER].featureType;
 	}
 
-	public void placeToken(Token token, int xInTile, int yIntTile)
+	public void placeToken(Token token, int xInTile, int yInTile)
 	{
-		TileFeature featureClicked = getFeatureAt(xInTile, yIntTile);
+		TileFeature featureClicked = getFeatureAt(xInTile, yInTile);
 		featureClicked.setToken(token);
 		
 		this.tokenX = featureClicked.getTokenCoordinates().x;
@@ -215,21 +191,17 @@ public class Tile
 		this.token = token;
 	}
 
-	public TileFeature getFeatureAt(int px, int py)
+	//uses pixel coordinates to look up color in imgFeatureMap
+	//uses that color to look up a tileFeature in the hash table
+	public TileFeature getFeatureAt(int xInTile, int yInTile)
 	{
-		//insert code to check feature map image here
-		//using monocolor verion of tile image
-		//then return feature at px,py
-		
-		int rgb = imgFeatureMap.getRGB(px,py);
-		System.out.println("getFeatureAt: rgb= " + Integer.toHexString(rgb));
-		//for testing just always return the top center feature
-		return tileBorders[NORTH];
+		int rgb = imgFeatureMap.getRGB(xInTile, yInTile) - 0xFF000000; //subtract off the alpha channel
+		return tileFeatureHash.get(rgb);
 	}
 	
 	public Iterator<TileFeature> getFeatureIterator()
 	{
-		return tileFeatureSet.iterator();
+		return tileFeatureHash.values().iterator();
 	}
 	
 	public void setPlaced(boolean isPlaced) {
@@ -254,6 +226,7 @@ public class Tile
 	public int getTokenY() {
 		return tokenY;
 	}
+	
 	//check tile for null features to verify initialization
 	public String verifyFeatures()
 	{

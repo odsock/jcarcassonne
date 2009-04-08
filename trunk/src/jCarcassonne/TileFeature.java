@@ -11,6 +11,7 @@ public class TileFeature
 
 	public final FeatureEnum featureType;
 	public final Tile tile;
+	public final int colorCode;
 
 	private Token token;
 	private Point tokenCoordinates;
@@ -20,11 +21,12 @@ public class TileFeature
 	//doesn't know directions, could be an issue.
 	private ArrayList<TileFeature> neighbors; 
 
-	public TileFeature(FeatureEnum f, int tokenX, int tokenY, Tile tile)
+	public TileFeature(FeatureEnum f, int tokenX, int tokenY, Tile tile, int colorCode)
 	{
 		featureType = f;
 		tokenCoordinates = new Point(tokenX,tokenY);
 		this.tile = tile;
+		this.colorCode = colorCode;
 		neighbors = new ArrayList<TileFeature>();
 	}
 
@@ -84,5 +86,10 @@ public class TileFeature
 	public Tile getTile()
 	{
 		return tile;
+	}
+	
+	public int getColorCode()
+	{
+		return colorCode;
 	}
 }

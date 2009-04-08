@@ -38,22 +38,22 @@ public class Landscape {
 		p.translate(0,1);
 		if(landscapeHash.containsKey(p)){
 			tile.setNorthTile(landscapeHash.get(p));
-			tile.getNorthTile().setSouthTile(tile);
+			landscapeHash.get(p).setSouthTile(tile);
 		}
 		p.translate(0,-2);
 		if(landscapeHash.containsKey(p)){
 			tile.setSouthTile(landscapeHash.get(p));
-			tile.getSouthTile().setNorthTile(tile);
+			landscapeHash.get(p).setNorthTile(tile);
 		}
 		p.translate(1,1);
 		if(landscapeHash.containsKey(p)){
 			tile.setEastTile(landscapeHash.get(p));
-			tile.getEastTile().setWestTile(tile);
+			landscapeHash.get(p).setWestTile(tile);
 		}
 		p.translate(-2,0);
 		if(landscapeHash.containsKey(p)){
 			tile.setWestTile(landscapeHash.get(p));
-			tile.getWestTile().setEastTile(tile);
+			landscapeHash.get(p).setEastTile(tile);
 		}
 	}
 	
