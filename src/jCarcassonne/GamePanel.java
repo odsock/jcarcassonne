@@ -33,6 +33,10 @@ public class GamePanel extends JPanel implements Runnable
 	private boolean southScrollFlag = false;
 	private boolean eastScrollFlag = false;
 	private boolean westScrollFlag = false;
+	
+	//GUI elements
+	private Rectangle peekRectangle = new Rectangle(tileWidth,tileHeight);
+	private Rectangle doneButtonRectangle = new Rectangle(40, 30);
 
 	//interface to game model
 	private GameController gameController;
@@ -61,7 +65,6 @@ public class GamePanel extends JPanel implements Runnable
 			public void mouseMoved(MouseEvent e)
 			{ testMouseMove(e.getX(), e.getY()); }
 		});
-
 	}
 
 	public void run()
@@ -132,21 +135,23 @@ public class GamePanel extends JPanel implements Runnable
 		dbg.fillRect(0,0, panelWidth, 40);
 
 		//draw done button
+		dbg.translate(panelWidth-tileWidth/2+10, panelHeight-tileHeight*2);
 		dbg.setColor(Color.LIGHT_GRAY);
-		dbg.fillRect(panelWidth-tileWidth/2+10, panelHeight-tileHeight*2, 40, 30);
+		dbg.fill(doneButtonRectangle);
 		dbg.setColor(Color.black);
-		dbg.drawString("Done", panelWidth-tileWidth/2+10+5, panelHeight-tileHeight*2+25);
+		dbg.drawString("Done", 5, 25);
+		dbg.translate(-(panelWidth-tileWidth/2+10), -(panelHeight-tileHeight*2));
 
 		//draw peek at next tile
 		dbg.translate(panelWidth - tileWidth + 2, panelHeight - tileHeight + 2);
 		dbg.setColor(Color.black);
 		dbg.setStroke(new BasicStroke(4));
-		dbg.draw(new Rectangle(tileWidth,tileHeight));
+		dbg.draw(peekRectangle);
 		BufferedImage img = gameController.getNextTileImage();
 		if(img != null)
 			dbg.drawImage(img, 0, 0, null);
 		else
-			dbg.fill(new Rectangle(tileWidth,tileHeight));
+			dbg.fill(peekRectangle);
 		dbg.translate(-(panelWidth-tileWidth+2), -(panelHeight-tileHeight+2));
 	}
 
@@ -156,7 +161,7 @@ public class GamePanel extends JPanel implements Runnable
 		while(landscapeIterator.hasNext())
 		{
 			Tile t = landscapeIterator.next();
-			g.drawImage(t.getImage(),(t.getPoint().x)*128, -(t.getPoint().y)*128, null);
+			g.drawImage(t.getImage(),(t.getPoint().x)*tileWidth, -(t.getPoint().y)*tileHeight, null);
 			if(t.hasToken())
 			{
 				g.setColor(t.getToken().getColor());

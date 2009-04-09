@@ -133,10 +133,14 @@ public class TileStack extends Stack<Tile>{
 			//parse border bit string
 			String borderString = featureString[3];
 			boolean[] borderArray = new boolean[13];
+			int maxNeighbors = 0;
 			for(int b = 0; b < borderArray.length; b++)
 			{
 				if(borderString.charAt(b) == '1')
+				{
 					borderArray[b] = true;
+					maxNeighbors++;
+				}
 				else
 					borderArray[b] = false;
 			}
@@ -147,7 +151,7 @@ public class TileStack extends Stack<Tile>{
 			//check for any flags on the feature
 			String flag = featureString.length > 5 ? featureString[5] : null;
 
-			TileFeature feature = featureFactory.newTileFeature(featureType, tokenX, tokenY, tile, colorCode, flag);
+			TileFeature feature = featureFactory.newTileFeature(featureType, maxNeighbors, tokenX, tokenY, tile, colorCode, flag);
 
 			//add feature to tile borders
 			for(int k = 0; k < borderArray.length; k++)

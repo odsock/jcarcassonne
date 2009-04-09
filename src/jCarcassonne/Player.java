@@ -61,4 +61,15 @@ public class Player {
 		else
 			return false;
 	}
+
+	public int getTokenCount()
+	{
+		int tokenCount = 0;
+		for(Token token : tokens)
+		{
+			if(!token.isPlaced())
+				tokenCount++;
+		}
+		return tokenCount;
+	}
 }

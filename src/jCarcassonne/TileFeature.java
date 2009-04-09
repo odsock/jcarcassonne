@@ -2,6 +2,7 @@ package jCarcassonne;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
 public class TileFeature
@@ -11,21 +12,23 @@ public class TileFeature
 	public final FeatureEnum featureType;
 	private Point tokenCoordinates;  //not final, changes during tile rotation
 	public final Tile tile;
-	public final int colorCode;
+	public final int indexColorCode;  //color in the feature map image for tile
 
 	private Token token = null;
 	private boolean scored = false;
 
 	//list of features which can be traversed to/from.
-	//doesn't know directions, could be an issue.
 	private ArrayList<TileFeature> neighbors; 
-
-	public TileFeature(FeatureEnum f, int tokenX, int tokenY, Tile tile, int colorCode)
+	private int numNeighbors = 0;
+	private final int maxNeighbors;
+	
+	public TileFeature(FeatureEnum f, int maxNeighbors, int tokenX, int tokenY, Tile tile, int indexColorCode)
 	{
 		featureType = f;
+		this.maxNeighbors = maxNeighbors;
 		tokenCoordinates = new Point(tokenX,tokenY);
 		this.tile = tile;
-		this.colorCode = colorCode;
+		this.indexColorCode = indexColorCode;
 		neighbors = new ArrayList<TileFeature>();
 	}
 
@@ -34,11 +37,17 @@ public class TileFeature
 	public void addNeighbor(TileFeature tf)
 	{
 		neighbors.add(tf);
+		numNeighbors++;
 	}
 
 	public Iterator<TileFeature> getNeighborIterator()
 	{
 		return neighbors.iterator();
+	}
+	
+	public int getNumNeighbors()
+	{
+		return numNeighbors;
 	}
 
 	//set a token for this feature
@@ -67,6 +76,7 @@ public class TileFeature
 			return false;
 	}
 
+	@Override
 	public String toString()
 	{
 		return featureType.toString();
@@ -99,12 +109,39 @@ public class TileFeature
 	
 	public int getColorCode()
 	{
-		return colorCode;
+		return indexColorCode;
 	}
 
-	//stub method, meant to be overridden once TileFeature is an abstract class
+	//stub method, meant to be overridden
 	public boolean isComplete()
 	{
-		return true;
+		return false;
+	}
+	
+	public HashSet<Tile> getTilesInFeature()
+	{
+		return getTilesInFeature(this, new HashSet<TileFeature>());
+	}
+	private HashSet<Tile> getTilesInFeature(TileFeature f, HashSet<TileFeature> featuresChecked)
+	{
+		HashSet<Tile> tilesFound = new HashSet<Tile>();
+		Iterator<TileFeature> featureIterator = f.getNeighborIterator();
+		while(featureIterator.hasNext())
+		{
+			TileFeature neighbor = featureIterator.next();
+			if(!featuresChecked.contains(neighbor))
+			{
+				featuresChecked.add(neighbor);
+				tilesFound.add(neighbor.getTile());
+
+				tilesFound.addAll(getTilesInFeature(neighbor, featuresChecked));
+			}
+		}
+		return tilesFound;
+	}
+
+	public int getMaxNeighbors()
+	{
+		return maxNeighbors;
 	}
 }

@@ -4,28 +4,25 @@ import jCarcassonne.TileFeature.FeatureEnum;
 
 public class TileFeatureFactory 
 {
-	public TileFeature newTileFeature(FeatureEnum featureType, int tokenX, int tokenY, Tile tile, int colorCode, String flag)
+	public TileFeature newTileFeature(FeatureEnum featureType, int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode, String flag)
 	{
 		TileFeature feature;
 		
 		if(featureType == FeatureEnum.road)
 		{
-			Road roadFeature = new Road(tokenX, tokenY, tile, colorCode);
+			Road roadFeature = new Road(maxNeighbors, tokenX, tokenY, tile, colorCode);
 			if("end".equals(flag))
 				roadFeature.setEndPoint(true);
 			
 			feature = roadFeature;
 		}
+		else if(featureType == FeatureEnum.cloister)
+			feature = new Cloister(maxNeighbors, tokenX, tokenY, tile, colorCode);
 		else
 		{
-			feature = new TileFeature(featureType, tokenX, tokenY, tile, colorCode);
+			feature = new TileFeature(featureType, maxNeighbors, tokenX, tokenY, tile, colorCode);
 		}
 			
 		return feature;
-	}
-	
-	public TileFeature newTileFeature(FeatureEnum featureType, int tokenX, int tokenY, Tile tile, int colorCode)
-	{
-		return new TileFeature(featureType, tokenX, tokenY, tile, colorCode);
 	}
 }

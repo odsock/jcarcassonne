@@ -13,10 +13,10 @@ public class Landscape {
 	private int lastY = 0;
 	private Tile lastTilePlaced;
 
-	public Landscape(Tile startTile){
-	//	landscapeHash.put(new Point(0,0), startTile);
-	//	startTile.setXY(0,0);
-		placeTile(startTile, 0,0);
+	public Landscape(Tile startTile)
+	{
+		landscapeHash.put(new Point(0,0), startTile);
+		startTile.setXY(0,0);
 	}
 
 	public void placeTile(Tile tile, int x, int y)
@@ -55,11 +55,6 @@ public class Landscape {
 			tile.setWestTile(landscapeHash.get(p));
 			landscapeHash.get(p).setEastTile(tile);
 		}
-	}
-	
-	public void placeToken(Token token, int xInTile, int yInTile) {
-		if(lastTilePlaced != null)
-			lastTilePlaced.placeToken(token, xInTile, yInTile);
 	}
 
 	public Tile getTile(int x, int y){

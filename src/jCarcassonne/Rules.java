@@ -27,28 +27,32 @@ public class Rules {
 
 		if(n  == null && s == null && e == null && w == null)
 			return false;
-		else if(n != null && t.getNorthFeatureType() != n.getSouthFeatureType())
+		else if(n != null && 
+				t.getFeatureAtBorder(Tile.NORTH).featureType != n.getFeatureAtBorder(Tile.SOUTH).featureType)
 		{
 			if(verbose)
-				System.out.println("North border: " + t.getNorthFeatureType() + " != " + n.getSouthFeatureType());
+				System.out.println("North border: " + t.getFeatureAtBorder(Tile.NORTH).featureType + " != " + n.getFeatureAtBorder(Tile.SOUTH).featureType);
 			return false;
 		}
-		else if(s != null && t.getSouthFeatureType() != s.getNorthFeatureType())
+		else if(s != null && 
+				t.getFeatureAtBorder(Tile.SOUTH).featureType != s.getFeatureAtBorder(Tile.NORTH).featureType)
 		{
 			if(verbose)
-				System.out.println("South border: " + t.getSouthFeatureType() + " != " + s.getNorthFeatureType());
+				System.out.println("South border: " + t.getFeatureAtBorder(Tile.SOUTH).featureType + " != " + s.getFeatureAtBorder(Tile.NORTH).featureType);
 			return false;
 		}
-		else if(e != null && t.getEastFeatureType() != e.getWestFeatureType())
+		else if(e != null && 
+				t.getFeatureAtBorder(Tile.EAST).featureType != e.getFeatureAtBorder(Tile.WEST).featureType)
 		{
 			if(verbose)
-				System.out.println("East border: " + t.getEastFeatureType() + " != " + e.getWestFeatureType());
+				System.out.println("East border: " + t.getFeatureAtBorder(Tile.EAST).featureType + " != " + e.getFeatureAtBorder(Tile.WEST).featureType);
 			return false;
 		}
-		else if(w != null && t.getWestFeatureType() != w.getEastFeatureType())
+		else if(w != null && 
+				t.getFeatureAtBorder(Tile.WEST).featureType != w.getFeatureAtBorder(Tile.EAST).featureType)
 		{
 			if(verbose)
-				System.out.println("West border: " + t.getWestFeatureType() + " != " + w.getEastFeatureType());
+				System.out.println("West border: " + t.getFeatureAtBorder(Tile.WEST).featureType + " != " + w.getFeatureAtBorder(Tile.EAST).featureType);
 			return false;
 		}
 		else
@@ -147,36 +151,38 @@ public class Rules {
 		while(featureIterator.hasNext())
 		{
 			TileFeature feature = featureIterator.next();
-			if(!feature.isScored() && feature.isComplete() == true)
+			if(!feature.isScored() && feature.isComplete())
 			{
 				HashSet<Token> tokensOnFeature = getTokensOnFeatureGroup(feature);
 				HashSet<Player> featureOwners = getFeatureOwners(tokensOnFeature);
 
 				//score feature and update player scores
-				int featureScore = scoreFeature(feature);
+				int featureScore = scoreFeature(feature, true);
 				for(Player player : featureOwners)
+				{
 					player.setScore(player.getScore() + featureScore);
+					if(verbose)
+						System.out.println("ScoreTile: " + player.getName() + " score=" + player.getScore());
+				}
 				
 				//free placed tokens
 				for(Token token : tokensOnFeature)
-				{
 					token.getFeature().removeToken();
-				}
 			}
 		}
 	}
 
-	private int scoreFeature(TileFeature feature)
+	private int scoreFeature(TileFeature feature, boolean isComplete)
 	{
-		HashSet<Tile> tilesInFeature = getTilesInFeature(feature);
+		HashSet<Tile> tilesInFeature = feature.getTilesInFeature();
 		
 		if(feature.featureType == FeatureEnum.road)
-			return tilesInFeature.size() * 2;
+			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
 		else if(feature.featureType == FeatureEnum.city)
-			return tilesInFeature.size() * 2;
-/*		else if(feature.featureType == FeatureEnum.cloister)
-			return scoreCloister(feature);
-		else if(feature.featureType == FeatureEnum.farm)
+			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
+		else if(feature.featureType == FeatureEnum.cloister)
+			return tilesInFeature.size() + 1;
+/*		else if(feature.featureType == FeatureEnum.farm)
 			return scoreFarm(feature);*/
 		else
 			return 0; //other features do not score points
@@ -213,27 +219,5 @@ public class Rules {
 
 		//return set of owners (more than one if a tie in token count)
 		return featureOwners;
-	}
-	
-	private HashSet<Tile> getTilesInFeature(TileFeature f)
-	{
-		return getTilesInFeature(f, new HashSet<TileFeature>());
-	}
-	private HashSet<Tile> getTilesInFeature(TileFeature f, HashSet<TileFeature> featuresChecked)
-	{
-		HashSet<Tile> tilesFound = new HashSet<Tile>();
-		Iterator<TileFeature> featureIterator = f.getNeighborIterator();
-		while(featureIterator.hasNext())
-		{
-			TileFeature neighbor = featureIterator.next();
-			if(!featuresChecked.contains(neighbor))
-			{
-				featuresChecked.add(neighbor);
-				tilesFound.add(neighbor.getTile());
-
-				tilesFound.addAll(getTilesInFeature(neighbor, featuresChecked));
-			}
-		}
-		return tilesFound;
 	}
 }
