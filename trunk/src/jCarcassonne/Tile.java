@@ -1,6 +1,5 @@
 package jCarcassonne;
 
-import jCarcassonne.TileFeature.FeatureEnum;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -28,19 +27,13 @@ public class Tile
 	//tileFeatures[12] is center feature, only used for cloister
 	private TileFeature[] tileBorders = new TileFeature[13];
 	private HashMap<Integer, TileFeature> tileFeatureHash = new HashMap<Integer, TileFeature>();
-	//directional border constants
-	public static final int NNW   = 0; 
-	public static final int NORTH = 1;
-	public static final int NNE   = 2;
-	public static final int ENE   = 3;
-	public static final int EAST  = 4;
-	public static final int ESE   = 5;
-	public static final int SSE   = 6;
-	public static final int SOUTH = 7;
-	public static final int SSW   = 8;
-	public static final int WSW   = 9;
-	public static final int WEST  = 10;
-	public static final int WNW   = 11;
+	private Tile northTile = null, southTile = null, eastTile = null, westTile = null;
+	
+	//directional constants
+	public static final int NNW   = 0, NORTH = 1,  NNE   = 2;
+	public static final int ENE   = 3, EAST  = 4,  ESE   = 5;
+	public static final int SSE   = 6, SOUTH = 7,  SSW   = 8;
+	public static final int WSW   = 9, WEST  = 10, WNW   = 11;
 	public static final int CENTER = 12; 
 
 	//constructor
@@ -87,11 +80,6 @@ public class Tile
 		}
 	}
 
-	public BufferedImage getImage()
-	{
-		return img;
-	}
-
 	//link feature to a tile border, or add center feature at tileFeatures[12]
 	public void addFeature(TileFeature f, int b)
 	{
@@ -100,13 +88,14 @@ public class Tile
 	}
 
 	//return feature at border b, or center feature at tileFeatures[12]
-	public TileFeature getFeatureAtBorder(int b)
+	public TileFeature getFeatureAtBorder(int directionalConstant)
 	{
-		return tileBorders[b];
+		return tileBorders[directionalConstant];
 	}
 
 	public void setNorthTile(Tile northTile)
 	{
+		this.northTile = northTile;
 		TileFeature sswFeature = northTile.getFeatureAtBorder(SSW);
 		TileFeature southFeature = northTile.getFeatureAtBorder(SOUTH);
 		TileFeature sseFeature = northTile.getFeatureAtBorder(SSE);
@@ -117,6 +106,7 @@ public class Tile
 
 	public void setSouthTile(Tile southTile)
 	{
+		this.southTile = southTile;
 		TileFeature nnwFeature = southTile.getFeatureAtBorder(NNW);
 		TileFeature northFeature = southTile.getFeatureAtBorder(NORTH);
 		TileFeature nneFeature = southTile.getFeatureAtBorder(NNE);
@@ -127,24 +117,26 @@ public class Tile
 
 	public void setEastTile(Tile eastTile)
 	{
-		TileFeature f11 = eastTile.getFeatureAtBorder(11);
-		TileFeature f10 = eastTile.getFeatureAtBorder(10);
-		TileFeature f9 = eastTile.getFeatureAtBorder(9);
-		tileBorders[ENE].addNeighbor(f11);
-		tileBorders[EAST].addNeighbor(f10);
-		tileBorders[ESE].addNeighbor(f9);
+		this.eastTile = eastTile;
+		TileFeature wnwFeature = eastTile.getFeatureAtBorder(WNW);
+		TileFeature westFeature = eastTile.getFeatureAtBorder(WEST);
+		TileFeature wswFeature = eastTile.getFeatureAtBorder(WSW);
+		tileBorders[ENE].addNeighbor(wnwFeature);
+		tileBorders[EAST].addNeighbor(westFeature);
+		tileBorders[ESE].addNeighbor(wswFeature);
 	}
 
 	public void setWestTile(Tile westTile)
 	{
-		TileFeature f3 = westTile.getFeatureAtBorder(3);
-		TileFeature f4 = westTile.getFeatureAtBorder(4);
-		TileFeature f5 = westTile.getFeatureAtBorder(5);
-		tileBorders[11].addNeighbor(f3);
-		tileBorders[10].addNeighbor(f4);
-		tileBorders[9].addNeighbor(f5);
+		this.westTile = westTile;
+		TileFeature eneFeature = westTile.getFeatureAtBorder(ENE);
+		TileFeature eastFeature = westTile.getFeatureAtBorder(EAST);
+		TileFeature eseFeature = westTile.getFeatureAtBorder(ESE);
+		tileBorders[WNW].addNeighbor(eneFeature);
+		tileBorders[WEST].addNeighbor(eastFeature);
+		tileBorders[WSW].addNeighbor(eseFeature);
 	}
-
+	
 	public Point getPoint() {
 		return new Point(x,y);
 	}
@@ -165,26 +157,11 @@ public class Tile
 		this.y = y;
 	}
 
-	public FeatureEnum getNorthFeatureType() {
-		return tileBorders[NORTH].featureType;
-	}
-	public FeatureEnum getSouthFeatureType() {
-		return tileBorders[SOUTH].featureType;
-	}
-	public FeatureEnum getEastFeatureType() {
-		return tileBorders[EAST].featureType;
-	}
-	public FeatureEnum getWestFeatureType() {
-		return tileBorders[WEST].featureType;
-	}
-	public FeatureEnum getCenterFeature() {
-		return tileBorders[CENTER].featureType;
-	}
-
 	public void placeToken(Token token, int xInTile, int yInTile)
 	{
 		TileFeature featureClicked = getFeatureAt(xInTile, yInTile);
 		featureClicked.placeToken(token);
+		token.setFeature(featureClicked);
 	}
 
 	//uses pixel coordinates to look up color in imgFeatureMap
@@ -253,6 +230,12 @@ public class Tile
 		return err.equals("") ? null : err;
 	}
 
+	public BufferedImage getImage()
+	{
+		return img;
+	}
+
+	@Override
 	public String toString()
 	{
 		String s = "";
@@ -263,5 +246,21 @@ public class Tile
 		}
 
 		return name + " " + x + " " + y + " : " + s;
+	}
+
+	public Tile getNorthTile() {
+		return northTile;
+	}
+
+	public Tile getSouthTile() {
+		return southTile;
+	}
+
+	public Tile getEastTile() {
+		return eastTile;
+	}
+
+	public Tile getWestTile() {
+		return westTile;
 	}
 }
