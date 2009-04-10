@@ -5,6 +5,8 @@ import java.util.Iterator;
 
 public class City extends TileFeature
 {
+	private boolean hasPennant = false;
+	
 	public City(int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode)
 	{
 		super(TileFeature.FeatureEnum.city, maxNeighbors, tokenX, tokenY, tile, colorCode);
@@ -13,26 +15,38 @@ public class City extends TileFeature
 	@Override
 	public boolean isComplete()
 	{
+		System.out.println("City.isComplete called");
 		return isComplete(this, new HashSet<TileFeature>());
 	}
 	private boolean isComplete(TileFeature feature, HashSet<TileFeature> featuresChecked)
 	{
-		if(this.getNumNeighbors() != this.getMaxNeighbors())
-			return false;
-		else
+		boolean isCompleteSoFar = false;
+		
+		if(this.getNumNeighbors() == this.getMaxNeighbors())
 		{
+			isCompleteSoFar = true;
 			Iterator<TileFeature> neighborIterator = this.getNeighborIterator();
-			while(neighborIterator.hasNext())
+			while(isCompleteSoFar && neighborIterator.hasNext())
 			{
 				TileFeature neighbor = neighborIterator.next();
 				if(!featuresChecked.contains(neighbor))
 				{
 					featuresChecked.add(neighbor);
-					if(!isComplete(neighbor, featuresChecked))
-						return false;
+					isCompleteSoFar = isComplete(neighbor, featuresChecked);
 				}
 			}
 		}
-		return true;
+		
+		System.out.println("City.isComplete: numNeighbors=" + this.getNumNeighbors() + " maxNeighbors=" + this.getMaxNeighbors());
+		
+		return isCompleteSoFar;
+	}
+
+	public void setPennant(boolean hasPennant) {
+		this.hasPennant = hasPennant;
+	}
+
+	public boolean hasPennant() {
+		return hasPennant;
 	}
 }

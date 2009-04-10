@@ -24,6 +24,7 @@ public class Road extends TileFeature
 	@Override
 	public boolean isComplete()
 	{
+		System.out.println("Road.isComplete called");
 		boolean firstHasEndPoint = false, secondHasEndPoint = false;
 		int numNeighbors = getNumNeighbors();
 
