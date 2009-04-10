@@ -19,6 +19,7 @@ public class TileStack extends Stack<Tile>{
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private String tilesetFolder = "./tileset/";
 	private String imageFileExtension = ".gif";
 	private int tileWidth = 128;
 	private int tileHeight = 128;
@@ -29,7 +30,7 @@ public class TileStack extends Stack<Tile>{
 	public void loadTileSet(String tilesetFilename)
 	{
 		try{
-			BufferedReader in = new BufferedReader(new FileReader(tilesetFilename));
+			BufferedReader in = new BufferedReader(new FileReader(tilesetFolder + tilesetFilename));
 
 			int tilesRead = 1;
 			while(in.ready())
@@ -76,8 +77,8 @@ public class TileStack extends Stack<Tile>{
 	//helper method to parse tile description strings from the tileset file
 	private Tile createTile(ArrayList<String[]> tileDescription) {
 		String tileName = tileDescription.get(0)[1];
-		String imageFilename = tileName + imageFileExtension;
-		String imageFeatureMapFilename = tileName + "FeatureMap" + imageFileExtension;
+		String imageFilename = tilesetFolder + tileName + imageFileExtension;
+		String imageFeatureMapFilename = tilesetFolder + tileName + "FeatureMap" + imageFileExtension;
 
 		//read image
 		BufferedImage img = null;

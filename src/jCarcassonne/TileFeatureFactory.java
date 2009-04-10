@@ -18,6 +18,14 @@ public class TileFeatureFactory
 		}
 		else if(featureType == FeatureEnum.cloister)
 			feature = new Cloister(maxNeighbors, tokenX, tokenY, tile, colorCode);
+		else if(featureType == FeatureEnum.city)
+		{
+			City cityFeature = new City(maxNeighbors, tokenX, tokenY, tile, colorCode);
+			if("pennant".equals(flag))
+				cityFeature.setPennant(true);
+			
+			feature = cityFeature;
+		}
 		else
 		{
 			feature = new TileFeature(featureType, maxNeighbors, tokenX, tokenY, tile, colorCode);

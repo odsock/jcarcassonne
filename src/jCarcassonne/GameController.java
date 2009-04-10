@@ -12,7 +12,7 @@ public class GameController
 	private TileStack tileStack;
 	private Landscape landscape;
 	private ArrayList<Player> players = new ArrayList<Player>();
-	
+
 	//turn control
 	private Iterator<Player> playersIterator;
 	private Player currentPlayer;
@@ -24,9 +24,9 @@ public class GameController
 		rules = new Rules();
 		rules.setVerbose(true);
 		tileStack = new TileStack();
-		tileStack.setIgnoreCount(true);  //testing aid, load only one of each tile
+		tileStack.setIgnoreCount(false);
 		tileStack.loadTileSet("tileset.txt");
-		//tileStack.shuffleStack();
+		tileStack.shuffleStack();
 		landscape = new Landscape(tileStack.pop());
 		players.add(new Player("player1", Color.red));
 		players.add(new Player("player2", Color.blue));
@@ -40,7 +40,7 @@ public class GameController
 		{
 			rules.scoreTile(landscape.getLastTilePlaced());
 			tilePlacedThisTurn = false;
-			
+
 			if(playersIterator.hasNext())
 				currentPlayer = playersIterator.next();
 			else
@@ -56,25 +56,33 @@ public class GameController
 		if(!tilePlacedThisTurn)
 			tileStack.peek().rotate();
 	}
-	
+
 	private void placeTile(int xInModel, int yInModel)
 	{
 		//place tile if rules allow
-		if(!tilePlacedThisTurn && rules.checkTilePlacement(landscape, tileStack.peek(), xInModel, yInModel))
+		if(!tilePlacedThisTurn && !tileStack.empty() && rules.checkTilePlacement(landscape, tileStack.peek(), xInModel, yInModel))
 		{
 			landscape.placeTile(tileStack.pop(), xInModel, yInModel);
 			tilePlacedThisTurn = true;
 		}
 	}
-	
+
 	private void placeToken(int xInModel, int yInModel, int xInTile, int yInTile)
 	{
 		//place token if rules allow
-		if(tilePlacedThisTurn && rules.checkTokenPlacement(landscape, currentPlayer, xInModel, yInModel, xInTile, yInTile))
+		if(tilePlacedThisTurn && currentPlayer.hasToken())
 		{
-			Token token = currentPlayer.getToken();
-			landscape.getLastTilePlaced().placeToken(token, xInTile, yInTile);
-			endTurn();
+			Tile tileClicked = landscape.getTile(xInModel, yInModel);
+			if(tileClicked != null)
+			{
+				TileFeature featureClicked = tileClicked.getFeatureAt(xInTile, yInTile);
+				if(rules.checkTokenPlacement(landscape, tileClicked, featureClicked, currentPlayer))
+				{
+					Token token = currentPlayer.getToken();
+					tileClicked.placeToken(token, xInTile, yInTile);
+					endTurn();
+				}
+			}
 		}
 	}
 
@@ -86,7 +94,7 @@ public class GameController
 		else
 			placeToken(xInModel, yInModel, xInTile, yInTile);
 	}
-	
+
 	public BufferedImage getNextTileImage()
 	{
 		if(!tileStack.empty())
@@ -94,22 +102,22 @@ public class GameController
 		else
 			return null;
 	}
-	
+
 	public String getCurrentPlayerName()
 	{
 		return currentPlayer.getName();
 	}
-	
+
 	public int getCurrentPlayerScore()
 	{
 		return currentPlayer.getScore();
 	}
-	
+
 	public int getCurrentPlayerTokenCount()
 	{
 		return currentPlayer.getTokenCount();
 	}
-	
+
 	public Color getCurrentPlayerColor()
 	{
 		return currentPlayer.getColor();

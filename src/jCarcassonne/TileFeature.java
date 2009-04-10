@@ -115,6 +115,7 @@ public class TileFeature
 	//stub method, meant to be overridden
 	public boolean isComplete()
 	{
+		System.out.println("TileFeature.isComplete called");
 		return false;
 	}
 	
