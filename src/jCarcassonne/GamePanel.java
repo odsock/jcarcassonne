@@ -65,6 +65,14 @@ public class GamePanel extends JPanel implements Runnable
 			public void mouseMoved(MouseEvent e)
 			{ testMouseMove(e.getX(), e.getY()); }
 		});
+		
+/*		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Dimension cursorDim = toolkit.getBestCursorSize(40, 40);
+		BufferedImage tokenCursor = new BufferedImage(cursorDim.width, cursorDim.height, BufferedImage.TYPE_INT_ARGB_PRE);
+		Graphics2D cursorGraphics = tokenCursor.createGraphics();
+		cursorGraphics.setColor(gameController.getCurrentPlayerColor());
+		cursorGraphics.fillOval(0, 0, cursorDim.width-1, cursorDim.height-1);
+		setCursor(toolkit.createCustomCursor(tokenCursor, new Point(0,0), "tokenCursor"));*/
 	}
 
 	public void run()
@@ -129,6 +137,11 @@ public class GamePanel extends JPanel implements Runnable
 		paintLandscape(dbg);
 		dbg.translate(-(transX + panelWidth/2 - tileWidth/2), -(transY + panelHeight/2 - tileHeight/2));
 
+		//paint the buttons, player info, etc
+		paintHUD();
+	}
+
+	private void paintHUD() {
 		//draw hud background
 		dbg.setColor(Color.DARK_GRAY);
 		dbg.fillRect(panelWidth-tileWidth/2, 0, panelWidth, panelHeight);
@@ -139,6 +152,7 @@ public class GamePanel extends JPanel implements Runnable
 		dbg.setColor(Color.LIGHT_GRAY);
 		dbg.fill(doneButtonRectangle);
 		dbg.setColor(Color.black);
+		dbg.setFont(new Font("Serif", Font.BOLD, 14));
 		dbg.drawString("Done", 5, 25);
 		dbg.translate(-(panelWidth-tileWidth/2+10), -(panelHeight-tileHeight*2));
 
@@ -153,6 +167,22 @@ public class GamePanel extends JPanel implements Runnable
 		else
 			dbg.fill(peekRectangle);
 		dbg.translate(-(panelWidth-tileWidth+2), -(panelHeight-tileHeight+2));
+		
+		//draw player name and score
+		dbg.setPaint(gameController.getCurrentPlayerColor());
+		dbg.setFont(new Font("SansSerif", Font.BOLD, 18));
+		dbg.drawString(gameController.getCurrentPlayerName() + ":   Score=" + Integer.toString(gameController.getCurrentPlayerScore()), panelWidth/3, 30);
+		
+		//draw player tokens
+		dbg.translate(panelWidth-tileWidth/2+20, 20);
+		dbg.setPaint(gameController.getCurrentPlayerColor());
+		int tokenCount = gameController.getCurrentPlayerTokenCount();
+		int tokenOffset = (panelHeight-tileHeight*2-40) / 8;
+		for(int i = 0; i < tokenCount; i++)
+		{
+			dbg.fillOval(0, i*tokenOffset, 30, 30);
+		}
+		dbg.translate(-(panelWidth-tileWidth/2+20), -20);
 	}
 
 	public void paintLandscape(Graphics g)
