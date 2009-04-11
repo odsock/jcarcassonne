@@ -29,7 +29,7 @@ public class Cloister extends TileFeature
 	}
 	
 	@Override
-	public HashSet<Tile> getTilesInFeature()
+	public HashSet<Tile> getTilesInFeatureGroup()
 	{
 		HashSet<Tile> tilesInFeature = new HashSet<Tile>();
 		Tile tile = this.getTile();
