@@ -6,7 +6,7 @@ public class TileFeatureFactory
 {
 	public TileFeature newTileFeature(FeatureEnum featureType, int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode, String flag)
 	{
-		TileFeature feature;
+		TileFeature feature = null;
 		
 		if(featureType == FeatureEnum.road)
 		{
@@ -24,9 +24,9 @@ public class TileFeatureFactory
 			
 			feature = cityFeature;
 		}
-		else
+		else if(featureType == FeatureEnum.farm)
 		{
-			feature = new TileFeature(featureType, maxNeighbors, tokenX, tokenY, tile, colorCode);
+			feature = new Farm(maxNeighbors, tokenX, tokenY, tile, colorCode);
 		}
 			
 		return feature;
