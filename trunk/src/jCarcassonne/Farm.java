@@ -6,6 +6,10 @@ public class Farm extends TileFeature
 	{
 		super(TileFeature.FeatureEnum.farm, maxNeighbors, tokenX, tokenY, tile, colorCode);
 	}
-	
-	
+
+	@Override
+	public boolean isComplete() {
+		//farm features are never complete
+		return false;
+	}
 }
