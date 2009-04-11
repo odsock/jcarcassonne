@@ -70,7 +70,7 @@ public class GameController
 	private void placeToken(int xInModel, int yInModel, int xInTile, int yInTile)
 	{
 		//place token if rules allow
-		if(tilePlacedThisTurn && currentPlayer.hasToken())
+		if(tilePlacedThisTurn)
 		{
 			Tile tileClicked = landscape.getTile(xInModel, yInModel);
 			if(tileClicked != null)
@@ -78,9 +78,11 @@ public class GameController
 				TileFeature featureClicked = tileClicked.getFeatureAt(xInTile, yInTile);
 				if(rules.checkTokenPlacement(landscape, tileClicked, featureClicked, currentPlayer))
 				{
+					if(tileClicked.hasToken())
+						tileClicked.getToken().getFeature().removeToken();
+					
 					Token token = currentPlayer.getToken();
 					tileClicked.placeToken(token, xInTile, yInTile);
-					endTurn();
 				}
 			}
 		}
