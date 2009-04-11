@@ -50,6 +50,11 @@ public class TileFeature
 		return numNeighbors;
 	}
 
+	public int getMaxNeighbors()
+	{
+		return maxNeighbors;
+	}
+
 	//set a token for this feature
 	public void placeToken(Token token)
 	{
@@ -139,10 +144,5 @@ public class TileFeature
 			}
 		}
 		return tilesFound;
-	}
-
-	public int getMaxNeighbors()
-	{
-		return maxNeighbors;
 	}
 }

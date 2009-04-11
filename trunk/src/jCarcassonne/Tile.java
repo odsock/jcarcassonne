@@ -162,8 +162,6 @@ public class Tile
 		TileFeature featureClicked = getFeatureAt(xInTile, yInTile);
 		featureClicked.placeToken(token);
 		token.setFeature(featureClicked);
-		
-		System.out.println(this.name + " " + featureClicked.getTokenCoordinates());
 	}
 
 	//uses pixel coordinates to look up color in imgFeatureMap

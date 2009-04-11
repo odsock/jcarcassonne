@@ -199,6 +199,8 @@ public class GamePanel extends JPanel implements Runnable
 				int tokenX = tokenCoordinates.x-10;
 				int tokenY = tokenCoordinates.y-10;
 				g.fillOval((t.getPoint().x)*tileWidth+tokenX, -(t.getPoint().y)*tileHeight+tokenY, 20, 20);
+				g.setColor(Color.BLACK);
+				g.drawOval((t.getPoint().x)*tileWidth+tokenX, -(t.getPoint().y)*tileHeight+tokenY, 20, 20);
 			}
 		}
 	}
