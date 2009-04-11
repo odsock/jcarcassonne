@@ -11,8 +11,6 @@ public class TileFeatureFactory
 		if(featureType == FeatureEnum.road)
 		{
 			Road roadFeature = new Road(maxNeighbors, tokenX, tokenY, tile, colorCode);
-			if("end".equals(flag))
-				roadFeature.setEndPoint(true);
 			
 			feature = roadFeature;
 		}

@@ -124,7 +124,7 @@ public class Rules {
 
 	private int scoreFeature(TileFeature feature, boolean isComplete)
 	{
-		HashSet<Tile> tilesInFeature = feature.getTilesInFeature();
+		HashSet<Tile> tilesInFeature = feature.getTilesInFeatureGroup();
 
 		if(feature.featureType == FeatureEnum.road)
 			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();

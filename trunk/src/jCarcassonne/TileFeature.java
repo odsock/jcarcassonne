@@ -119,11 +119,11 @@ public class TileFeature
 		return false;
 	}
 	
-	public HashSet<Tile> getTilesInFeature()
+	public HashSet<Tile> getTilesInFeatureGroup()
 	{
-		return getTilesInFeature(this, new HashSet<TileFeature>());
+		return getTilesInFeatureGroup(this, new HashSet<TileFeature>());
 	}
-	private HashSet<Tile> getTilesInFeature(TileFeature f, HashSet<TileFeature> featuresChecked)
+	private HashSet<Tile> getTilesInFeatureGroup(TileFeature f, HashSet<TileFeature> featuresChecked)
 	{
 		HashSet<Tile> tilesFound = new HashSet<Tile>();
 		Iterator<TileFeature> featureIterator = f.getNeighborIterator();
@@ -135,7 +135,7 @@ public class TileFeature
 				featuresChecked.add(neighbor);
 				tilesFound.add(neighbor.getTile());
 
-				tilesFound.addAll(getTilesInFeature(neighbor, featuresChecked));
+				tilesFound.addAll(getTilesInFeatureGroup(neighbor, featuresChecked));
 			}
 		}
 		return tilesFound;
