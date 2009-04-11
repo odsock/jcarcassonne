@@ -9,16 +9,12 @@ public class Road extends TileFeature
 		super(TileFeature.FeatureEnum.road, maxNeighbors, tokenX, tokenY, tile, colorCode);
 	}
 
-	private boolean isEndPoint;
-
-	public void setEndPoint(boolean isEndPoint)
-	{
-		this.isEndPoint = isEndPoint;
-	}
-
 	public boolean isEndPoint()
 	{
-		return isEndPoint;
+		if(getMaxNeighbors() == 1)
+			return true;
+		else
+			return false;
 	}
 
 	@Override
@@ -28,13 +24,13 @@ public class Road extends TileFeature
 		boolean firstHasEndPoint = false, secondHasEndPoint = false;
 		int numNeighbors = getNumNeighbors();
 
-		if(isEndPoint && numNeighbors == 1)
+		if(isEndPoint() && numNeighbors == 1)
 		{
 			Iterator<TileFeature> neighborsIterator = this.getNeighborIterator();
 			firstHasEndPoint = true;
 			secondHasEndPoint = hasEndPoint(this, neighborsIterator.next());
 		}
-		else if(!isEndPoint && numNeighbors == 2)
+		else if(!isEndPoint() && numNeighbors == 2)
 		{
 			Iterator<TileFeature> neighborsIterator = this.getNeighborIterator();
 			firstHasEndPoint = hasEndPoint(this, neighborsIterator.next());
