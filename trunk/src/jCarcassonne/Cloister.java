@@ -12,7 +12,6 @@ public class Cloister extends TileFeature
 	@Override
 	public boolean isComplete()
 	{
-		System.out.println("Cloister.isComplete called");
 		boolean isComplete = true;
 		Tile tile = this.getTile();
 

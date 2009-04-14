@@ -22,7 +22,7 @@ public class GameController
 	{
 		//create the game model
 		rules = new Rules();
-		rules.setVerbose(true);
+		rules.setVerbose(false);
 		tileStack = new TileStack();
 		tileStack.setIgnoreCount(false);
 		tileStack.loadTileSet("tileset.txt");

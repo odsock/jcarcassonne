@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class TileFeature
+public abstract class TileFeature
 {
 	public static enum FeatureEnum { city, road, farm, cloister, river, empty }
 
@@ -118,11 +118,7 @@ public class TileFeature
 	}
 
 	//stub method, meant to be overridden
-	public boolean isComplete()
-	{
-		System.out.println("TileFeature.isComplete called");
-		return false;
-	}
+	public abstract boolean isComplete();
 	
 	public HashSet<Tile> getTilesInFeatureGroup()
 	{

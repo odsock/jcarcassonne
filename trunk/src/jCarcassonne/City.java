@@ -15,7 +15,6 @@ public class City extends TileFeature
 	@Override
 	public boolean isComplete()
 	{
-		System.out.println("City.isComplete:");
 		return isComplete(this, new HashSet<TileFeature>());
 	}
 	private boolean isComplete(TileFeature feature, HashSet<TileFeature> featuresChecked)
