@@ -20,7 +20,6 @@ public class GamePanel extends JPanel implements Runnable
 	//animation loop stuff
 	private Thread animator;
 	private volatile boolean running = false;
-	private volatile boolean gameOver = false;
 
 	//double buffering stuff
 	private Graphics2D dbg;
@@ -38,6 +37,7 @@ public class GamePanel extends JPanel implements Runnable
 	private Rectangle peekRectangle = new Rectangle(tileWidth,tileHeight);
 	private Rectangle doneButtonRectangle;
 	private Rectangle endGameButtonRectangle;
+	private boolean showScores = false;
 
 	//interface to game model
 	private GameController gameController;
@@ -62,12 +62,19 @@ public class GamePanel extends JPanel implements Runnable
 
 		addMouseListener( new MouseAdapter() {
 			public void mousePressed(MouseEvent e)
-			{ testMousePress(e.getX(), e.getY(), e); }
+			{ handleMousePress(e.getX(), e.getY(), e); }
 		});
 
 		addMouseMotionListener( new MouseMotionAdapter() {
 			public void mouseMoved(MouseEvent e)
-			{ testMouseMove(e.getX(), e.getY()); }
+			{ handleMouseMove(e.getX(), e.getY()); }
+		});
+		
+		addKeyListener( new KeyAdapter() {
+			public void keyPressed(KeyEvent e)
+			{ handleKeyboard(e);	}
+			public void keyReleased(KeyEvent e)
+			{ handleKeyboard(e);	}
 		});
 		
 /*		Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -272,8 +279,23 @@ public class GamePanel extends JPanel implements Runnable
 		});
 	}
 
+	protected void handleKeyboard(KeyEvent e)
+	{
+		System.out.println(e.getID() + " " + KeyEvent.KEY_PRESSED);
+		if(e.getID() == KeyEvent.KEY_PRESSED)
+			showScores = true;
+		else if(e.getID()== KeyEvent.KEY_RELEASED)
+			showScores = false;
+		System.out.println(showScores);
+	}
+
+	private void displayScores()
+	{
+		
+	}
+
 	//evaluates mouse clicks
-	private void testMousePress(int xInPanel, int yInPanel, MouseEvent e)
+	private void handleMousePress(int xInPanel, int yInPanel, MouseEvent e)
 	{
 		//check for rotate attempt
 		if(e.getButton() == MouseEvent.BUTTON3)
@@ -307,7 +329,7 @@ public class GamePanel extends JPanel implements Runnable
 
 	//evaluates mouse movements/location
 	//triggers landscape scrolling at edges of panel
-	private void testMouseMove(int x, int y)
+	private void handleMouseMove(int x, int y)
 	{ 
 		if(x > panelWidth - 10)
 			eastScrollFlag = true;
