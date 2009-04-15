@@ -20,7 +20,7 @@ public class GamePanel extends JPanel implements Runnable
 	//animation loop stuff
 	private Thread animator;
 	private volatile boolean running = false;
-	//private volatile boolean gameOver = false;
+	private volatile boolean gameOver = false;
 
 	//double buffering stuff
 	private Graphics2D dbg;
@@ -36,7 +36,8 @@ public class GamePanel extends JPanel implements Runnable
 	
 	//GUI elements
 	private Rectangle peekRectangle = new Rectangle(tileWidth,tileHeight);
-	private Rectangle doneButtonRectangle = new Rectangle(40, 30);
+	private Rectangle doneButtonRectangle;
+	private Rectangle endGameButtonRectangle;
 
 	//interface to game model
 	private GameController gameController;
@@ -50,6 +51,9 @@ public class GamePanel extends JPanel implements Runnable
 
 		setBackground(Color.white);
 		setPreferredSize( new Dimension(panelWidth, panelHeight));
+		
+		doneButtonRectangle = new Rectangle(panelWidth-tileWidth/2+10, panelHeight-tileHeight*2-20, 40, 40);
+		endGameButtonRectangle = new Rectangle(panelWidth-tileWidth/2+10, panelHeight-tileHeight*2+30, 40, 40);
 
 		setFocusable(true);
 		requestFocus();    // the JPanel now has focus, so receives key events
@@ -148,14 +152,19 @@ public class GamePanel extends JPanel implements Runnable
 		dbg.fillRect(0,0, panelWidth, 40);
 
 		//draw done button
-		dbg.translate(panelWidth-tileWidth/2+10, panelHeight-tileHeight*2);
 		dbg.setColor(Color.LIGHT_GRAY);
 		dbg.fill(doneButtonRectangle);
 		dbg.setColor(Color.black);
 		dbg.setFont(new Font("Serif", Font.BOLD, 14));
-		dbg.drawString("Done", 5, 25);
-		dbg.translate(-(panelWidth-tileWidth/2+10), -(panelHeight-tileHeight*2));
+		dbg.drawString("Done", doneButtonRectangle.x + 5, doneButtonRectangle.y + 25);
 
+		//draw end game button
+		dbg.setColor(Color.LIGHT_GRAY);
+		dbg.fill(endGameButtonRectangle);
+		dbg.setColor(Color.black);
+		dbg.setFont(new Font("Serif", Font.BOLD, 14));
+		dbg.drawString("End Game", endGameButtonRectangle.x + 5, endGameButtonRectangle.y + 25);
+		
 		//draw peek at next tile
 		dbg.translate(panelWidth - tileWidth + 2, panelHeight - tileHeight + 2);
 		dbg.setColor(Color.black);
@@ -266,15 +275,16 @@ public class GamePanel extends JPanel implements Runnable
 	//evaluates mouse clicks
 	private void testMousePress(int xInPanel, int yInPanel, MouseEvent e)
 	{
+		//check for rotate attempt
 		if(e.getButton() == MouseEvent.BUTTON3)
-		{
 			gameController.rotateNextTile();
-		}
-		else if(xInPanel >= panelWidth-tileWidth/2+10 && xInPanel <= panelWidth-tileWidth/2+10+40 &&
-				yInPanel >= panelHeight-tileHeight*2 && yInPanel <= panelHeight-tileHeight*2+30)
-		{
+		//check done button
+		else if(doneButtonRectangle.contains(xInPanel, yInPanel))
 			gameController.endTurn();
-		}
+		//check end game button
+		else if(endGameButtonRectangle.contains(xInPanel, yInPanel))
+			gameController.endGame();
+		//check for landscape click
 		else if(xInPanel < panelWidth-40 && yInPanel > tileWidth/2)
 		{
 			//remove offset due to landscape scrolling/centering translation

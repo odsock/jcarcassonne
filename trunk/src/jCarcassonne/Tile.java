@@ -93,6 +93,24 @@ public class Tile
 		return tileBorders[directionalConstant];
 	}
 
+	//uses pixel coordinates to look up color in imgFeatureMap
+	//uses that color to look up a tileFeature in the hash table
+	public TileFeature getFeatureAt(int xInTile, int yInTile)
+	{
+		int rgb = imgFeatureMap.getRGB(xInTile, yInTile) - 0xFF000000; //subtract off the alpha channel
+		return tileFeatureHash.get(rgb);
+	}
+	
+	public TileFeature getFeatureByColorCode(int colorCode)
+	{
+		return tileFeatureHash.get(colorCode);
+	}
+
+	public Iterator<TileFeature> getFeatureIterator()
+	{
+		return tileFeatureHash.values().iterator();
+	}
+
 	public void setNorthTile(Tile northTile)
 	{
 		this.northTile = northTile;
@@ -162,19 +180,6 @@ public class Tile
 		TileFeature featureClicked = getFeatureAt(xInTile, yInTile);
 		featureClicked.placeToken(token);
 		token.setFeature(featureClicked);
-	}
-
-	//uses pixel coordinates to look up color in imgFeatureMap
-	//uses that color to look up a tileFeature in the hash table
-	public TileFeature getFeatureAt(int xInTile, int yInTile)
-	{
-		int rgb = imgFeatureMap.getRGB(xInTile, yInTile) - 0xFF000000; //subtract off the alpha channel
-		return tileFeatureHash.get(rgb);
-	}
-
-	public Iterator<TileFeature> getFeatureIterator()
-	{
-		return tileFeatureHash.values().iterator();
 	}
 
 	public void setPlaced(boolean isPlaced) {

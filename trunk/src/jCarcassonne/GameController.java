@@ -17,6 +17,7 @@ public class GameController
 	private Iterator<Player> playersIterator;
 	private Player currentPlayer;
 	private boolean tilePlacedThisTurn = false;
+	private boolean gameOver = false;
 
 	public GameController()
 	{
@@ -36,7 +37,7 @@ public class GameController
 
 	public void endTurn()
 	{
-		if(tilePlacedThisTurn) //can't end turn without placing a tile
+		if(!gameOver && tilePlacedThisTurn) //can't end turn without placing a tile
 		{
 			rules.scoreTile(landscape.getLastTilePlaced());
 			tilePlacedThisTurn = false;
@@ -50,17 +51,25 @@ public class GameController
 			}
 		}
 	}
+	
+	public void endGame() {
+		rules.scoreTile(landscape.getLastTilePlaced());
+		tilePlacedThisTurn = false;
+		gameOver = true;
+		
+		rules.scoreAllTokens(players.iterator());
+	}
 
 	public void rotateNextTile()
 	{
-		if(!tilePlacedThisTurn)
+		if(!gameOver && !tilePlacedThisTurn)
 			tileStack.peek().rotate();
 	}
 
 	private void placeTile(int xInModel, int yInModel)
 	{
 		//place tile if rules allow
-		if(!tilePlacedThisTurn && !tileStack.empty() && rules.checkTilePlacement(landscape, tileStack.peek(), xInModel, yInModel))
+		if(!gameOver && !tilePlacedThisTurn && !tileStack.empty() && rules.checkTilePlacement(landscape, tileStack.peek(), xInModel, yInModel))
 		{
 			landscape.placeTile(tileStack.pop(), xInModel, yInModel);
 			tilePlacedThisTurn = true;
@@ -70,7 +79,7 @@ public class GameController
 	private void placeToken(int xInModel, int yInModel, int xInTile, int yInTile)
 	{
 		//place token if rules allow
-		if(tilePlacedThisTurn)
+		if(!gameOver && tilePlacedThisTurn)
 		{
 			Tile tileClicked = landscape.getTile(xInModel, yInModel);
 			if(tileClicked != null)

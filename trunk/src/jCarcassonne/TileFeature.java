@@ -122,23 +122,44 @@ public abstract class TileFeature
 	
 	public HashSet<Tile> getTilesInFeatureGroup()
 	{
-		return getTilesInFeatureGroup(this, new HashSet<TileFeature>());
+		HashSet<TileFeature> featuresInGroup = getFeaturesInGroup();
+		HashSet<Tile> tilesInGroup = new HashSet<Tile>();
+		
+		for(TileFeature feature : featuresInGroup)
+			tilesInGroup.add(feature.getTile());
+		
+		return tilesInGroup;
 	}
-	private HashSet<Tile> getTilesInFeatureGroup(TileFeature f, HashSet<TileFeature> featuresChecked)
+	
+	public HashSet<Token> getTokensOnFeatureGroup()
 	{
-		HashSet<Tile> tilesFound = new HashSet<Tile>();
-		Iterator<TileFeature> featureIterator = f.getNeighborIterator();
-		while(featureIterator.hasNext())
+		HashSet<TileFeature> featuresInGroup = getFeaturesInGroup();
+		HashSet<Token> tokensInGroup = new HashSet<Token>();
+		
+		for(TileFeature feature : featuresInGroup)
+			if(feature.hasToken())
+				tokensInGroup.add(feature.getToken());
+		
+		return tokensInGroup;
+	}
+	
+	public HashSet<TileFeature> getFeaturesInGroup()
+	{
+		return getFeaturesInGroup(this, new HashSet<TileFeature>());
+	}
+	private HashSet<TileFeature> getFeaturesInGroup(TileFeature feature, HashSet<TileFeature> featuresFound)
+	{
+		Iterator<TileFeature> neighborIterator = feature.getNeighborIterator();
+		while(neighborIterator.hasNext())
 		{
-			TileFeature neighbor = featureIterator.next();
-			if(!featuresChecked.contains(neighbor))
+			TileFeature neighbor = neighborIterator.next();
+			if(!featuresFound.contains(neighbor))
 			{
-				featuresChecked.add(neighbor);
-				tilesFound.add(neighbor.getTile());
-
-				tilesFound.addAll(getTilesInFeatureGroup(neighbor, featuresChecked));
+				featuresFound.add(neighbor);
+				getFeaturesInGroup(neighbor, featuresFound);
 			}
 		}
-		return tilesFound;
+		
+		return featuresFound;
 	}
 }
