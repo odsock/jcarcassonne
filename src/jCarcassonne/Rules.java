@@ -67,7 +67,7 @@ public class Rules {
 	{	
 		boolean isOKPlacement = false;
 		String verboseOutput = "";
-		
+
 		//check inputs
 		if(landscape != null && tileClicked != null && featureClicked != null && player != null)
 		{
@@ -88,10 +88,10 @@ public class Rules {
 		}
 		else
 			verboseOutput = "CheckTokenPlacement: bad input";
-		
+
 		if(verbose)
 			System.out.println(verboseOutput);
-		
+
 		return isOKPlacement;
 	}
 
@@ -103,7 +103,7 @@ public class Rules {
 			TileFeature feature = featureIterator.next();
 			if(!feature.isScored() && feature.isComplete())
 			{
-				HashSet<Token> tokensOnFeature = getTokensOnFeatureGroup(feature);
+				HashSet<Token> tokensOnFeature = feature.getTokensOnFeatureGroup();
 				HashSet<Player> featureOwners = getFeatureOwners(tokensOnFeature);
 
 				//score feature and update player scores
@@ -128,49 +128,29 @@ public class Rules {
 
 		if(feature.featureType == FeatureEnum.road)
 			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
-			else if(feature.featureType == FeatureEnum.city)
-				return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
-				else if(feature.featureType == FeatureEnum.cloister)
-					return tilesInFeature.size() + 1;
-		/*		else if(feature.featureType == FeatureEnum.farm)
-			return scoreFarm(feature);*/
-				else
-					return 0; //other features do not score points
+		else if(feature.featureType == FeatureEnum.city)
+			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
+		else if(feature.featureType == FeatureEnum.cloister)
+			return tilesInFeature.size() + 1;
+		else if(feature.featureType == FeatureEnum.farm)
+		{
+			Farm farmFeature = (Farm) feature;
+			return farmFeature.getNumCompleteCityNeighbors() * 4;
+		}
+		else
+			return 0; //other features do not score points
 	}
 
 	private boolean isUncontestedFeature(TileFeature featureClicked, Player player)
 	{
-		HashSet<Token> tokensOnFeature = getTokensOnFeatureGroup(featureClicked);
-
+		HashSet<Token> tokensOnFeature = featureClicked.getTokensOnFeatureGroup();
+		
 		//if any other player has a token on the feature group, it is contested
 		for(Token token : tokensOnFeature)
 			if(token.getPlayer() != player)
 				return false;
 
 		return true;
-	}
-
-	private HashSet<Token> getTokensOnFeatureGroup(TileFeature f)
-	{
-		return getTokensOnFeature(f, new HashSet<TileFeature>());
-	}
-	private HashSet<Token> getTokensOnFeature(TileFeature f, HashSet<TileFeature> featuresChecked)
-	{
-		HashSet<Token> tokensFound = new HashSet<Token>();
-		Iterator<TileFeature> featureIterator = f.getNeighborIterator();
-		while(featureIterator.hasNext())
-		{
-			TileFeature neighbor = featureIterator.next();
-			if(!featuresChecked.contains(neighbor))
-			{
-				featuresChecked.add(neighbor);
-				if(neighbor.hasToken())
-					tokensFound.add(neighbor.getToken());
-
-				tokensFound.addAll(getTokensOnFeature(neighbor, featuresChecked));
-			}
-		}
-		return tokensFound;
 	}
 
 	private HashSet<Player> getFeatureOwners(HashSet<Token> tokensOnFeature)
@@ -204,5 +184,22 @@ public class Rules {
 
 		//return set of owners (more than one if a tie in token count)
 		return featureOwners;
+	}
+
+	//used to score incomplete claimed features at game end.
+	//if these features were complete, they should have been freed by scoreTile already
+	public void scoreAllTokens(Iterator<Player> playersIterator)
+	{
+		while(playersIterator.hasNext())
+		{
+			Player player = playersIterator.next();
+			Iterator<Token> tokenIterator = player.getTokenIterator();
+			while(tokenIterator.hasNext())
+			{
+				Token token = tokenIterator.next();
+				if(token.isPlaced())
+					player.setScore(player.getScore() + scoreFeature(token.getFeature(), false));
+			}
+		}
 	}
 }

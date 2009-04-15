@@ -39,9 +39,14 @@ public class TileStack extends Stack<Tile>{
 				ArrayList<String[]> tileDescription = new ArrayList<String[]>();
 
 				String line = in.readLine();
+				//strip off header comments and whitespace
+				while(line.startsWith("#") || line.isEmpty())
+					line = in.readLine();
+				
 				while(!line.isEmpty())
 				{
-					tileDescription.add(line.split(" "));
+					if(!line.startsWith("#")) //ignore comments
+						tileDescription.add(line.split(" "));	
 					line = in.readLine();
 				}
 
@@ -57,16 +62,15 @@ public class TileStack extends Stack<Tile>{
 
 					//verify tile creation
 					if(t == null)
-						throw new Exception("Error at tile " + tilesRead);
-
-					//add finished tile to stack
-					this.push(t);
+						System.out.println("Tileset error: tile " + tilesRead);
+					else  //add finished tile to stack
+						this.push(t);
 				}
 
 				tilesRead++;
 			}
 		}
-		catch(Exception e)
+		catch(IOException e)
 		{
 			System.out.println("Error reading " + tilesetFilename + ".");
 			System.out.println(e);
@@ -76,7 +80,7 @@ public class TileStack extends Stack<Tile>{
 
 	//helper method to parse tile description strings from the tileset file
 	private Tile createTile(ArrayList<String[]> tileDescription) {
-		String tileName = tileDescription.get(0)[1];
+		String tileName = tileDescription.get(0)[0];
 		String imageFilename = tilesetFolder + tileName + imageFileExtension;
 		String imageFeatureMapFilename = tilesetFolder + tileName + "FeatureMap" + imageFileExtension;
 
@@ -147,12 +151,19 @@ public class TileStack extends Stack<Tile>{
 			}
 
 			//parse color code for featureMap
-			int colorCode = Integer.parseInt(featureString[4], 16);
+			int colorCode = Integer.decode(featureString[4]);
 
 			//check for any flags on the feature
-			String flag = featureString.length > 5 ? featureString[5] : null;
+			String[] flags;
+			if(featureString.length > 5)
+			{
+				flags = new String[featureString.length-5];
+				System.arraycopy(featureString, 5, flags, 0, featureString.length-5);
+			}
+			else
+				flags = null;
 
-			TileFeature feature = featureFactory.newTileFeature(featureType, maxNeighbors, tokenX, tokenY, tile, colorCode, flag);
+			TileFeature feature = featureFactory.newTileFeature(featureType, maxNeighbors, tokenX, tokenY, tile, colorCode, flags);
 
 			//add feature to tile borders
 			for(int k = 0; k < borderArray.length; k++)

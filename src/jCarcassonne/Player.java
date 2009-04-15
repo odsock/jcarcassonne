@@ -1,20 +1,24 @@
 package jCarcassonne;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Player {
 	private String name;
 	private Color color;
 	private int score = 0;
-	private Token[] tokens = new Token[8];
+	private int maxTokens = 8;
+	
+	private ArrayList<Token> tokens = new ArrayList<Token>();
 
 	public Player(String name, Color color)
 	{
 		this.name = name;
 		this.color = color;
 
-		for(int i = 0; i < tokens.length; i++)
-			tokens[i] = new Token(this);
+		for(int i = 0; i < maxTokens; i++)
+			tokens.add(new Token(this));
 	}
 	
 	public String getName()
@@ -38,17 +42,17 @@ public class Player {
 	}
 
 	//return token list for scoring
-	public Token[] getTokenList()
+	public Iterator<Token> getTokenIterator()
 	{
-		return tokens;
+		return tokens.iterator();
 	}
 	
 	//get the next token available for placement
 	public Token getToken()
 	{
-		for(int i = 0; i < tokens.length; i++)
-			if(!tokens[i].isPlaced())
-				return tokens[i];
+		for(Token token : tokens)
+			if(!token.isPlaced())
+				return token;
 		
 		//return null if all tokens have been placed
 		return null;
