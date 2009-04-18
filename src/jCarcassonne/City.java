@@ -5,15 +5,16 @@ import java.util.Iterator;
 
 public class City extends TileFeature
 {
-	private boolean hasPennant = false;
+	private final boolean hasPennant;
 
-	public City(int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode)
+	protected City(int maxNeighbors, int tokenX, int tokenY, Tile tile, boolean hasPennant, int colorCode)
 	{
 		super(TileFeature.FeatureEnum.city, maxNeighbors, tokenX, tokenY, tile, colorCode);
+		this.hasPennant = hasPennant;
 	}
 
 	@Override
-	public boolean isComplete()
+	protected boolean isComplete()
 	{
 		return isComplete(this, new HashSet<TileFeature>());
 	}
@@ -42,11 +43,7 @@ public class City extends TileFeature
 		return isComplete;
 	}
 
-	public void setPennant(boolean hasPennant) {
-		this.hasPennant = hasPennant;
-	}
-
-	public boolean hasPennant() {
+	protected boolean hasPennant() {
 		return hasPennant;
 	}
 }

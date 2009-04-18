@@ -6,30 +6,29 @@ import java.util.Iterator;
 
 public class Farm extends TileFeature
 {
-	ArrayList<Integer> cityNeighborColorCodes = new ArrayList<Integer>();
-	ArrayList<TileFeature> cityNeighbors = null;
+	private ArrayList<Integer> cityNeighborColorCodes = new ArrayList<Integer>();
+	private ArrayList<TileFeature> cityNeighbors = null;
 	
-	public Farm(int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode)
+	protected Farm(int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode, int...cityColorCodes)
 	{
 		super(TileFeature.FeatureEnum.farm, maxNeighbors, tokenX, tokenY, tile, colorCode);
+		for(int cityColorCode : cityColorCodes)
+			cityNeighborColorCodes.add(cityColorCode);
 	}
 
 	@Override
-	public boolean isComplete() {
+	protected boolean isComplete()
+	{
 		//farm features are never complete
 		return false;
 	}
-
-	public void addCityNeighbor(int cityColorCode) {
-		cityNeighborColorCodes.add(cityColorCode);
-	}
 	
-	public boolean hasCityNeighbors()
+	protected boolean hasCityNeighbors()
 	{
 		return !cityNeighborColorCodes.isEmpty();
 	}
 	
-	public Iterator<TileFeature> getCityNeighborIterator()
+	protected Iterator<TileFeature> getCityNeighborIterator()
 	{
 		//cityNeighbors is null at construction because tile must be complete to lookup features by colorCode
 		if(cityNeighbors == null)
@@ -42,7 +41,7 @@ public class Farm extends TileFeature
 		return cityNeighbors.iterator();
 	}
 	
-	public int getNumCompleteCityNeighbors()
+	protected int getNumCompleteCityNeighbors()
 	{
 		HashSet<TileFeature> farmFeatureGroup = this.getFeaturesInGroup();
 		

@@ -4,12 +4,12 @@ import java.util.Iterator;
 
 public class Road extends TileFeature
 {
-	public Road(int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode)
+	protected Road(int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode)
 	{
 		super(TileFeature.FeatureEnum.road, maxNeighbors, tokenX, tokenY, tile, colorCode);
 	}
 
-	public boolean isEndPoint()
+	protected boolean isEndPoint()
 	{
 		if(getMaxNeighbors() == 1)
 			return true;
@@ -18,7 +18,7 @@ public class Road extends TileFeature
 	}
 
 	@Override
-	public boolean isComplete()
+	protected boolean isComplete()
 	{
 		boolean firstHasEndPoint = false, secondHasEndPoint = false;
 		int numNeighbors = getNumNeighbors();

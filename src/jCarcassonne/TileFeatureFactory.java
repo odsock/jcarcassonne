@@ -4,7 +4,7 @@ import jCarcassonne.TileFeature.FeatureEnum;
 
 public class TileFeatureFactory 
 {
-	public TileFeature newTileFeature(FeatureEnum featureType, int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode, String[] flag)
+	protected TileFeature newTileFeature(FeatureEnum featureType, int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode, String[] flag)
 	{
 		TileFeature feature = null;
 		
@@ -17,21 +17,24 @@ public class TileFeatureFactory
 			feature = new Cloister(maxNeighbors, tokenX, tokenY, tile, colorCode);
 		else if(featureType == FeatureEnum.city)
 		{
-			City cityFeature = new City(maxNeighbors, tokenX, tokenY, tile, colorCode);
+			boolean pennant = false;
 			if(flag != null && flag[0].equals("pennant"))
-				cityFeature.setPennant(true);
+				pennant = true;
+			City cityFeature = new City(maxNeighbors, tokenX, tokenY, tile, pennant, colorCode);
 			
 			feature = cityFeature;
 		}
 		else if(featureType == FeatureEnum.farm)
 		{
-			Farm farmFeature = new Farm(maxNeighbors, tokenX, tokenY, tile, colorCode);
+			int[] cityColorCodes = new int[0];
 			if(flag != null)
-				for(String cityColorString : flag)
-				{
-					int cityColorCode = Integer.decode(cityColorString);
-					farmFeature.addCityNeighbor(cityColorCode);
-				}
+			{
+				cityColorCodes = new int[flag.length];
+				for(int i = 0; i < flag.length; i++)
+					cityColorCodes[i] = Integer.decode(flag[i]);
+			}
+			
+			Farm farmFeature = new Farm(maxNeighbors, tokenX, tokenY, tile, colorCode, cityColorCodes);
 			feature = farmFeature;
 		}
 		
