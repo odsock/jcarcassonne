@@ -1,4 +1,6 @@
-package jCarcassonne;
+package jCarcassonneGUI;
+
+import jCarcassonne.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -32,7 +34,7 @@ public class GamePanel extends JPanel implements Runnable
 	private boolean southScrollFlag = false;
 	private boolean eastScrollFlag = false;
 	private boolean westScrollFlag = false;
-	
+
 	//GUI elements
 	private Rectangle peekRectangle = new Rectangle(tileWidth,tileHeight);
 	private Rectangle doneButtonRectangle;
@@ -51,7 +53,7 @@ public class GamePanel extends JPanel implements Runnable
 
 		setBackground(Color.white);
 		setPreferredSize( new Dimension(panelWidth, panelHeight));
-		
+
 		doneButtonRectangle = new Rectangle(panelWidth-tileWidth/2+10, panelHeight-tileHeight*2-20, 40, 40);
 		endGameButtonRectangle = new Rectangle(panelWidth-tileWidth/2+10, panelHeight-tileHeight*2+30, 40, 40);
 
@@ -69,15 +71,18 @@ public class GamePanel extends JPanel implements Runnable
 			public void mouseMoved(MouseEvent e)
 			{ handleMouseMove(e.getX(), e.getY()); }
 		});
-		
+
+
+		this.setFocusTraversalKeysEnabled(false);
+
 		addKeyListener( new KeyAdapter() {
 			public void keyPressed(KeyEvent e)
 			{ handleKeyboard(e);	}
 			public void keyReleased(KeyEvent e)
 			{ handleKeyboard(e);	}
 		});
-		
-/*		Toolkit toolkit = Toolkit.getDefaultToolkit();
+
+		/*		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		Dimension cursorDim = toolkit.getBestCursorSize(40, 40);
 		BufferedImage tokenCursor = new BufferedImage(cursorDim.width, cursorDim.height, BufferedImage.TYPE_INT_ARGB_PRE);
 		Graphics2D cursorGraphics = tokenCursor.createGraphics();
@@ -130,14 +135,17 @@ public class GamePanel extends JPanel implements Runnable
 		}
 
 		//adjust origin translation if mouse at edge of frame
-		if(northScrollFlag)
-			transY += 4;
-		if(southScrollFlag)
-			transY -= 4;
-		if(eastScrollFlag)
-			transX -= 4;
-		if(westScrollFlag)
-			transX += 4;
+		if(this.hasFocus())
+		{
+			if(northScrollFlag)
+				transY += 4;
+			if(southScrollFlag)
+				transY -= 4;
+			if(eastScrollFlag)
+				transX -= 4;
+			if(westScrollFlag)
+				transX += 4;
+		}
 
 		//clear the background
 		dbg.setColor(Color.white);
@@ -150,6 +158,33 @@ public class GamePanel extends JPanel implements Runnable
 
 		//paint the buttons, player info, etc
 		paintHUD();
+
+		//display the scores overlay
+		if(showScores)
+		{
+			dbg.translate(panelWidth/6, panelHeight/6);
+			
+			int scoresWidth = panelWidth/6*4;
+			int scoresHeight = panelHeight/6*4;
+			dbg.setColor(new Color(100,100,100,200));
+			dbg.fillRect(0, 0, scoresWidth, scoresHeight);
+			dbg.setColor(Color.black);
+			dbg.drawRect(0, 0, scoresWidth, scoresHeight);
+
+
+			//draw player names and scores
+			Iterator<Player> playersIterator = gameController.getPlayersIterator();
+			for(int i = 1; playersIterator.hasNext(); i++)
+			{
+				Player player = playersIterator.next();
+				dbg.setPaint(player.getColor());
+				dbg.setFont(new Font("SansSerif", Font.BOLD, 18));
+				dbg.drawString(player.getName(), 10, 30*i);
+				dbg.drawString(Integer.toString(player.getScore()), scoresWidth/2, 30*i);
+			}
+
+			dbg.translate(-panelWidth/6, -panelHeight/6);
+		}
 	}
 
 	private void paintHUD() {
@@ -171,7 +206,7 @@ public class GamePanel extends JPanel implements Runnable
 		dbg.setColor(Color.black);
 		dbg.setFont(new Font("Serif", Font.BOLD, 14));
 		dbg.drawString("End Game", endGameButtonRectangle.x + 5, endGameButtonRectangle.y + 25);
-		
+
 		//draw peek at next tile
 		dbg.translate(panelWidth - tileWidth + 2, panelHeight - tileHeight + 2);
 		dbg.setColor(Color.black);
@@ -183,12 +218,12 @@ public class GamePanel extends JPanel implements Runnable
 		else
 			dbg.fill(peekRectangle);
 		dbg.translate(-(panelWidth-tileWidth+2), -(panelHeight-tileHeight+2));
-		
-		//draw player name and score
+
+		//draw player name
 		dbg.setPaint(gameController.getCurrentPlayerColor());
 		dbg.setFont(new Font("SansSerif", Font.BOLD, 18));
-		dbg.drawString(gameController.getCurrentPlayerName() + ":   Score=" + Integer.toString(gameController.getCurrentPlayerScore()), panelWidth/3, 30);
-		
+		dbg.drawString(gameController.getCurrentPlayerName(), panelWidth/3, 30);
+
 		//draw player tokens
 		dbg.translate(panelWidth-tileWidth/2+20, 20);
 		dbg.setPaint(gameController.getCurrentPlayerColor());
@@ -281,17 +316,15 @@ public class GamePanel extends JPanel implements Runnable
 
 	protected void handleKeyboard(KeyEvent e)
 	{
-		System.out.println(e.getID() + " " + KeyEvent.KEY_PRESSED);
 		if(e.getID() == KeyEvent.KEY_PRESSED)
 			showScores = true;
 		else if(e.getID()== KeyEvent.KEY_RELEASED)
 			showScores = false;
-		System.out.println(showScores);
 	}
 
 	private void displayScores()
 	{
-		
+
 	}
 
 	//evaluates mouse clicks
