@@ -1,4 +1,4 @@
-package jCarcassonne;
+package jCarcassonneGUI;
 
 import javax.swing.JFrame;
 
