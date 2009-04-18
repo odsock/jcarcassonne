@@ -13,13 +13,13 @@ public class Landscape {
 	private int lastY = 0;
 	private Tile lastTilePlaced;
 
-	public Landscape(Tile startTile)
+	protected Landscape(Tile startTile)
 	{
 		landscapeHash.put(new Point(0,0), startTile);
 		startTile.setXY(0,0);
 	}
 
-	public void placeTile(Tile tile, int x, int y)
+	protected void placeTile(Tile tile, int x, int y)
 	{		
 		//add to coordinate map
 		landscapeHash.put(new Point(x,y), tile);
@@ -57,30 +57,30 @@ public class Landscape {
 		}
 	}
 
-	public Tile getTile(int x, int y){
+	protected Tile getTile(int x, int y){
 		return landscapeHash.get(new Point(x,y));
 	}
 	
-	public boolean hasTileAt(int x, int y){
+	protected boolean hasTileAt(int x, int y){
 		if(landscapeHash.containsKey(new Point(x,y)))
 			return true;
 		else 
 			return false;
 	}
 
-	public Tile getLastTilePlaced() {
+	protected Tile getLastTilePlaced() {
 		return lastTilePlaced;
 	}
 	
-	public int getLastX() {
+	protected int getLastX() {
 		return lastX;
 	}
 
-	public int getLastY() {
+	protected int getLastY() {
 		return lastY;
 	}
 
-	public Iterator<Tile> getLandscapeIterator()
+	protected Iterator<Tile> getLandscapeIterator()
 	{
 		return landscapeHash.values().iterator();
 	}

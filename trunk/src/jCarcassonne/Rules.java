@@ -9,12 +9,12 @@ import java.util.Iterator;
 public class Rules {
 	private boolean verbose = false;
 
-	public void setVerbose(boolean v)
+	protected void setVerbose(boolean v)
 	{
 		verbose = v;
 	}
 
-	public boolean checkTilePlacement(Landscape l, Tile t, int x, int y)
+	protected boolean checkTilePlacement(Landscape l, Tile t, int x, int y)
 	{
 		//error check
 		if(l.hasTileAt(x, y) || t == null)
@@ -63,7 +63,7 @@ public class Rules {
 			return true;
 	}
 
-	public boolean checkTokenPlacement(Landscape landscape, Tile tileClicked, TileFeature featureClicked, Player player)
+	protected boolean checkTokenPlacement(Landscape landscape, Tile tileClicked, TileFeature featureClicked, Player player)
 	{	
 		boolean isOKPlacement = false;
 		String verboseOutput = "";
@@ -95,7 +95,7 @@ public class Rules {
 		return isOKPlacement;
 	}
 
-	public void scoreTile(Tile tile)
+	protected void scoreTile(Tile tile)
 	{
 		Iterator<TileFeature> featureIterator = tile.getFeatureIterator();
 		while(featureIterator.hasNext())
@@ -131,14 +131,11 @@ public class Rules {
 		else if(feature.featureType == FeatureEnum.city)
 			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
 		else if(feature.featureType == FeatureEnum.cloister)
-			return tilesInFeature.size() + 1;
+			return ((Cloister)feature).getNumSurroundingTiles() + 1;
 		else if(feature.featureType == FeatureEnum.farm)
-		{
-			Farm farmFeature = (Farm) feature;
-			return farmFeature.getNumCompleteCityNeighbors() * 4;
-		}
+			return ((Farm)feature).getNumCompleteCityNeighbors() * 4;
 		else
-			return 0; //other features do not score points
+			return 0;
 	}
 
 	private boolean isUncontestedFeature(TileFeature featureClicked, Player player)
@@ -188,7 +185,7 @@ public class Rules {
 
 	//used to score incomplete claimed features at game end.
 	//if these features were complete, they should have been freed by scoreTile already
-	public void scoreAllTokens(Iterator<Player> playersIterator)
+	protected void scoreAllTokens(Iterator<Player> playersIterator)
 	{
 		while(playersIterator.hasNext())
 		{

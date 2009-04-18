@@ -138,4 +138,9 @@ public class GameController
 	{
 		return landscape.getLandscapeIterator();
 	}
+
+	public Iterator<Player> getPlayersIterator()
+	{
+		return players.iterator();
+	}
 }

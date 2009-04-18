@@ -7,12 +7,12 @@ import java.util.Iterator;
 
 public abstract class TileFeature
 {
-	public static enum FeatureEnum { city, road, farm, cloister, river, empty }
+	protected static enum FeatureEnum { city, road, farm, cloister, river, empty }
 
-	public final FeatureEnum featureType;
-	private Point tokenCoordinates;  //not final, changes during tile rotation
-	public final Tile tile;
-	public final int indexColorCode;  //color in the feature map image for tile
+	protected final FeatureEnum featureType;
+	private int tokenX, tokenY;
+	protected final Tile tile;
+	protected final int indexColorCode;  //color in the feature map image for tile
 
 	private Token token = null;
 	private boolean scored = false;
@@ -22,11 +22,12 @@ public abstract class TileFeature
 	private int numNeighbors = 0;
 	private final int maxNeighbors;
 	
-	public TileFeature(FeatureEnum f, int maxNeighbors, int tokenX, int tokenY, Tile tile, int indexColorCode)
+	protected TileFeature(FeatureEnum f, int maxNeighbors, int tokenX, int tokenY, Tile tile, int indexColorCode)
 	{
 		featureType = f;
 		this.maxNeighbors = maxNeighbors;
-		tokenCoordinates = new Point(tokenX,tokenY);
+		this.tokenX = tokenX;
+		this.tokenY = tokenY;
 		this.tile = tile;
 		this.indexColorCode = indexColorCode;
 		neighbors = new ArrayList<TileFeature>();
@@ -34,46 +35,46 @@ public abstract class TileFeature
 
 	//add a neighbor feature to the list
 	//no need to ever remove a neighbor since tiles cannot be moved/removed once placed
-	public void addNeighbor(TileFeature tf)
+	protected void addNeighbor(TileFeature tf)
 	{
 		neighbors.add(tf);
 		numNeighbors++;
 	}
 
-	public Iterator<TileFeature> getNeighborIterator()
+	protected Iterator<TileFeature> getNeighborIterator()
 	{
 		return neighbors.iterator();
 	}
 	
-	public int getNumNeighbors()
+	protected int getNumNeighbors()
 	{
 		return numNeighbors;
 	}
 
-	public int getMaxNeighbors()
+	protected int getMaxNeighbors()
 	{
 		return maxNeighbors;
 	}
 
 	//set a token for this feature
-	public void placeToken(Token token)
+	protected void placeToken(Token token)
 	{
 		this.token = token;
 		token.setPlaced(true);
 	}
 	
-	public void removeToken()
+	protected void removeToken()
 	{
 		this.token.setPlaced(false);
 		this.token = null;
 	}
 	
-	public Token getToken()
+	protected Token getToken()
 	{
 		return token;
 	}
 	
-	public boolean hasToken()
+	protected boolean hasToken()
 	{
 		if(token != null)
 			return true;
@@ -87,40 +88,41 @@ public abstract class TileFeature
 		return featureType.toString();
 	}
 
-	public void setScored(boolean scored)
+	protected void setScored(boolean scored)
 	{
 		this.scored = scored;
 	}
 
-	public boolean isScored()
+	protected boolean isScored()
 	{
 		return scored;
 	}
 
-	public Point getTokenCoordinates()
+	protected Point getTokenCoordinates()
 	{
-		return tokenCoordinates;
+		return new Point(tokenX, tokenY);
 	}
 	
-	public void setTokenCoordinates(Point tokenCoordinates)
+	protected void setTokenCoordinates(int x, int y)
 	{
-		this.tokenCoordinates = tokenCoordinates;
+		tokenX = x;
+		tokenY = y;
 	}
 
-	public Tile getTile()
+	protected Tile getTile()
 	{
 		return tile;
 	}
 	
-	public int getColorCode()
+	protected int getColorCode()
 	{
 		return indexColorCode;
 	}
 
 	//stub method, meant to be overridden
-	public abstract boolean isComplete();
+	protected abstract boolean isComplete();
 	
-	public HashSet<Tile> getTilesInFeatureGroup()
+	protected HashSet<Tile> getTilesInFeatureGroup()
 	{
 		HashSet<TileFeature> featuresInGroup = getFeaturesInGroup();
 		HashSet<Tile> tilesInGroup = new HashSet<Tile>();
@@ -131,7 +133,7 @@ public abstract class TileFeature
 		return tilesInGroup;
 	}
 	
-	public HashSet<Token> getTokensOnFeatureGroup()
+	protected HashSet<Token> getTokensOnFeatureGroup()
 	{
 		HashSet<TileFeature> featuresInGroup = getFeaturesInGroup();
 		HashSet<Token> tokensInGroup = new HashSet<Token>();
@@ -143,7 +145,7 @@ public abstract class TileFeature
 		return tokensInGroup;
 	}
 	
-	public HashSet<TileFeature> getFeaturesInGroup()
+	protected HashSet<TileFeature> getFeaturesInGroup()
 	{
 		return getFeaturesInGroup(this, new HashSet<TileFeature>());
 	}

@@ -12,7 +12,7 @@ public class Player {
 	
 	private ArrayList<Token> tokens = new ArrayList<Token>();
 
-	public Player(String name, Color color)
+	protected Player(String name, Color color)
 	{
 		this.name = name;
 		this.color = color;
@@ -31,7 +31,7 @@ public class Player {
 		return score;
 	}
 
-	public void setScore(int score)
+	protected void setScore(int score)
 	{
 		this.score = score;
 	}
@@ -42,13 +42,13 @@ public class Player {
 	}
 
 	//return token list for scoring
-	public Iterator<Token> getTokenIterator()
+	protected Iterator<Token> getTokenIterator()
 	{
 		return tokens.iterator();
 	}
 	
 	//get the next token available for placement
-	public Token getToken()
+	protected Token getToken()
 	{
 		for(Token token : tokens)
 			if(!token.isPlaced())
@@ -58,7 +58,7 @@ public class Player {
 		return null;
 	}
 
-	public boolean hasToken()
+	protected boolean hasToken()
 	{
 		if(getToken() != null)
 			return true;
@@ -66,7 +66,7 @@ public class Player {
 			return false;
 	}
 
-	public int getTokenCount()
+	protected int getTokenCount()
 	{
 		int tokenCount = 0;
 		for(Token token : tokens)

@@ -10,16 +10,16 @@ public class Token {
 	private boolean isPlaced;
 	private TileFeature featureClaimed;
 	
-	public Token(Player player){
+	protected Token(Player player){
 		this.player = player;
 		this.color = player.getColor();
 	}
 	
-	public final TileFeature getFeature() {
+	protected final TileFeature getFeature() {
 		return featureClaimed;
 	}
 
-	public final void setFeature(TileFeature tf) {
+	protected final void setFeature(TileFeature tf) {
 		this.featureClaimed = tf;
 	}
 	
@@ -27,15 +27,15 @@ public class Token {
 		return color;
 	}
 
-	public final Player getPlayer() {
+	protected final Player getPlayer() {
 		return player;
 	}
 
-	public void setPlaced(boolean isPlaced) {
+	protected void setPlaced(boolean isPlaced) {
 		this.isPlaced = isPlaced;
 	}
 
-	public boolean isPlaced() {
+	protected boolean isPlaced() {
 		return isPlaced;
 	}
 }

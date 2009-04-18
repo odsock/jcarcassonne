@@ -1,16 +1,14 @@
 package jCarcassonne;
 
-import java.util.HashSet;
-
 public class Cloister extends TileFeature
 {
-	public Cloister(int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode)
+	protected Cloister(int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode)
 	{
 		super(FeatureEnum.cloister, maxNeighbors, tokenX, tokenY, tile, colorCode);
 	}
 	
 	@Override
-	public boolean isComplete()
+	protected boolean isComplete()
 	{
 		boolean isComplete = true;
 		Tile tile = this.getTile();
@@ -27,10 +25,8 @@ public class Cloister extends TileFeature
 		return isComplete;
 	}
 	
-	@Override
-	public HashSet<Tile> getTilesInFeatureGroup()
+	protected int getNumSurroundingTiles()
 	{
-		HashSet<Tile> tilesInFeature = new HashSet<Tile>();
 		Tile tile = this.getTile();
 
 		Tile n = tile.getNorthTile();
@@ -38,15 +34,16 @@ public class Cloister extends TileFeature
 		Tile e = tile.getEastTile();
 		Tile w = tile.getWestTile();
 		
+		int numSurroundingTiles = 0;
 		if(n != null)
-			tilesInFeature.add(n);
+			numSurroundingTiles++;
 		if(s != null)
-			tilesInFeature.add(s);
+			numSurroundingTiles++;
 		else if(e != null)
-			tilesInFeature.add(e);
+			numSurroundingTiles++;
 		else if(w != null)
-			tilesInFeature.add(w);
+			numSurroundingTiles++;
 		
-		return tilesInFeature;
+		return numSurroundingTiles;
 	}
 }

@@ -27,7 +27,7 @@ public class TileStack extends Stack<Tile>{
 	private boolean ignoreCount = false;
 
 	//read the tileset file, add the created tiles to the stack
-	public void loadTileSet(String tilesetFilename)
+	protected void loadTileSet(String tilesetFilename)
 	{
 		try{
 			BufferedReader in = new BufferedReader(new FileReader(tilesetFolder + tilesetFilename));
@@ -175,7 +175,7 @@ public class TileStack extends Stack<Tile>{
 	}
 
 	//randomizes the order of tiles in the stack
-	public void shuffleStack()
+	protected void shuffleStack()
 	{
 		Stack<Tile> tempStack = new Stack<Tile>();
 		Tile startTile = null;
@@ -202,14 +202,14 @@ public class TileStack extends Stack<Tile>{
 		}
 	}
 
-	public int getTileWidth(){
+	protected int getTileWidth(){
 		return tileWidth;
 	}
-	public int getTileHeight(){
+	protected int getTileHeight(){
 		return tileHeight;
 	}
 
-	public void setIgnoreCount(boolean ignoreCount)
+	protected void setIgnoreCount(boolean ignoreCount)
 	{
 		this.ignoreCount = ignoreCount;
 	}
