@@ -134,6 +134,10 @@ public class GamePanel extends JPanel implements Runnable
 				dbg = (Graphics2D)dbImage.getGraphics();
 		}
 
+		//clear the background
+		dbg.setColor(Color.white);
+		dbg.fillRect(0,0,panelWidth,panelHeight);
+
 		//adjust origin translation if mouse at edge of frame
 		if(this.hasFocus())
 		{
@@ -146,45 +150,16 @@ public class GamePanel extends JPanel implements Runnable
 			if(westScrollFlag)
 				transX += 4;
 		}
-
-		//clear the background
-		dbg.setColor(Color.white);
-		dbg.fillRect(0,0,panelWidth,panelHeight);
-
-		//draw the landscape
-		dbg.translate(transX + panelWidth/2 - tileWidth/2, transY + panelHeight/2 - tileHeight/2);
+		
+		//translate based on transX/Y and paint the landscape
 		paintLandscape(dbg);
-		dbg.translate(-(transX + panelWidth/2 - tileWidth/2), -(transY + panelHeight/2 - tileHeight/2));
 
 		//paint the buttons, player info, etc
 		paintHUD();
 
 		//display the scores overlay
 		if(showScores)
-		{
-			dbg.translate(panelWidth/6, panelHeight/6);
-			
-			int scoresWidth = panelWidth/6*4;
-			int scoresHeight = panelHeight/6*4;
-			dbg.setColor(new Color(100,100,100,200));
-			dbg.fillRect(0, 0, scoresWidth, scoresHeight);
-			dbg.setColor(Color.black);
-			dbg.drawRect(0, 0, scoresWidth, scoresHeight);
-
-
-			//draw player names and scores
-			Iterator<Player> playersIterator = gameController.getPlayersIterator();
-			for(int i = 1; playersIterator.hasNext(); i++)
-			{
-				Player player = playersIterator.next();
-				dbg.setPaint(player.getColor());
-				dbg.setFont(new Font("SansSerif", Font.BOLD, 18));
-				dbg.drawString(player.getName(), 10, 30*i);
-				dbg.drawString(Integer.toString(player.getScore()), scoresWidth/2, 30*i);
-			}
-
-			dbg.translate(-panelWidth/6, -panelHeight/6);
-		}
+			displayScores();
 	}
 
 	private void paintHUD() {
@@ -205,8 +180,9 @@ public class GamePanel extends JPanel implements Runnable
 		dbg.fill(endGameButtonRectangle);
 		dbg.setColor(Color.black);
 		dbg.setFont(new Font("Serif", Font.BOLD, 14));
-		dbg.drawString("End Game", endGameButtonRectangle.x + 5, endGameButtonRectangle.y + 25);
-
+		dbg.drawString("End", endGameButtonRectangle.x + 5, endGameButtonRectangle.y + 15);
+		dbg.drawString("Game", endGameButtonRectangle.x + 3, endGameButtonRectangle.y + 30);
+		
 		//draw peek at next tile
 		dbg.translate(panelWidth - tileWidth + 2, panelHeight - tileHeight + 2);
 		dbg.setColor(Color.black);
@@ -238,6 +214,8 @@ public class GamePanel extends JPanel implements Runnable
 
 	public void paintLandscape(Graphics g)
 	{
+		dbg.translate(transX + panelWidth/2 - tileWidth/2, transY + panelHeight/2 - tileHeight/2);
+		
 		Iterator<Tile> landscapeIterator = gameController.getLandscapeIterator();
 		while(landscapeIterator.hasNext())
 		{
@@ -254,6 +232,34 @@ public class GamePanel extends JPanel implements Runnable
 				g.drawOval((t.getPoint().x)*tileWidth+tokenX, -(t.getPoint().y)*tileHeight+tokenY, 20, 20);
 			}
 		}
+		
+		dbg.translate(-(transX + panelWidth/2 - tileWidth/2), -(transY + panelHeight/2 - tileHeight/2));
+	}
+	
+	private void displayScores()
+	{
+		dbg.translate(panelWidth/6, panelHeight/6);
+		
+		int scoresWidth = panelWidth/6*4;
+		int scoresHeight = panelHeight/6*4;
+		dbg.setColor(new Color(100,100,100,200));
+		dbg.fillRect(0, 0, scoresWidth, scoresHeight);
+		dbg.setColor(Color.black);
+		dbg.drawRect(0, 0, scoresWidth, scoresHeight);
+
+
+		//draw player names and scores
+		Iterator<Player> playersIterator = gameController.getPlayersIterator();
+		for(int i = 1; playersIterator.hasNext(); i++)
+		{
+			Player player = playersIterator.next();
+			dbg.setPaint(player.getColor());
+			dbg.setFont(new Font("SansSerif", Font.BOLD, 18));
+			dbg.drawString(player.getName(), 10, 30*i);
+			dbg.drawString(Integer.toString(player.getScore()), scoresWidth/2, 30*i);
+		}
+
+		dbg.translate(-panelWidth/6, -panelHeight/6);
 	}
 
 	//copy double buffer image to the screen
@@ -316,16 +322,12 @@ public class GamePanel extends JPanel implements Runnable
 
 	protected void handleKeyboard(KeyEvent e)
 	{
-		if(e.getID() == KeyEvent.KEY_PRESSED)
+		if(e.getID() == KeyEvent.KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_TAB)
 			showScores = true;
-		else if(e.getID()== KeyEvent.KEY_RELEASED)
+		else if(e.getID()== KeyEvent.KEY_RELEASED && e.getKeyCode() == KeyEvent.VK_TAB)
 			showScores = false;
 	}
 
-	private void displayScores()
-	{
-
-	}
 
 	//evaluates mouse clicks
 	private void handleMousePress(int xInPanel, int yInPanel, MouseEvent e)

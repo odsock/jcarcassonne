@@ -84,4 +84,31 @@ public class Landscape {
 	{
 		return landscapeHash.values().iterator();
 	}
+
+	protected int getNumSurroundingTiles(Tile tile)
+	{
+		Point p = tile.getPoint();
+		int x = p.x;
+		int y = p.y;
+		
+		int numSurroundingTiles = 0;
+		if(hasTileAt(x, y-1))
+			numSurroundingTiles++;
+		if(hasTileAt(x+1, y-1))
+			numSurroundingTiles++;
+		if(hasTileAt(x+1, y))
+			numSurroundingTiles++;
+		if(hasTileAt(x+1, y+1))
+			numSurroundingTiles++;
+		if(hasTileAt(x, y+1))
+			numSurroundingTiles++;
+		if(hasTileAt(x-1, y+1))
+			numSurroundingTiles++;
+		if(hasTileAt(x-1, y))
+			numSurroundingTiles++;
+		if(hasTileAt(x-1, y-1))
+			numSurroundingTiles++;
+		
+		return numSurroundingTiles;
+	}
 }

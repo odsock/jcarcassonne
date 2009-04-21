@@ -8,6 +8,12 @@ import java.util.Iterator;
 
 public class Rules {
 	private boolean verbose = false;
+	private Landscape landscape;
+	
+	protected Rules(Landscape landscape)
+	{
+		this.landscape = landscape;
+	}
 
 	protected void setVerbose(boolean v)
 	{
@@ -131,7 +137,7 @@ public class Rules {
 		else if(feature.featureType == FeatureEnum.city)
 			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
 		else if(feature.featureType == FeatureEnum.cloister)
-			return ((Cloister)feature).getNumSurroundingTiles() + 1;
+			return landscape.getNumSurroundingTiles(feature.getTile()) + 1;
 		else if(feature.featureType == FeatureEnum.farm)
 			return ((Farm)feature).getNumCompleteCityNeighbors() * 4;
 		else
