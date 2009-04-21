@@ -22,13 +22,16 @@ public class GameController
 	public GameController()
 	{
 		//create the game model
-		rules = new Rules();
-		rules.setVerbose(false);
 		tileStack = new TileStack();
 		tileStack.setIgnoreCount(false);
 		tileStack.loadTileSet("tileset.txt");
 		tileStack.shuffleStack();
+		
 		landscape = new Landscape(tileStack.pop());
+		
+		rules = new Rules(landscape);
+		rules.setVerbose(false);
+		
 		players.add(new Player("player1", Color.red));
 		players.add(new Player("player2", Color.blue));
 		playersIterator = players.iterator();

@@ -24,26 +24,4 @@ public class Cloister extends TileFeature
 		
 		return isComplete;
 	}
-	
-	protected int getNumSurroundingTiles()
-	{
-		Tile tile = this.getTile();
-
-		Tile n = tile.getNorthTile();
-		Tile s = tile.getSouthTile();
-		Tile e = tile.getEastTile();
-		Tile w = tile.getWestTile();
-		
-		int numSurroundingTiles = 0;
-		if(n != null)
-			numSurroundingTiles++;
-		if(s != null)
-			numSurroundingTiles++;
-		else if(e != null)
-			numSurroundingTiles++;
-		else if(w != null)
-			numSurroundingTiles++;
-		
-		return numSurroundingTiles;
-	}
 }
