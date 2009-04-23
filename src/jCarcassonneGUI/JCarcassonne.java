@@ -6,14 +6,15 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
-import javax.swing.JPanel;
 
-public class GamePanel extends JPanel implements Runnable
+import javax.swing.JFrame;
+
+public class JCarcassonne extends JFrame implements Runnable
 {
 	private static final long serialVersionUID = 1L;
 	//JPanel dimensions
-	private int panelWidth;
-	private int panelHeight;
+	private int screenWidth;
+	private int screenHeight;
 
 	//tile image dimensions
 	private final int tileWidth = 128;
@@ -49,10 +50,39 @@ public class GamePanel extends JPanel implements Runnable
 	//interface to game model
 	private GameController gameController;
 
-	public GamePanel(int pw, int ph)
+	public static void main(String[] args)
 	{
-		gameController = new GameController();
+		new JCarcassonne();
+	}
+	
+	public JCarcassonne()
+	{
+		super("JCarcassonne");
+		
+		//setup frame dimensions
+		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+		setPreferredSize(screenDim);
+		this.screenWidth = screenDim.width;
+		this.screenHeight = screenDim.height;
 
+		//configure frame details
+		setBackground(Color.white);
+		setFocusable(true);
+		requestFocus();    // the JPanel now has focus, so receives key events
+	    setUndecorated(true);
+	    setIgnoreRepaint(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    pack();
+	    setVisible(true);
+		
+		//GUI buttons
+		doneButtonRectangle = new Rectangle(screenWidth-tileWidth/2+10, screenHeight-tileHeight*2-20, 40, 40);
+		endGameButtonRectangle = new Rectangle(screenWidth-tileWidth/2+10, screenHeight-tileHeight*2+30, 40, 40);
+		
+		//user input and OS shutdown hook
+		readyForTermination();
+		addInputListeners();
+		
 		//color list for adding new players
 		colorList.add(Color.red);
 		colorList.add(Color.blue);
@@ -61,20 +91,26 @@ public class GamePanel extends JPanel implements Runnable
 		colorList.add(Color.yellow);
 		colorIterator = colorList.iterator();
 		
-		this.panelWidth = pw;
-		this.panelHeight = ph;
+		//interface to the game model
+		gameController = new GameController();
+	    
+	    startGame();
+	}
+	
+	//starts the animation thread if it's not already running
+	private void startGame()
+	{
+		if(animator == null || !running)
+		{
+			animator = new Thread(this);
+			animator.start();
+		}
+	}
 
-		setBackground(Color.white);
-		setPreferredSize( new Dimension(panelWidth, panelHeight));
-		setFocusable(true);
-		requestFocus();    // the JPanel now has focus, so receives key events
-
-		//GUI buttons
-		doneButtonRectangle = new Rectangle(panelWidth-tileWidth/2+10, panelHeight-tileHeight*2-20, 40, 40);
-		endGameButtonRectangle = new Rectangle(panelWidth-tileWidth/2+10, panelHeight-tileHeight*2+30, 40, 40);
-		
-		readyForTermination();
-		addInputListeners();
+	//breaks the animation thread loop in run()
+	public void stopGame()
+	{
+		running = false;
 	}
 
 	private void addInputListeners() {
@@ -96,13 +132,17 @@ public class GamePanel extends JPanel implements Runnable
 		//key listener for scores display button
 		addKeyListener( new KeyAdapter() {
 			public void keyPressed(KeyEvent e)
-			{ handleScoresKey(e);	}
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+					running = false;
+				else if(e.getKeyCode() == KeyEvent.VK_TAB)
+					showScores = true;
+			}
 			public void keyReleased(KeyEvent e)
-			{ handleScoresKey(e);	}
-		});
-
-		//key listener for start screen name entry
-		addKeyListener( new KeyAdapter() {
+			{
+				if(e.getKeyCode() == KeyEvent.VK_TAB)
+					showScores = false;
+			}
 			public void keyTyped(KeyEvent e)
 			{ 
 				if(gameController.isGameStarting() && colorIterator.hasNext())
@@ -119,18 +159,6 @@ public class GamePanel extends JPanel implements Runnable
 				}
 			}
 		});
-		
-		// listen for escape key (quit button)
-		addKeyListener( new KeyAdapter() {
-			public void keyPressed(KeyEvent e)
-			{ 
-				int keyCode = e.getKeyCode();
-				if (keyCode == KeyEvent.VK_ESCAPE)
-				{
-					running = false;
-				}
-			}
-		});
 	}
 
 	public void run()
@@ -138,7 +166,7 @@ public class GamePanel extends JPanel implements Runnable
 		running = true;
 		while(running)
 		{
-			gameUpdate();
+			//gameUpdate();
 			gameRender();
 			paintScreen();
 
@@ -156,9 +184,7 @@ public class GamePanel extends JPanel implements Runnable
 
 	//update animation stuff here
 	//currently there are no animations
-	private void gameUpdate()
-	{
-	}
+//	private void gameUpdate(){	}
 
 	//draw the game into the double buffer image
 	private void gameRender()
@@ -166,7 +192,7 @@ public class GamePanel extends JPanel implements Runnable
 		//initialize Image and Graphics2D objects for double buffering
 		if(dbImage == null)
 		{
-			dbImage = createImage(panelWidth, panelHeight);
+			dbImage = createImage(screenWidth, screenHeight);
 			if(dbImage == null)
 			{
 				System.out.println("dbImage is null");
@@ -178,7 +204,7 @@ public class GamePanel extends JPanel implements Runnable
 
 		//clear the background
 		dbg.setColor(Color.white);
-		dbg.fillRect(0,0,panelWidth,panelHeight);
+		dbg.fillRect(0,0,screenWidth,screenHeight);
 
 		//adjust origin translation if mouse at edge of frame
 		if(this.hasFocus() && !gameController.isGameStarting())
@@ -237,8 +263,8 @@ public class GamePanel extends JPanel implements Runnable
 	private void paintHUDbackground() {
 		//draw hud background
 		dbg.setColor(Color.DARK_GRAY);
-		dbg.fillRect(panelWidth-tileWidth/2, 0, panelWidth, panelHeight);
-		dbg.fillRect(0,0, panelWidth, tileHeight/2);
+		dbg.fillRect(screenWidth-tileWidth/2, 0, screenWidth, screenHeight);
+		dbg.fillRect(0,0, screenWidth, tileHeight/2);
 	}
 
 	private void paintHUD()
@@ -259,7 +285,7 @@ public class GamePanel extends JPanel implements Runnable
 		dbg.drawString("Game", endGameButtonRectangle.x + 3, endGameButtonRectangle.y + 30);
 
 		//draw peek at next tile
-		dbg.translate(panelWidth - tileWidth + 2, panelHeight - tileHeight + 2);
+		dbg.translate(screenWidth - tileWidth + 2, screenHeight - tileHeight + 2);
 		dbg.setColor(Color.black);
 		dbg.setStroke(new BasicStroke(4));
 		dbg.draw(peekRectangle);
@@ -268,31 +294,31 @@ public class GamePanel extends JPanel implements Runnable
 			dbg.drawImage(img, 0, 0, null);
 		else
 			dbg.fill(peekRectangle);
-		dbg.translate(-(panelWidth-tileWidth+2), -(panelHeight-tileHeight+2));
+		dbg.translate(-(screenWidth-tileWidth+2), -(screenHeight-tileHeight+2));
 
 		//draw player name
 		dbg.setPaint(gameController.getCurrentPlayerColor());
 		dbg.setFont(new Font("SansSerif", Font.BOLD, 18));
-		dbg.drawString(gameController.getCurrentPlayerName(), panelWidth/3, 30);
+		dbg.drawString(gameController.getCurrentPlayerName(), screenWidth/3, 30);
 
 		//draw player tokens
-		dbg.translate(panelWidth-tileWidth/2+20, 20);
+		dbg.translate(screenWidth-tileWidth/2+20, 20);
 		dbg.setPaint(gameController.getCurrentPlayerColor());
 		int tokenCount = gameController.getCurrentPlayerTokenCount();
-		int tokenOffset = (panelHeight-tileHeight*2-40) / 8;
+		int tokenOffset = (screenHeight-tileHeight*2-40) / 8;
 		for(int i = 0; i < tokenCount; i++)
 		{
 			dbg.fillOval(0, i*tokenOffset, 30, 30);
 		}
-		dbg.translate(-(panelWidth-tileWidth/2+20), -20);
+		dbg.translate(-(screenWidth-tileWidth/2+20), -20);
 	}
 
 	private void displayScores()
 	{
-		dbg.translate(panelWidth/6, panelHeight/6);
+		dbg.translate(screenWidth/6, screenHeight/6);
 
-		int scoresWidth = panelWidth/6*4;
-		int scoresHeight = panelHeight/6*4;
+		int scoresWidth = screenWidth/6*4;
+		int scoresHeight = screenHeight/6*4;
 		dbg.setColor(new Color(100,100,100,200));
 		dbg.fillRect(0, 0, scoresWidth, scoresHeight);
 		dbg.setColor(Color.black);
@@ -310,7 +336,7 @@ public class GamePanel extends JPanel implements Runnable
 			dbg.drawString(Integer.toString(player.getScore()), scoresWidth/2, 30*i);
 		}
 
-		dbg.translate(-panelWidth/6, -panelHeight/6);
+		dbg.translate(-screenWidth/6, -screenHeight/6);
 	}
 
 	public void displayStartScreen()
@@ -324,19 +350,19 @@ public class GamePanel extends JPanel implements Runnable
 		dbg.drawString("Game", endGameButtonRectangle.x + 3, endGameButtonRectangle.y + 30);
 		
 		//set origin to upper left of start screen box
-		dbg.translate(panelWidth/6, panelHeight/6);
+		dbg.translate(screenWidth/6, screenHeight/6);
 
-		int scoresWidth = panelWidth/6*4;
-		int scoresHeight = panelHeight/6*4;
+		int scoresWidth = screenWidth/6*4;
+		int scoresHeight = screenHeight/6*4;
 		dbg.setColor(new Color(100,100,100,200));
 		dbg.fillRect(0, 0, scoresWidth, scoresHeight);
 		dbg.setColor(Color.black);
 		dbg.drawRect(0, 0, scoresWidth, scoresHeight);
 
-		//draw prompt and player name being added
+		//draw player name prompt
 		dbg.setPaint(Color.black);
 		dbg.setFont(new Font("SansSerif", Font.BOLD, 18));
-		dbg.drawString("Add players: " + newPlayerName, 10, 30);
+		dbg.drawString("Enter player name: " + newPlayerName, 10, 30);
 		
 		//draw player names and scores
 		Iterator<Player> playersIterator = gameController.getPlayersIterator();
@@ -348,7 +374,7 @@ public class GamePanel extends JPanel implements Runnable
 			dbg.drawString(player.getName(), 20, 30*i);
 		}
 
-		dbg.translate(-panelWidth/6, -panelHeight/6);
+		dbg.translate(-screenWidth/6, -screenHeight/6);
 	}
 	
 	public void displayGameOverScreen()
@@ -367,7 +393,7 @@ public class GamePanel extends JPanel implements Runnable
 	public void paintLandscape(Graphics g)
 	{
 		//translate for landscape scrolling
-		dbg.translate(transX + panelWidth/2 - tileWidth/2, transY + panelHeight/2 - tileHeight/2);
+		dbg.translate(transX + screenWidth/2 - tileWidth/2, transY + screenHeight/2 - tileHeight/2);
 
 		//iterate through placed tiles, drawing relative to translated origin
 		Iterator<Tile> landscapeIterator = gameController.getLandscapeIterator();
@@ -387,34 +413,10 @@ public class GamePanel extends JPanel implements Runnable
 			}
 		}
 
-		dbg.translate(-(transX + panelWidth/2 - tileWidth/2), -(transY + panelHeight/2 - tileHeight/2));
+		dbg.translate(-(transX + screenWidth/2 - tileWidth/2), -(transY + screenHeight/2 - tileHeight/2));
 	}
 
-	//starts the animation loop when GamePanel is added to GameFrame
-	@Override
-	public void addNotify()
-	{
-		super.addNotify();
-		startGame();
-	}
-
-	//starts the animation thread if it's not already running
-	private void startGame()
-	{
-		if(animator == null || !running)
-		{
-			animator = new Thread(this);
-			animator.start();
-		}
-	}
-
-	//breaks the animation thread loop in run()
-	public void stopGame()
-	{
-		running = false;
-	}
-
-	//sets up keyboard quit keys and OS shutdown hook
+	//sets up OS shutdown hook
 	private void readyForTermination()
 	{
 		// for shutdown tasks
@@ -423,17 +425,8 @@ public class GamePanel extends JPanel implements Runnable
 			public void run()
 			{ 
 				running = false;
-				//finishOff();
 			}
 		});
-	}
-
-	protected void handleScoresKey(KeyEvent e)
-	{
-		if(e.getID() == KeyEvent.KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_TAB)
-			showScores = true;
-		else if(e.getID()== KeyEvent.KEY_RELEASED && e.getKeyCode() == KeyEvent.VK_TAB)
-			showScores = false;
 	}
 
 	//evaluates mouse clicks
@@ -459,11 +452,11 @@ public class GamePanel extends JPanel implements Runnable
 				gameController.endGame();
 		}
 		//check for landscape click
-		else if(xInPanel < panelWidth-40 && yInPanel > tileHeight/2)
+		else if(xInPanel < screenWidth-40 && yInPanel > tileHeight/2)
 		{
 			//remove offset due to landscape scrolling/centering translation
-			xInPanel = xInPanel - transX - panelWidth/2 + tileWidth/2;
-			yInPanel = yInPanel - transY - panelHeight/2 + tileHeight/2;
+			xInPanel = xInPanel - transX - screenWidth/2 + tileWidth/2;
+			yInPanel = yInPanel - transY - screenHeight/2 + tileHeight/2;
 
 			//calc coords of tile in model space
 			int xInModel = (int) Math.floor((double)xInPanel / tileWidth);
@@ -483,7 +476,7 @@ public class GamePanel extends JPanel implements Runnable
 	//triggers landscape scrolling at edges of panel
 	private void handleMouseMove(int x, int y)
 	{ 
-		if(x > panelWidth - 10)
+		if(x > screenWidth - 10)
 			eastScrollFlag = true;
 		else
 			eastScrollFlag = false;
@@ -498,7 +491,7 @@ public class GamePanel extends JPanel implements Runnable
 		else
 			northScrollFlag = false;
 
-		if(y > panelHeight - 10)
+		if(y > screenHeight - 10)
 			southScrollFlag = true;
 		else
 			southScrollFlag = false;
