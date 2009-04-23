@@ -25,8 +25,8 @@ public class Road extends TileFeature
 
 		if(isEndPoint() && numNeighbors == 1)
 		{
-			Iterator<TileFeature> neighborsIterator = this.getNeighborIterator();
 			firstHasEndPoint = true;
+			Iterator<TileFeature> neighborsIterator = this.getNeighborIterator();
 			secondHasEndPoint = hasEndPoint(this, neighborsIterator.next());
 		}
 		else if(!isEndPoint() && numNeighbors == 2)

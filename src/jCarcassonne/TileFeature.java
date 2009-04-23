@@ -16,6 +16,7 @@ public abstract class TileFeature
 
 	private Token token = null;
 	private boolean scored = false;
+	protected boolean isComplete = false;
 
 	//list of features which can be traversed to/from.
 	private ArrayList<TileFeature> neighbors; 
@@ -163,5 +164,9 @@ public abstract class TileFeature
 		}
 		
 		return featuresFound;
+	}
+
+	public void setComplete(boolean isComplete) {
+		this.isComplete = isComplete;
 	}
 }

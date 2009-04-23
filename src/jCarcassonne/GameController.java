@@ -11,36 +11,54 @@ public class GameController
 	private Rules rules;
 	private TileStack tileStack;
 	private Landscape landscape;
-	private ArrayList<Player> players = new ArrayList<Player>();
+	private ArrayList<Player> players;
 
 	//turn control
 	private Iterator<Player> playersIterator;
 	private Player currentPlayer;
 	private boolean tilePlacedThisTurn = false;
-	private boolean gameOver = false;
+
+	//game control
+	private boolean gameStarting = true; //game state for pre-game
+	private boolean gameOver = false;  //game state for post-game
 
 	public GameController()
+	{
+		newGame();
+	}
+
+	public void newGame()
 	{
 		//create the game model
 		tileStack = new TileStack();
 		tileStack.setIgnoreCount(false);
 		tileStack.loadTileSet("tileset.txt");
 		tileStack.shuffleStack();
-		
+
 		landscape = new Landscape(tileStack.pop());
-		
+
 		rules = new Rules(landscape);
 		rules.setVerbose(false);
-		
-		players.add(new Player("player1", Color.red));
-		players.add(new Player("player2", Color.blue));
-		playersIterator = players.iterator();
-		currentPlayer = playersIterator.next();
+
+		players = new ArrayList<Player>();
+
+		//turn control
+		tilePlacedThisTurn = false;
+
+		//game control
+		gameStarting = true;
+		gameOver = false;
+	}
+
+	public void addPlayer(String playerName, Color playerColor)
+	{
+		if(gameStarting && !gameOver)
+			players.add(new Player(playerName, playerColor));
 	}
 
 	public void endTurn()
 	{
-		if(!gameOver && tilePlacedThisTurn) //can't end turn without placing a tile
+		if(!gameOver && !gameStarting && tilePlacedThisTurn) //can't end turn without placing a tile
 		{
 			rules.scoreTile(landscape.getLastTilePlaced());
 			tilePlacedThisTurn = false;
@@ -54,25 +72,40 @@ public class GameController
 			}
 		}
 	}
-	
-	public void endGame() {
-		rules.scoreTile(landscape.getLastTilePlaced());
-		tilePlacedThisTurn = false;
-		gameOver = true;
-		
-		rules.scoreAllTokens(players.iterator());
+
+	public void startGame()
+	{
+		if(players.size() > 1)
+		{
+			gameStarting = false;
+			gameOver = false;
+			playersIterator = players.iterator();
+			currentPlayer = playersIterator.next();
+		}
+	}
+
+	public void endGame()
+	{
+		if(!gameStarting && !gameOver)
+		{
+			gameOver = true;
+			rules.scoreTile(landscape.getLastTilePlaced());
+			tilePlacedThisTurn = false;
+
+			rules.scoreAllTokens(players.iterator());
+		}
 	}
 
 	public void rotateNextTile()
 	{
-		if(!gameOver && !tilePlacedThisTurn)
+		if(!gameOver && !gameStarting && !tilePlacedThisTurn && !tileStack.empty())
 			tileStack.peek().rotate();
 	}
 
 	private void placeTile(int xInModel, int yInModel)
 	{
 		//place tile if rules allow
-		if(!gameOver && !tilePlacedThisTurn && !tileStack.empty() && rules.checkTilePlacement(landscape, tileStack.peek(), xInModel, yInModel))
+		if(!gameOver && !gameStarting && !tilePlacedThisTurn && !tileStack.empty() && rules.checkTilePlacement(landscape, tileStack.peek(), xInModel, yInModel))
 		{
 			landscape.placeTile(tileStack.pop(), xInModel, yInModel);
 			tilePlacedThisTurn = true;
@@ -82,7 +115,7 @@ public class GameController
 	private void placeToken(int xInModel, int yInModel, int xInTile, int yInTile)
 	{
 		//place token if rules allow
-		if(!gameOver && tilePlacedThisTurn)
+		if(!gameOver && !gameStarting && tilePlacedThisTurn)
 		{
 			Tile tileClicked = landscape.getTile(xInModel, yInModel);
 			if(tileClicked != null)
@@ -92,7 +125,7 @@ public class GameController
 				{
 					if(tileClicked.hasToken())
 						tileClicked.getToken().getFeature().removeToken();
-					
+
 					Token token = currentPlayer.getToken();
 					tileClicked.placeToken(token, xInTile, yInTile);
 				}
@@ -119,22 +152,26 @@ public class GameController
 
 	public String getCurrentPlayerName()
 	{
-		return currentPlayer.getName();
-	}
-
-	public int getCurrentPlayerScore()
-	{
-		return currentPlayer.getScore();
+		if(currentPlayer != null)
+			return currentPlayer.getName();
+		else
+			return null;
 	}
 
 	public int getCurrentPlayerTokenCount()
 	{
-		return currentPlayer.getTokenCount();
+		if(currentPlayer != null)
+			return currentPlayer.getTokenCount();
+		else
+			return 0;
 	}
 
 	public Color getCurrentPlayerColor()
 	{
-		return currentPlayer.getColor();
+		if(currentPlayer != null)
+			return currentPlayer.getColor();
+		else
+			return null;
 	}
 
 	public Iterator<Tile> getLandscapeIterator()
@@ -145,5 +182,15 @@ public class GameController
 	public Iterator<Player> getPlayersIterator()
 	{
 		return players.iterator();
+	}
+
+	public boolean isGameOver()
+	{
+		return gameOver;
+	}
+	
+	public boolean isGameStarting()
+	{
+		return gameStarting;
 	}
 }

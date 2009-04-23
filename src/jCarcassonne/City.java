@@ -1,7 +1,6 @@
 package jCarcassonne;
 
 import java.util.HashSet;
-import java.util.Iterator;
 
 public class City extends TileFeature
 {
@@ -16,34 +15,37 @@ public class City extends TileFeature
 	@Override
 	protected boolean isComplete()
 	{
-		return isComplete(this, new HashSet<TileFeature>());
-	}
-	private boolean isComplete(TileFeature feature, HashSet<TileFeature> featuresChecked)
-	{			
-		//System.out.println("   " + feature.getTile().name + " " + "numNeighbors=" + feature.getNumNeighbors() + " maxNeighbors=" + feature.getMaxNeighbors());
-
-		boolean isComplete = true;
-		if(feature.getNumNeighbors() != feature.getMaxNeighbors())
-			isComplete = false;
+		if(isComplete)  //avoid traversing feature group if known complete
+			return true;
 		else
 		{
-			Iterator<TileFeature> neighborIterator = feature.getNeighborIterator();
-			while(isComplete && neighborIterator.hasNext())
-			{
-				TileFeature neighbor = neighborIterator.next();
-				if(!featuresChecked.contains(neighbor))
-				{
-					featuresChecked.add(neighbor);
-					if(!isComplete(neighbor, featuresChecked))
-						isComplete = false;
-				}
-			}
+			HashSet<TileFeature> featuresInGroup = this.getFeaturesInGroup();
+			boolean allComplete = true;
+			for(TileFeature feature : featuresInGroup)
+				if(feature.getNumNeighbors() != feature.getMaxNeighbors())
+					allComplete = false;
+			
+			if(allComplete)
+				for(TileFeature feature : featuresInGroup)
+					feature.setComplete(true);
+			
+			return allComplete;
 		}
-		
-		return isComplete;
 	}
 
-	protected boolean hasPennant() {
+	protected boolean hasPennant()
+	{
 		return hasPennant;
+	}
+
+	protected int getNumPennants()
+	{
+		int numPennants = 0;
+		HashSet<TileFeature> featuresInGroup = this.getFeaturesInGroup();
+		for(TileFeature feature : featuresInGroup)
+			if(((City)feature).hasPennant())
+				numPennants++;
+
+		return numPennants;
 	}
 }
