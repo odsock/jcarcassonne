@@ -9,7 +9,7 @@ import java.util.Iterator;
 public class Rules {
 	private boolean verbose = false;
 	private Landscape landscape;
-	
+
 	protected Rules(Landscape landscape)
 	{
 		this.landscape = landscape;
@@ -103,27 +103,30 @@ public class Rules {
 
 	protected void scoreTile(Tile tile)
 	{
-		Iterator<TileFeature> featureIterator = tile.getFeatureIterator();
-		while(featureIterator.hasNext())
+		if(tile != null)
 		{
-			TileFeature feature = featureIterator.next();
-			if(!feature.isScored() && feature.isComplete())
+			Iterator<TileFeature> featureIterator = tile.getFeatureIterator();
+			while(featureIterator.hasNext())
 			{
-				HashSet<Token> tokensOnFeature = feature.getTokensOnFeatureGroup();
-				HashSet<Player> featureOwners = getFeatureOwners(tokensOnFeature);
-
-				//score feature and update player scores
-				int featureScore = scoreFeature(feature, true);
-				for(Player player : featureOwners)
+				TileFeature feature = featureIterator.next();
+				if(!feature.isScored() && feature.isComplete())
 				{
-					player.setScore(player.getScore() + featureScore);
-					if(verbose)
-						System.out.println("ScoreTile: " + player.getName() + " score=" + player.getScore());
-				}
+					HashSet<Token> tokensOnFeature = feature.getTokensOnFeatureGroup();
+					HashSet<Player> featureOwners = getFeatureOwners(tokensOnFeature);
 
-				//free placed tokens
-				for(Token token : tokensOnFeature)
-					token.getFeature().removeToken();
+					//score feature and update player scores
+					int featureScore = scoreFeature(feature, true);
+					for(Player player : featureOwners)
+					{
+						player.setScore(player.getScore() + featureScore);
+						if(verbose)
+							System.out.println("ScoreTile: " + player.getName() + " score=" + player.getScore());
+					}
+
+					//free placed tokens
+					for(Token token : tokensOnFeature)
+						token.getFeature().removeToken();
+				}
 			}
 		}
 	}
@@ -134,20 +137,25 @@ public class Rules {
 
 		if(feature.featureType == FeatureEnum.road)
 			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
-		else if(feature.featureType == FeatureEnum.city)
-			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
-		else if(feature.featureType == FeatureEnum.cloister)
-			return landscape.getNumSurroundingTiles(feature.getTile()) + 1;
-		else if(feature.featureType == FeatureEnum.farm)
-			return ((Farm)feature).getNumCompleteCityNeighbors() * 4;
-		else
-			return 0;
+			else if(feature.featureType == FeatureEnum.city)
+			{
+				int score = tilesInFeature.size()+((City)feature).getNumPennants();
+				if(isComplete && tilesInFeature.size() > 2)
+					score *= 2;
+				return score;
+			}
+			else if(feature.featureType == FeatureEnum.cloister)
+				return landscape.getNumSurroundingTiles(feature.getTile()) + 1;
+	//		else if(feature.featureType == FeatureEnum.farm)
+		//		return ((Farm)feature).getNumCompleteCityNeighbors() * 4;
+			else
+				return 0;
 	}
 
 	private boolean isUncontestedFeature(TileFeature featureClicked, Player player)
 	{
 		HashSet<Token> tokensOnFeature = featureClicked.getTokensOnFeatureGroup();
-		
+
 		//if any other player has a token on the feature group, it is contested
 		for(Token token : tokensOnFeature)
 			if(token.getPlayer() != player)
@@ -201,7 +209,11 @@ public class Rules {
 			{
 				Token token = tokenIterator.next();
 				if(token.isPlaced())
-					player.setScore(player.getScore() + scoreFeature(token.getFeature(), false));
+				{
+					int featureScore = scoreFeature(token.getFeature(), false);
+					player.setScore(player.getScore() + featureScore);
+					token.getFeature().removeToken();
+				}
 			}
 		}
 	}

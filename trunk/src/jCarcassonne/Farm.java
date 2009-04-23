@@ -56,7 +56,9 @@ public class Farm extends TileFeature
 				{
 					City cityNeighbor = (City) cityNeighborIterator.next();
 					if(cityNeighbor.isComplete())
+					{
 						numCompleteCityNeighbors++;
+					}
 				}
 			}
 		}
