@@ -28,7 +28,7 @@ public class Tile
 	private TileFeature[] tileBorders = new TileFeature[13];
 	private HashMap<Integer, TileFeature> tileFeatureHash = new HashMap<Integer, TileFeature>();
 	private Tile northTile = null, southTile = null, eastTile = null, westTile = null;
-	
+
 	//directional constants
 	protected static final int NNW   = 0, NORTH = 1,  NNE   = 2;
 	protected static final int ENE   = 3, EAST  = 4,  ESE   = 5;
@@ -98,10 +98,20 @@ public class Tile
 	//uses that color to look up a tileFeature in the hash table
 	protected TileFeature getFeatureAt(int xInTile, int yInTile)
 	{
-		int rgb = imgFeatureMap.getRGB(xInTile, yInTile) - 0xFF000000; //subtract off the alpha channel
-		return tileFeatureHash.get(rgb);
+		//if(xInTile >= 0 && xInTile < 128 && yInTile >= 0 && yInTile < 128)
+		try
+		{
+			int rgb = imgFeatureMap.getRGB(xInTile, yInTile) - 0xFF000000; //subtract off the alpha channel
+			return tileFeatureHash.get(rgb);
+		}
+		catch(Exception e)
+		{
+			System.out.println("TileFeature.getFeatureAt(): Error: tried to get feature at " + xInTile + " " + yInTile);
+			System.out.println(e);
+			return null;
+		}
 	}
-	
+
 	protected TileFeature getFeatureByColorCode(int colorCode)
 	{
 		return tileFeatureHash.get(colorCode);
@@ -155,7 +165,7 @@ public class Tile
 		tileBorders[WEST].addNeighbor(eastFeature);
 		tileBorders[WSW].addNeighbor(eseFeature);
 	}
-	
+
 	public Point getPoint() {
 		return new Point(x,y);
 	}
@@ -201,7 +211,7 @@ public class Tile
 
 		return false;
 	}
-	
+
 	//return first token found or null if none found
 	public Token getToken()
 	{
@@ -210,10 +220,10 @@ public class Tile
 			if(feature.hasToken())
 				return feature.getToken();
 		}
-		
+
 		return null;
 	}
-	
+
 	public Point getTokenCoordinates()
 	{
 		for(TileFeature feature : tileFeatureHash.values())
@@ -221,7 +231,7 @@ public class Tile
 			if(feature.hasToken())
 				return feature.getTokenCoordinates();
 		}
-		
+
 		return null;
 	}
 

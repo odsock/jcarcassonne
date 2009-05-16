@@ -1,15 +1,57 @@
 package jCarcassonne;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class City extends TileFeature
 {
 	private final boolean hasPennant;
+	private ArrayList<Integer> farmNeighborColorCodes = new ArrayList<Integer>();
+	private ArrayList<TileFeature> farmNeighbors = null;
 
-	protected City(int maxNeighbors, int tokenX, int tokenY, Tile tile, boolean hasPennant, int colorCode)
+	protected City(int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode, boolean hasPennant, int...farmColorCodes)
 	{
 		super(TileFeature.FeatureEnum.city, maxNeighbors, tokenX, tokenY, tile, colorCode);
 		this.hasPennant = hasPennant;
+		
+		for(int farmColorCode : farmColorCodes)
+			farmNeighborColorCodes.add(farmColorCode);
+	}
+	
+	protected boolean hasFarmNeighbors()
+	{
+		return !farmNeighborColorCodes.isEmpty();
+	}
+
+	protected Iterator<TileFeature> getFarmNeighborIterator()
+	{
+		//farmNeighbors is null at construction because tile must be complete to lookup features by colorCode
+		if(farmNeighbors == null)
+		{
+			farmNeighbors = new ArrayList<TileFeature>();
+			for(int colorCode : farmNeighborColorCodes)
+				farmNeighbors.add(this.tile.getFeatureByColorCode(colorCode));
+		}
+
+		return farmNeighbors.iterator();
+	}
+
+	protected HashSet<TileFeature> getFarmNeighborsInGroup()
+	{
+		HashSet<TileFeature> cityFeatureGroup = this.getFeaturesInGroup();
+		HashSet<TileFeature> farmNeighborsInGroup = new HashSet<TileFeature>();
+		for(TileFeature feature : cityFeatureGroup)
+		{
+			City farmFeature = (City) feature;
+			Iterator<TileFeature> farmNeighborIterator = farmFeature.getFarmNeighborIterator();
+			while(farmNeighborIterator.hasNext())
+			{
+				farmNeighborsInGroup.add(farmNeighborIterator.next());
+			}
+		}
+
+		return farmNeighborsInGroup;
 	}
 
 	@Override

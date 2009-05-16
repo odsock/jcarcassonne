@@ -412,7 +412,15 @@ public class JCarcassonne extends JFrame implements Runnable
 				g.drawOval((t.getPoint().x)*tileWidth+tokenX, -(t.getPoint().y)*tileHeight+tokenY, 20, 20);
 			}
 		}
+		
+		//draw box around last tile to ease token placement
+		Point lastTileCoords = gameController.getLastTileCoords();
+		dbg.translate((lastTileCoords.x)*tileWidth, -(lastTileCoords.y)*tileHeight);
+		dbg.setColor(Color.black);
+		dbg.draw(peekRectangle);
+		dbg.translate(-(lastTileCoords.x)*tileWidth, (lastTileCoords.y)*tileHeight);
 
+		//translate back from landscape scrolling
 		dbg.translate(-(transX + screenWidth/2 - tileWidth/2), -(transY + screenHeight/2 - tileHeight/2));
 	}
 
@@ -465,8 +473,8 @@ public class JCarcassonne extends JFrame implements Runnable
 			//calc pixel coords within tile
 			int xInTile = xInPanel % tileWidth;
 			int yInTile = yInPanel % tileHeight;
-			xInTile = xInTile > 0 ? xInTile : xInTile + tileWidth; //compensates for negative operands to %
-			yInTile = yInTile > 0 ? yInTile : yInTile + tileHeight;
+			xInTile = xInTile >= 0 ? xInTile : xInTile + tileWidth; //compensates for negative operands to %
+			yInTile = yInTile >= 0 ? yInTile : yInTile + tileHeight;
 
 			gameController.handleLandscapeClick(xInModel, yInModel, xInTile, yInTile);
 		}

@@ -1,6 +1,7 @@
 package jCarcassonne;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -126,8 +127,11 @@ public class GameController
 					if(tileClicked.hasToken())
 						tileClicked.getToken().getFeature().removeToken();
 
-					Token token = currentPlayer.getToken();
-					tileClicked.placeToken(token, xInTile, yInTile);
+					if(currentPlayer.hasToken())
+					{
+						Token token = currentPlayer.getToken();
+						tileClicked.placeToken(token, xInTile, yInTile);
+					}
 				}
 			}
 		}
@@ -188,9 +192,14 @@ public class GameController
 	{
 		return gameOver;
 	}
-	
+
 	public boolean isGameStarting()
 	{
 		return gameStarting;
+	}
+
+	public Point getLastTileCoords()
+	{
+		return new Point(landscape.getLastX(), landscape.getLastY());
 	}
 }

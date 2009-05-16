@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class Rules {
+public class Rules
+{
 	private boolean verbose = false;
 	private Landscape landscape;
 
@@ -126,30 +127,37 @@ public class Rules {
 					//free placed tokens
 					for(Token token : tokensOnFeature)
 						token.getFeature().removeToken();
+					
+					//if this was a city feature, add to landscape list of complete cities
+					if(feature.featureType == FeatureEnum.city)
+					{
+						landscape.addCompleteCity(feature);
+					}
 				}
 			}
 		}
 	}
 
+	//scores the feature based on whether it is complete
+	//returns 0 for farm features, which are scored by scoreFarm() at game end
 	private int scoreFeature(TileFeature feature, boolean isComplete)
 	{
 		HashSet<Tile> tilesInFeature = feature.getTilesInFeatureGroup();
-
+		int score = 0;
+		
 		if(feature.featureType == FeatureEnum.road)
-			return isComplete ? tilesInFeature.size() * 2 : tilesInFeature.size();
-			else if(feature.featureType == FeatureEnum.city)
-			{
-				int score = tilesInFeature.size()+((City)feature).getNumPennants();
-				if(isComplete && tilesInFeature.size() > 2)
-					score *= 2;
-				return score;
-			}
-			else if(feature.featureType == FeatureEnum.cloister)
-				return landscape.getNumSurroundingTiles(feature.getTile()) + 1;
-	//		else if(feature.featureType == FeatureEnum.farm)
-		//		return ((Farm)feature).getNumCompleteCityNeighbors() * 4;
-			else
-				return 0;
+			score = tilesInFeature.size();
+		else if(feature.featureType == FeatureEnum.city)
+		{
+			score = tilesInFeature.size()+((City)feature).getNumPennants();
+			if(isComplete && tilesInFeature.size() > 2)
+				score *= 2;
+		}
+		else if(feature.featureType == FeatureEnum.cloister)
+			score = landscape.getNumSurroundingTiles(feature.getTile()) + 1;
+
+		feature.setScored(true);
+		return score;
 	}
 
 	private boolean isUncontestedFeature(TileFeature featureClicked, Player player)
@@ -197,10 +205,14 @@ public class Rules {
 		return featureOwners;
 	}
 
-	//used to score incomplete claimed features at game end.
+	//used to score claimed features at game end.
 	//if these features were complete, they should have been freed by scoreTile already
 	protected void scoreAllTokens(Iterator<Player> playersIterator)
 	{
+		//score all farms
+		scoreFarms();
+		
+		//score other tokens
 		while(playersIterator.hasNext())
 		{
 			Player player = playersIterator.next();
@@ -214,6 +226,37 @@ public class Rules {
 					player.setScore(player.getScore() + featureScore);
 					token.getFeature().removeToken();
 				}
+			}
+		}
+
+	}
+
+	private void scoreFarms()
+	{
+		Iterator<TileFeature> completeCityIterator = landscape.getCompleteCitiesIterator();
+		while(completeCityIterator.hasNext())
+		{
+			TileFeature completeCity = completeCityIterator.next();
+			HashSet<TileFeature> cityGroup = completeCity.getFeaturesInGroup();
+			HashSet<Token> tokensOnFarmNeighbors = new HashSet<Token>();
+			for(TileFeature cityFeature : cityGroup)
+			{
+				Iterator<TileFeature> farmNeighborIterator = ((City)cityFeature).getFarmNeighborIterator();
+				while(farmNeighborIterator.hasNext())
+				{
+					TileFeature farmNeighbor = farmNeighborIterator.next();
+					HashSet<Token> tokensFound = farmNeighbor.getTokensOnFeatureGroup();
+					tokensOnFarmNeighbors.addAll(tokensFound);
+				}
+			}
+			
+			//update score of overall farm owners
+			HashSet<Player> farmOwners = getFeatureOwners(tokensOnFarmNeighbors);
+			for(Player player : farmOwners)
+			{
+				player.setScore(player.getScore() + 4);
+				if(verbose)
+					System.out.println("ScoreTile: " + player.getName() + " score=" + player.getScore());
 			}
 		}
 	}
