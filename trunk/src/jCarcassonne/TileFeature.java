@@ -86,7 +86,7 @@ public abstract class TileFeature
 	@Override
 	public String toString()
 	{
-		return featureType.toString();
+		return featureType.toString() + " " + this.tile.name;
 	}
 
 	protected void setScored(boolean scored)
@@ -148,7 +148,10 @@ public abstract class TileFeature
 	
 	protected HashSet<TileFeature> getFeaturesInGroup()
 	{
-		return getFeaturesInGroup(this, new HashSet<TileFeature>());
+		HashSet<TileFeature> featuresInGroup = new HashSet<TileFeature>();
+		featuresInGroup.add(this);
+		
+		return getFeaturesInGroup(this, featuresInGroup);
 	}
 	private HashSet<TileFeature> getFeaturesInGroup(TileFeature feature, HashSet<TileFeature> featuresFound)
 	{

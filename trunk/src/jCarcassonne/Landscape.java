@@ -1,12 +1,15 @@
 package jCarcassonne;
 
 import java.awt.*;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Landscape {
 	//hash stores all the placed tiles, keyed on their coordinates relative to the start tile.
 	private ConcurrentHashMap<Point,Tile> landscapeHash = new ConcurrentHashMap<Point,Tile>();
+	
+	//list of all complete cities.  Needed to ease farm scoring.
+	private HashSet<TileFeature> completeCities = new HashSet<TileFeature>();
 
 	//coordinates of the last tile placed
 	private int lastX = 0;
@@ -110,5 +113,15 @@ public class Landscape {
 			numSurroundingTiles++;
 		
 		return numSurroundingTiles;
+	}
+	
+	protected void addCompleteCity(TileFeature cityFeature)
+	{
+		completeCities.add(cityFeature);
+	}
+	
+	protected Iterator<TileFeature> getCompleteCitiesIterator()
+	{
+		return completeCities.iterator();
 	}
 }

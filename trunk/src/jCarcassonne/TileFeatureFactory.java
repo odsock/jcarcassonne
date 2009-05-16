@@ -7,7 +7,7 @@ public class TileFeatureFactory
 	protected TileFeature newTileFeature(FeatureEnum featureType, int maxNeighbors, int tokenX, int tokenY, Tile tile, int colorCode, String[] flag)
 	{
 		TileFeature feature = null;
-		
+
 		if(featureType == FeatureEnum.road)
 		{
 			Road roadFeature = new Road(maxNeighbors, tokenX, tokenY, tile, colorCode);
@@ -18,26 +18,34 @@ public class TileFeatureFactory
 		else if(featureType == FeatureEnum.city)
 		{
 			boolean pennant = false;
-			if(flag != null && flag[0].equals("pennant"))
-				pennant = true;
-			City cityFeature = new City(maxNeighbors, tokenX, tokenY, tile, pennant, colorCode);
-			
+			int[] farmColorCodes = new int[0];
+
+			if(flag != null)
+			{
+				int numNeighbors;
+				if(flag[flag.length-1].equals("pennant"))
+				{
+					pennant = true;
+					numNeighbors = flag.length-1;
+				}
+				else
+					numNeighbors = flag.length;
+				
+				farmColorCodes = new int[numNeighbors];
+
+				for(int i = 0; i < farmColorCodes.length && i < flag.length; i++)
+					farmColorCodes[i] = Integer.decode(flag[i]);
+			}
+
+			City cityFeature = new City(maxNeighbors, tokenX, tokenY, tile, colorCode, pennant, farmColorCodes);
 			feature = cityFeature;
 		}
 		else if(featureType == FeatureEnum.farm)
 		{
-			int[] cityColorCodes = new int[0];
-			if(flag != null)
-			{
-				cityColorCodes = new int[flag.length];
-				for(int i = 0; i < flag.length; i++)
-					cityColorCodes[i] = Integer.decode(flag[i]);
-			}
-			
-			Farm farmFeature = new Farm(maxNeighbors, tokenX, tokenY, tile, colorCode, cityColorCodes);
+			Farm farmFeature = new Farm(maxNeighbors, tokenX, tokenY, tile, colorCode);
 			feature = farmFeature;
 		}
-		
+
 		return feature;
 	}
 }
