@@ -1,0 +1,3 @@
+I’ve decided to write an adaptation of the popular tabletop game Carcassonne, in Java.  The rules for the game are fairly simple, but may create some interesting challenges for me in modeling and AI.  I intend to use a prototyping approach to the project, which will allow me to create a workable version of the game very early.
+
+I have several friends who are into this game, as well as a few who have never played it.   They will be a useful user base for testing the program.
